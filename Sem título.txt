@@ -1,7 +1,7 @@
 
 %win rate (pagina de detalhes do jogador) -> feito
 mudar ícone de jogos (está um comando)
-adicionar foto (página jogador)
+adicionar foto (página jogador) -> feito
 atualizar nr de jogadores disponíveis quando selecionas
 tirar destaques do histórico dos jogos
 cada jogo no histórico ser um botão com estatísticas (golos dos jogadores, motm, etc)
@@ -16,3 +16,16 @@ Empate - Nota
 Ganhou - Nota * 2 
 (tudo arredondado para inteiros)
 faz top pontos (os tops 3 tem quadrados especiais que mostra a imagem e as estatísticas??)
+
+Tops: -> feito
+ratio (R)
+golos (G)
+assistencias (A)
+golos e assistencias (G+A)
+perdas de bola (PB)
+golos por jogo (G/J)
+assistencias por jogo (A/J)
+golos e assitencias por jogo (G+A/J)
+perdas de bola por jogo (P/J)
+jogos (J)
+Win Rate (W%)
