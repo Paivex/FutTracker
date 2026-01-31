@@ -1,0 +1,18 @@
+
+%win rate (pagina de detalhes do jogador)
+mudar ícone de jogos (está um comando)
+adicionar foto (página jogador)
+atualizar nr de jogadores disponíveis quando selecionas
+tirar destaques do histórico dos jogos
+cada jogo no histórico ser um botão com estatísticas (golos dos jogadores, motm, etc)
+ordernar jogadores alfabeticamente, barra de pesquisa na aba jogadores
+botão para remover jogador
+criar lógica de pontos (aba nova) pontos serão calculados tendo em conta a nota e o resultado
+
+
+Lógica Pontos:
+Perdeu - Nota/2
+Empate - Nota
+Ganhou - Nota * 2 
+(tudo arredondado para inteiros)
+faz top pontos (os tops 3 tem quadrados especiais que mostra a imagem e as estatísticas??)

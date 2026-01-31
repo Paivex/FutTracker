@@ -1,0 +1,1246 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Futebol 7 - Estatísticas</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gray-100">
+    <div id="app" v-cloak>
+        <div class="min-h-screen">
+            <!-- Header -->
+            <header class="bg-gradient-to-r from-blue-600 to-blue-800 text-white shadow-lg">
+                <div class="container mx-auto px-4 py-6">
+                    <h1 class="text-3xl font-bold">⚽ Futebol 7 - Stats</h1>
+                    <p class="text-blue-100 mt-1">Gestão de jogos e estatísticas</p>
+                </div>
+            </header>
+
+            <!-- Navigation Tabs -->
+            <div class="bg-white shadow">
+                <div class="container mx-auto px-4">
+                    <div class="flex space-x-1">
+                        <button 
+                            v-for="tab in tabs" 
+                            :key="tab.id"
+                            @click="activeTab = tab.id"
+                            :class="activeTab === tab.id ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-100'"
+                            class="px-6 py-3 font-medium transition-colors">
+                            {{ tab.nome }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="container mx-auto px-4 py-8">
+                
+                <!-- Tab: Dashboard -->
+                <div v-if="activeTab === 'dashboard'" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <div class="text-gray-500 text-sm font-medium">Total de Jogos</div>
+                            <div class="text-3xl font-bold text-blue-600 mt-2">{{ jogos.length }}</div>
+                        </div>
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <div class="text-gray-500 text-sm font-medium">Jogadores</div>
+                            <div class="text-3xl font-bold text-green-600 mt-2">{{ jogadores.length }}</div>
+                        </div>
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <div class="text-gray-500 text-sm font-medium">Golos Marcados</div>
+                            <div class="text-3xl font-bold text-orange-600 mt-2">{{ totalGolos }}</div>
+                        </div>
+                    </div>
+
+                    <!-- Top Scorers -->
+                    <div class="bg-white rounded-lg shadow">
+                        <div class="p-6 border-b">
+                            <h2 class="text-xl font-bold text-gray-800">🏆 Top Marcadores</h2>
+                        </div>
+                        <div class="p-6">
+                            <div v-if="topMarcadores.length === 0" class="text-gray-500 text-center py-8">
+                                Ainda não há estatísticas registadas
+                            </div>
+                            <div v-else>
+                                <div class="space-y-3">
+                                    <div v-for="(jogador, index) in topMarcadoresMostrar" :key="jogador.id" 
+                                         @click="verDetalhesJogador(jogador.id)"
+                                         class="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-blue-100 transition cursor-pointer">
+                                        <div class="flex items-center space-x-4">
+                                            <div class="text-2xl font-bold text-gray-400 w-8">{{ index + 1 }}</div>
+                                            <div>
+                                                <div class="font-semibold text-gray-800">{{ jogador.nome }}</div>
+                                                <div class="text-sm text-gray-500">{{ jogador.jogos }} jogos</div>
+                                            </div>
+                                        </div>
+                                        <div class="text-right">
+                                            <div class="text-2xl font-bold text-blue-600">{{ jogador.golos }}</div>
+                                            <div class="text-sm text-gray-500">{{ jogador.assistencias }} assist.</div>
+                                            <div class="text-sm font-medium mt-1" :class="getRatingColor(jogador.ratingMedio)">
+                                                ⭐ {{ jogador.ratingMedio.toFixed(2) }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button 
+                                    v-if="topMarcadores.length > 3"
+                                    @click="expandidoMarcadores = !expandidoMarcadores"
+                                    class="w-full mt-4 px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition font-medium">
+                                    {{ expandidoMarcadores ? '▲ Ver menos' : '▼ Ver todos (' + topMarcadores.length + ')' }}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Top Assistências -->
+                    <div class="bg-white rounded-lg shadow">
+                        <div class="p-6 border-b">
+                            <h2 class="text-xl font-bold text-gray-800">🎯 Top Assistências</h2>
+                        </div>
+                        <div class="p-6">
+                            <div v-if="topAssistencias.length === 0" class="text-gray-500 text-center py-8">
+                                Ainda não há estatísticas registadas
+                            </div>
+                            <div v-else>
+                                <div class="space-y-3">
+                                    <div v-for="(jogador, index) in topAssistenciasMostrar" :key="jogador.id" 
+                                         @click="verDetalhesJogador(jogador.id)"
+                                         class="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-green-100 transition cursor-pointer">
+                                        <div class="flex items-center space-x-4">
+                                            <div class="text-2xl font-bold text-gray-400 w-8">{{ index + 1 }}</div>
+                                            <div>
+                                                <div class="font-semibold text-gray-800">{{ jogador.nome }}</div>
+                                                <div class="text-sm text-gray-500">{{ jogador.jogos }} jogos</div>
+                                            </div>
+                                        </div>
+                                        <div class="text-right">
+                                            <div class="text-2xl font-bold text-green-600">{{ jogador.assistencias }}</div>
+                                            <div class="text-sm text-gray-500">{{ jogador.golos }} golos</div>
+                                            <div class="text-sm font-medium mt-1" :class="getRatingColor(jogador.ratingMedio)">
+                                                ⭐ {{ jogador.ratingMedio.toFixed(2) }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button 
+                                    v-if="topAssistencias.length > 3"
+                                    @click="expandidoAssistencias = !expandidoAssistencias"
+                                    class="w-full mt-4 px-4 py-2 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition font-medium">
+                                    {{ expandidoAssistencias ? '▲ Ver menos' : '▼ Ver todos (' + topAssistencias.length + ')' }}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Top Ratings -->
+                    <div class="bg-white rounded-lg shadow">
+                        <div class="p-6 border-b">
+                            <h2 class="text-xl font-bold text-gray-800">⭐ Top Ratings</h2>
+                        </div>
+                        <div class="p-6">
+                            <div v-if="topRatings.length === 0" class="text-gray-500 text-center py-8">
+                                Ainda não há estatísticas registadas
+                            </div>
+                            <div v-else>
+                                <div class="space-y-3">
+                                    <div v-for="(jogador, index) in topRatingsMostrar" :key="jogador.id" 
+                                         @click="verDetalhesJogador(jogador.id)"
+                                         class="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-yellow-100 transition cursor-pointer">
+                                        <div class="flex items-center space-x-4">
+                                            <div class="text-2xl font-bold text-gray-400 w-8">{{ index + 1 }}</div>
+                                            <div>
+                                                <div class="font-semibold text-gray-800">{{ jogador.nome }}</div>
+                                                <div class="text-sm text-gray-500">{{ jogador.jogos }} jogos</div>
+                                            </div>
+                                        </div>
+                                        <div class="text-right">
+                                            <div class="text-3xl font-bold" :class="getRatingColor(jogador.ratingMedio)">
+                                                {{ jogador.ratingMedio.toFixed(2) }}
+                                            </div>
+                                            <div class="text-sm text-gray-500">
+                                                {{ jogador.golos }}⚽ | {{ jogador.assistencias }}🎯
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button 
+                                    v-if="topRatings.length > 3"
+                                    @click="expandidoRatings = !expandidoRatings"
+                                    class="w-full mt-4 px-4 py-2 bg-yellow-50 text-yellow-700 rounded-lg hover:bg-yellow-100 transition font-medium">
+                                    {{ expandidoRatings ? '▲ Ver menos' : '▼ Ver todos (' + topRatings.length + ')' }}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Jogadores -->
+                <div v-if="activeTab === 'jogadores'" class="space-y-6">
+                    <!-- Adicionar Jogador -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h2 class="text-xl font-bold text-gray-800 mb-4">Adicionar Jogador</h2>
+                        <div class="flex gap-4">
+                            <input 
+                                v-model="novoJogador.nome"
+                                @keyup.enter="adicionarJogador"
+                                type="text" 
+                                placeholder="Nome do jogador"
+                                class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <button 
+                                @click="adicionarJogador"
+                                class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium">
+                                Adicionar
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Lista de Jogadores -->
+                    <div class="bg-white rounded-lg shadow">
+                        <div class="p-6 border-b">
+                            <h2 class="text-xl font-bold text-gray-800">Lista de Jogadores ({{ jogadores.length }})</h2>
+                        </div>
+                        <div class="p-6">
+                            <div v-if="jogadores.length === 0" class="text-gray-500 text-center py-8">
+                                Nenhum jogador registado ainda
+                            </div>
+                            <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                <div v-for="jogador in jogadoresComStats" :key="jogador.id"
+                                     class="p-4 border border-gray-200 rounded-lg hover:border-blue-500 transition cursor-pointer"
+                                     @click="verDetalhesJogador(jogador.id)">
+                                    <div class="flex justify-between items-start">
+                                        <div class="flex-1">
+                                            <h3 class="font-semibold text-gray-800">{{ jogador.nome }}</h3>
+                                            <div class="mt-2 space-y-1 text-sm text-gray-600">
+                                                <div>⚽ {{ jogador.golos }} golos</div>
+                                                <div>🎯 {{ jogador.assistencias }} assistências</div>
+                                                <div>🎮 {{ jogador.jogos }} jogos</div>
+                                                <div v-if="jogador.jogos > 0" class="font-medium" :class="getRatingColor(jogador.ratingMedio)">
+                                                    ⭐ {{ jogador.ratingMedio.toFixed(2) }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <button 
+                                            @click.stop="removerJogador(jogador.id)"
+                                            class="text-red-500 hover:text-red-700 text-sm">
+                                            ✕
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Novo Jogo -->
+                <div v-if="activeTab === 'novo-jogo'" class="space-y-6">
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <h2 class="text-xl font-bold text-gray-800">
+                                Registar Novo Jogo
+                            </h2>
+
+                            <button
+                                @click="equipasAleatorias"
+                                class="px-5 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition font-medium">
+                                Gerar Equipas Aleatórias
+                            </button>
+                        </div>
+                        <div v-if="jogadores.length < 10" class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-yellow-800 mb-6">
+                            ⚠️ Precisas de pelo menos 10 jogadores registados para criar um jogo.
+                        </div>
+
+                        <div v-else class="space-y-6">
+                            <!-- Data e Tipo de Jogo -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Data do Jogo</label>
+                                    <input v-model="novoJogo.data" type="date"
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Tipo de Jogo</label>
+                                    <select v-model="novoJogo.tipoJogo"
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white">
+                                        <option value="fut5">Fut 5 (5 jogadores por equipa)</option>
+                                        <option value="fut6">Fut 6 (6 jogadores por equipa)</option>
+                                        <option value="fut7">Fut 7 (7 jogadores por equipa)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Interface Drag and Drop -->
+                            <div class="grid grid-cols-3 gap-4">
+                                <!-- Equipa A -->
+                                <div class="space-y-2">
+                                    <h3 class="font-semibold text-blue-800 text-center">Equipa A</h3>
+                                    <div class="text-center text-sm text-gray-600 mb-2">
+                                        {{ novoJogo.equipaA.length }} / {{ maxJogadoresPorEquipa }}
+                                    </div>
+                                    <div 
+                                        @drop="onDrop($event, 'A')"
+                                        @dragover.prevent="onDragOver($event, 'A')"
+                                        @dragleave="onDragLeave($event, 'A')"
+                                        :class="[
+                                            'drop-zone border-2 border-blue-300 rounded-lg p-3 bg-blue-50',
+                                            dragOverZone === 'A' ? 'drag-over' : '',
+                                            novoJogo.equipaA.length >= maxJogadoresPorEquipa ? 'equipa-completa' : ''
+                                        ]"
+                                        style="min-height: 400px; max-height: 400px; overflow-y: auto;"
+                                        class="custom-scrollbar">
+                                        <div v-if="novoJogo.equipaA.length === 0" class="text-center text-gray-400 mt-20">
+                                            Arrasta jogadores aqui
+                                        </div>
+                                        <div class="space-y-2">
+                                            <div 
+                                                v-for="jogadorId in novoJogo.equipaA" 
+                                                :key="'a-' + jogadorId"
+                                                draggable="true"
+                                                @dragstart="onDragStart($event, jogadorId, 'A')"
+                                                @dragend="onDragEnd"
+                                                class="jogador-card bg-blue-100 border border-blue-300 rounded-lg p-3 cursor-move">
+                                                <div class="flex justify-between items-center">
+                                                    <span class="font-medium text-blue-900">{{ getNomeJogador(jogadorId) }}</span>
+                                                    <button 
+                                                        @click="removerJogadorEquipa(jogadorId, 'A')"
+                                                        class="text-blue-600 hover:text-blue-800 text-sm">
+                                                        ✕
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Jogadores Disponíveis (Centro) -->
+                                <div class="space-y-2">
+                                    <h3 class="font-semibold text-gray-800 text-center">Jogadores Disponíveis</h3>
+                                    <div class="text-center text-sm text-gray-600 mb-2">
+                                        {{ jogadoresDisponiveis.length }} disponíveis
+                                    </div>
+                                    <div 
+                                        class="border-2 border-gray-300 rounded-lg p-3 bg-gray-50 custom-scrollbar"
+                                        style="min-height: 400px; max-height: 400px; overflow-y: auto;">
+                                        <div v-if="jogadoresDisponiveis.length === 0" class="text-center text-gray-400 mt-20">
+                                            Todos os jogadores foram selecionados
+                                        </div>
+                                        <div class="space-y-2">
+                                            <div 
+                                                v-for="jogador in jogadoresDisponiveis" 
+                                                :key="'disp-' + jogador.id"
+                                                draggable="true"
+                                                @dragstart="onDragStart($event, jogador.id, 'disponivel')"
+                                                @dragend="onDragEnd"
+                                                @click="toggleSelecionado(jogador.id)"
+                                                :class="[
+                                                    'jogador-card border rounded-lg p-3 transition',
+                                                    jogadoresSelecionadosJogo.includes(jogador.id)
+                                                        ? 'bg-green-100 border-green-400 text-green-900 cursor-pointer'
+                                                        : jogadoresSelecionadosJogo.length >= maxJogadoresSelecionaveis
+                                                            ? 'bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed'
+                                                            : 'bg-white border-gray-300 hover:border-gray-400 cursor-pointer'
+                                                ]">
+                                                <div class="font-medium">
+                                                    {{ jogador.nome }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Equipa B -->
+                                <div class="space-y-2">
+                                    <h3 class="font-semibold text-red-800 text-center">Equipa B</h3>
+                                    <div class="text-center text-sm text-gray-600 mb-2">
+                                        {{ novoJogo.equipaB.length }} / {{ maxJogadoresPorEquipa }}
+                                    </div>
+                                    <div 
+                                        @drop="onDrop($event, 'B')"
+                                        @dragover.prevent="onDragOver($event, 'B')"
+                                        @dragleave="onDragLeave($event, 'B')"
+                                        :class="[
+                                            'drop-zone border-2 border-red-300 rounded-lg p-3 bg-red-50',
+                                            dragOverZone === 'B' ? 'drag-over' : '',
+                                            novoJogo.equipaB.length >= maxJogadoresPorEquipa ? 'equipa-completa' : ''
+                                        ]"
+                                        style="min-height: 400px; max-height: 400px; overflow-y: auto;"
+                                        class="custom-scrollbar">
+                                        <div v-if="novoJogo.equipaB.length === 0" class="text-center text-gray-400 mt-20">
+                                            Arrasta jogadores aqui
+                                        </div>
+                                        <div class="space-y-2">
+                                            <div 
+                                                v-for="jogadorId in novoJogo.equipaB" 
+                                                :key="'b-' + jogadorId"
+                                                draggable="true"
+                                                @dragstart="onDragStart($event, jogadorId, 'B')"
+                                                @dragend="onDragEnd"
+                                                class="jogador-card bg-red-100 border border-red-300 rounded-lg p-3 cursor-move">
+                                                <div class="flex justify-between items-center">
+                                                    <span class="font-medium text-red-900">{{ getNomeJogador(jogadorId) }}</span>
+                                                    <button 
+                                                        @click="removerJogadorEquipa(jogadorId, 'B')"
+                                                        class="text-red-600 hover:text-red-800 text-sm">
+                                                        ✕
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>                                    
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4 mt-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-blue-700 mb-2">Golos Equipa A</label>
+                                    <input 
+                                        v-model.number="novoJogo.golosA"
+                                        type="number" 
+                                        min="0"
+                                        class="w-full px-4 py-2 border border-blue-300 rounded-lg bg-blue-50">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-red-700 mb-2">Golos Equipa B</label>
+                                    <input 
+                                        v-model.number="novoJogo.golosB"
+                                        type="number" 
+                                        min="0"
+                                        class="w-full px-4 py-2 border border-red-300 rounded-lg bg-red-50">
+                                </div>
+                            </div>
+
+                            <!-- Avisos de validação de golos e assistências -->
+                            <div v-if="todosJogadoresJogo.length > 0" class="space-y-2">
+                                <div v-if="!golosValidosEquipaA" class="bg-red-50 border border-red-300 rounded-lg p-4 text-red-800">
+                                    ⚠️ <strong>Equipa A:</strong> A soma dos golos dos jogadores ({{ totalGolosEquipaA }}) tem que ser exatamente igual ao total de golos da equipa ({{ novoJogo.golosA }})
+                                </div>
+                                <div v-if="!golosValidosEquipaB" class="bg-red-50 border border-red-300 rounded-lg p-4 text-red-800">
+                                    ⚠️ <strong>Equipa B:</strong> A soma dos golos dos jogadores ({{ totalGolosEquipaB }}) tem que ser exatamente igual ao total de golos da equipa ({{ novoJogo.golosB }})
+                                </div>
+                                <div v-if="!assistenciasValidasEquipaA" class="bg-red-50 border border-red-300 rounded-lg p-4 text-red-800">
+                                    ⚠️ <strong>Equipa A:</strong> A soma das assistências dos jogadores ({{ totalAssistenciasEquipaA }}) excede o total de golos da equipa ({{ novoJogo.golosA }})
+                                </div>
+                                <div v-if="!assistenciasValidasEquipaB" class="bg-red-50 border border-red-300 rounded-lg p-4 text-red-800">
+                                    ⚠️ <strong>Equipa B:</strong> A soma das assistências dos jogadores ({{ totalAssistenciasEquipaB }}) excede o total de golos da equipa ({{ novoJogo.golosB }})
+                                </div>
+                            </div>
+                            
+                            <!-- Estatísticas por Jogador -->
+                            <div v-if="todosJogadoresJogo.length > 0" class="border-t pt-6">
+                                <h3 class="font-semibold text-gray-800 mb-4">Estatísticas Individuais</h3>
+                                <div class="space-y-4">
+                                    <div v-for="jogadorId in todosJogadoresJogo" :key="jogadorId" 
+                                         class="border border-gray-200 rounded-lg p-4">
+                                        <h4 class="font-medium text-gray-800 mb-3">
+                                            {{ getNomeJogador(jogadorId) }}
+                                            <span class="text-sm text-gray-500 ml-2">
+                                                ({{ novoJogo.equipaA.includes(jogadorId) ? 'Equipa A' : 'Equipa B' }})
+                                            </span>
+                                        </h4>
+                                        <div class="grid grid-cols-4 gap-4">
+                                            <div>
+                                                <label class="block text-sm text-gray-600 mb-1">⚽ Golos</label>
+                                                <input 
+                                                    v-model.number="getStats(jogadorId).golos"
+                                                    type="number" 
+                                                    min="0"
+                                                    class="w-full px-3 py-2 border border-gray-300 rounded">
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm text-gray-600 mb-1">🎯 Assistências</label>
+                                                <input 
+                                                    v-model.number="getStats(jogadorId).assistencias"
+                                                    type="number" 
+                                                    min="0"
+                                                    class="w-full px-3 py-2 border border-gray-300 rounded">
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm text-gray-600 mb-1">❌ Perdas de Bola</label>
+                                                <input 
+                                                    v-model.number="getStats(jogadorId).perdas"
+                                                    type="number" 
+                                                    min="0"
+                                                    class="w-full px-3 py-2 border border-gray-300 rounded">
+                                            </div>
+                                        </div>
+                                        <!-- Rating calculado automaticamente -->
+                                        <div class="mt-3 p-3 bg-gray-50 rounded">
+                                            <div class="flex items-center justify-between">
+                                                <span class="text-sm font-medium text-gray-700">⭐ Rating do jogo:</span>
+                                                <span class="text-lg font-bold" :class="getRatingColor(calcularRatingJogo(jogadorId))">
+                                                    {{ calcularRatingJogo(jogadorId).toFixed(1) }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Botões -->
+                            <div class="flex gap-4">
+                                <button 
+                                    @click="guardarJogo"
+                                    :disabled="!jogoValido"
+                                    :class="jogoValido ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-400 cursor-not-allowed'"
+                                    class="flex-1 px-6 py-3 text-white rounded-lg transition font-medium">
+                                    ✓ Guardar Jogo
+                                </button>
+                                <button 
+                                    @click="limparNovoJogo"
+                                    class="px-6 py-3 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition font-medium">
+                                    Limpar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Histórico -->
+                <div v-if="activeTab === 'historico'" class="space-y-6">
+                    <div class="bg-white rounded-lg shadow">
+                        <div class="p-6 border-b">
+                            <h2 class="text-xl font-bold text-gray-800">Histórico de Jogos ({{ jogos.length }})</h2>
+                        </div>
+                        <div class="p-6">
+                            <div v-if="jogos.length === 0" class="text-gray-500 text-center py-8">
+                                Nenhum jogo registado ainda
+                            </div>
+                            <div v-else class="space-y-4">
+                                <div v-for="jogo in jogosOrdenados" :key="jogo.id"
+                                     class="border border-gray-200 rounded-lg p-4 hover:border-blue-500 transition">
+                                    <div class="flex justify-between items-start mb-4">
+                                        <div>
+                                            <div class="text-sm text-gray-500">{{ formatarData(jogo.data) }}</div>
+                                            <div class="text-xs text-gray-400 mt-1">{{ getTipoJogoLabel(jogo.tipoJogo) }}</div>
+                                        </div>
+                                        <button 
+                                            @click="removerJogo(jogo.id)"
+                                            class="text-red-500 hover:text-red-700 text-sm">
+                                            Eliminar
+                                        </button>
+                                    </div>
+                                    
+                                    <!-- Resultado -->
+                                    <div class="flex items-center justify-center space-x-4 mb-4">
+                                        <div class="text-center flex-1">
+                                            <div class="text-sm text-gray-600 mb-1">Equipa A</div>
+                                            <div class="text-3xl font-bold text-blue-600">{{ jogo.golosA }}</div>
+                                        </div>
+                                        <div class="text-2xl text-gray-400">-</div>
+                                        <div class="text-center flex-1">
+                                            <div class="text-sm text-gray-600 mb-1">Equipa B</div>
+                                            <div class="text-3xl font-bold text-red-600">{{ jogo.golosB }}</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Equipas -->
+                                    <div class="grid grid-cols-2 gap-4 text-sm">
+                                        <div class="bg-blue-50 rounded p-3">
+                                            <div class="font-medium text-blue-800 mb-2">Equipa A</div>
+                                            <div class="space-y-1 text-gray-700">
+                                                <div v-for="id in jogo.equipaA" :key="id">
+                                                    • {{ getNomeJogador(id) }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="bg-red-50 rounded p-3">
+                                            <div class="font-medium text-red-800 mb-2">Equipa B</div>
+                                            <div class="space-y-1 text-gray-700">
+                                                <div v-for="id in jogo.equipaB" :key="id">
+                                                    • {{ getNomeJogador(id) }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Estatísticas destaque -->
+                                    <div v-if="jogo.estatisticas && jogo.estatisticas.length > 0" class="mt-4 pt-4 border-t">
+                                        <div class="text-sm text-gray-600 mb-2">Destaques:</div>
+                                        <div class="flex flex-wrap gap-2">
+                                            <span v-for="stat in jogo.estatisticas.filter(s => s.golos > 0)" :key="stat.jogadorId + '-g'"
+                                                  class="px-2 py-1 bg-orange-100 text-orange-800 rounded text-xs">
+                                                {{ getNomeJogador(stat.jogadorId) }}: {{ stat.golos }}⚽
+                                            </span>
+                                            <span v-for="stat in jogo.estatisticas.filter(s => s.assistencias > 0)" :key="stat.jogadorId + '-a'"
+                                                  class="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs">
+                                                {{ getNomeJogador(stat.jogadorId) }}: {{ stat.assistencias }}🎯
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Modal de Detalhes do Jogador -->
+        <div v-if="mostrarDetalhes && jogadorDetalhes" 
+             @click="fecharDetalhes"
+             class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div @click.stop class="bg-white rounded-lg shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+                <!-- Header -->
+                <div class="bg-gradient-to-r from-blue-600 to-blue-800 text-white p-6 rounded-t-lg">
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1">
+                            <h2 class="text-3xl font-bold">{{ jogadorDetalhes.nome }}</h2>
+                            <div class="mt-2 flex items-center space-x-4">
+                                <span class="text-2xl font-bold" :class="'text-' + (jogadorDetalhes.ratingMedio >= 7 ? 'green' : 'yellow') + '-300'">
+                                    ⭐ {{ jogadorDetalhes.ratingMedio.toFixed(2) }}
+                                </span>
+                                <span class="text-blue-200">{{ jogadorDetalhes.jogos }} jogos</span>
+                            </div>
+                        </div>
+                        <button 
+                            @click="fecharDetalhes"
+                            class="text-white hover:text-gray-200 text-2xl font-bold">
+                            ✕
+                        </button>
+                    </div>
+                </div>
+
+                <div class="p-6">
+                    <!-- Imagem do Jogador -->
+                    <div class="mb-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-3">Foto do Jogador</h3>
+                        <div class="flex items-start space-x-4">
+                            <div class="w-48 h-48 bg-gray-100 rounded-lg overflow-hidden border-2 border-gray-200 flex items-center justify-center">
+                                <img v-if="jogadorDetalhes.imagem" 
+                                     :src="jogadorDetalhes.imagem" 
+                                     :alt="jogadorDetalhes.nome"
+                                     class="w-full h-full object-cover">
+                                <div v-else class="text-gray-400 text-center p-4">
+                                    <div class="text-6xl mb-2">👤</div>
+                                    <div class="text-sm">Sem foto</div>
+                                </div>
+                            </div>
+                            <div class="flex-1 space-y-2">
+                                <input 
+                                    type="file" 
+                                    accept="image/*"
+                                    @change="atualizarImagemJogador(jogadorDetalhes.id, $event)"
+                                    class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                                <button 
+                                    v-if="jogadorDetalhes.imagem"
+                                    @click="removerImagemJogador(jogadorDetalhes.id)"
+                                    class="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 text-sm font-medium">
+                                    Remover Foto
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Estatísticas Gerais -->
+                    <div class="mb-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-3">Estatísticas Gerais</h3>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div class="bg-blue-50 rounded-lg p-4 text-center">
+                                <div class="text-3xl font-bold text-blue-600">{{ jogadorDetalhes.golos }}</div>
+                                <div class="text-sm text-gray-600 mt-1">⚽ Golos</div>
+                            </div>
+                            <div class="bg-green-50 rounded-lg p-4 text-center">
+                                <div class="text-3xl font-bold text-green-600">{{ jogadorDetalhes.assistencias }}</div>
+                                <div class="text-sm text-gray-600 mt-1">🎯 Assistências</div>
+                            </div>
+                            <div class="bg-red-50 rounded-lg p-4 text-center">
+                                <div class="text-3xl font-bold text-red-600">{{ jogadorDetalhes.perdas }}</div>
+                                <div class="text-sm text-gray-600 mt-1">❌ Perdas</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Resultados -->
+                    <div class="mb-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-3">Balanço</h3>
+                        <div class="grid grid-cols-3 gap-4">
+                            <div class="bg-green-50 rounded-lg p-4 text-center">
+                                <div class="text-2xl font-bold text-green-600">{{ jogadorDetalhes.vitorias }}</div>
+                                <div class="text-sm text-gray-600 mt-1">Vitórias</div>
+                            </div>
+                            <div class="bg-gray-50 rounded-lg p-4 text-center">
+                                <div class="text-2xl font-bold text-gray-600">{{ jogadorDetalhes.empates }}</div>
+                                <div class="text-sm text-gray-600 mt-1">Empates</div>
+                            </div>
+                            <div class="bg-red-50 rounded-lg p-4 text-center">
+                                <div class="text-2xl font-bold text-red-600">{{ jogadorDetalhes.derrotas }}</div>
+                                <div class="text-sm text-gray-600 mt-1">Derrotas</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Médias -->
+                    <div class="mb-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-3">Médias por Jogo</h3>
+                        <div class="grid grid-cols-3 gap-4">
+                            <div class="bg-blue-50 rounded-lg p-4 text-center">
+                                <div class="text-2xl font-bold text-blue-600">
+                                    {{ jogadorDetalhes.jogos > 0 ? (jogadorDetalhes.golos / jogadorDetalhes.jogos).toFixed(2) : '0.00' }}
+                                </div>
+                                <div class="text-sm text-gray-600 mt-1">Golos/jogo</div>
+                            </div>
+                            <div class="bg-green-50 rounded-lg p-4 text-center">
+                                <div class="text-2xl font-bold text-green-600">
+                                    {{ jogadorDetalhes.jogos > 0 ? (jogadorDetalhes.assistencias / jogadorDetalhes.jogos).toFixed(2) : '0.00' }}
+                                </div>
+                                <div class="text-sm text-gray-600 mt-1">Assist./jogo</div>
+                            </div>
+                            <div class="bg-purple-50 rounded-lg p-4 text-center">
+                                <div class="text-2xl font-bold text-purple-600">
+                                    {{ jogadorDetalhes.jogos > 0 ? ((jogadorDetalhes.golos + jogadorDetalhes.assistencias) / jogadorDetalhes.jogos).toFixed(2) : '0.00' }}
+                                </div>
+                                <div class="text-sm text-gray-600 mt-1">Contribuições/jogo</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Histórico de Jogos -->
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-3">Últimos Jogos</h3>
+                        <div v-if="jogadorDetalhes.historicoJogos.length === 0" class="text-gray-500 text-center py-4">
+                            Nenhum jogo registado
+                        </div>
+                        <div v-else class="space-y-3 max-h-64 overflow-y-auto">
+                            <div v-for="jogo in jogadorDetalhes.historicoJogos.slice(0, 10)" :key="jogo.id"
+                                 class="border border-gray-200 rounded-lg p-3">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-sm text-gray-500">{{ formatarData(jogo.data) }}</span>
+                                    <span class="text-sm font-semibold" 
+                                          :class="jogo.equipaA.includes(jogadorDetalhes.id) ? 'text-blue-600' : 'text-red-600'">
+                                        {{ jogo.equipaA.includes(jogadorDetalhes.id) ? 'Equipa A' : 'Equipa B' }}
+                                    </span>
+                                </div>
+                                <div class="flex justify-between items-center text-lg font-bold mb-2">
+                                    <span :class="jogo.equipaA.includes(jogadorDetalhes.id) ? 'text-blue-600' : 'text-gray-400'">
+                                        {{ jogo.golosA }}
+                                    </span>
+                                    <span class="text-gray-400">-</span>
+                                    <span :class="jogo.equipaB.includes(jogadorDetalhes.id) ? 'text-red-600' : 'text-gray-400'">
+                                        {{ jogo.golosB }}
+                                    </span>
+                                </div>
+                                <div v-if="jogo.estatisticas" class="text-sm text-gray-600">
+                                    <span v-for="stat in jogo.estatisticas.filter(s => s.jogadorId === jogadorDetalhes.id)" :key="stat.jogadorId">
+                                        {{ stat.golos || 0 }}⚽ {{ stat.assistencias || 0 }}🎯 {{ stat.perdas || 0 }}❌
+                                        <span class="font-semibold ml-2" :class="getRatingColor(6.0 + (stat.golos * 0.5) + (stat.assistencias * 0.4) - (stat.perdas * 0.3))">
+                                            ⭐ {{ (6.0 + (stat.golos * 0.5) + (stat.assistencias * 0.4) - (stat.perdas * 0.3)).toFixed(1) }}
+                                        </span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="bg-gray-50 px-6 py-4 rounded-b-lg flex justify-end">
+                    <button 
+                        @click="fecharDetalhes"
+                        class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium">
+                        Fechar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    activeTab: 'dashboard',
+                    tabs: [
+                        { id: 'dashboard', nome: '📊 Dashboard' },
+                        { id: 'jogadores', nome: '👥 Jogadores' },
+                        { id: 'novo-jogo', nome: '➕ Novo Jogo' },
+                        { id: 'historico', nome: '📋 Histórico' }
+                    ],
+                    jogadores: [],
+                    jogadoresSelecionadosJogo: [],
+                    jogos: [],
+                    novoJogador: {
+                        nome: ''
+                    },
+                    novoJogo: {
+                        data: new Date().toISOString().split('T')[0],
+                        tipoJogo: 'fut7',
+                        equipaA: [],
+                        equipaB: [],
+                        golosA: 0,
+                        golosB: 0,
+                        estatisticas: {}
+                    },
+                    // Estados de expansão dos rankings
+                    expandidoMarcadores: false,
+                    expandidoAssistencias: false,
+                    expandidoRatings: false,
+                    // Detalhes do jogador
+                    jogadorSelecionado: null,
+                    mostrarDetalhes: false,
+                    // Drag and drop
+                    draggedPlayer: null,
+                    draggedFrom: null,
+                    dragOverZone: null
+                }
+            },
+            computed: {
+                todosJogadoresJogo() {
+                    return [...this.novoJogo.equipaA, ...this.novoJogo.equipaB];
+                },
+                maxJogadoresPorEquipa() {
+                    const limites = {
+                        'fut5': 5,
+                        'fut6': 6,
+                        'fut7': 7
+                    };
+                    return limites[this.novoJogo.tipoJogo] || 7;
+                },
+                jogadoresDisponiveis() {
+                    return this.jogadores.filter(j => 
+                        !this.novoJogo.equipaA.includes(j.id) && 
+                        !this.novoJogo.equipaB.includes(j.id)
+                    ).sort((a, b) => a.nome.localeCompare(b.nome));
+                },
+                // Calcular total de golos da Equipa A
+                totalGolosEquipaA() {
+                    if (this.novoJogo.equipaA.length === 0) return 0;
+                    return this.novoJogo.equipaA.reduce((total, jogadorId) => {
+                        const stats = this.novoJogo.estatisticas[jogadorId];
+                        return total + (stats?.golos || 0);
+                    }, 0);
+                },
+                // Calcular total de golos da Equipa B
+                totalGolosEquipaB() {
+                    if (this.novoJogo.equipaB.length === 0) return 0;
+                    return this.novoJogo.equipaB.reduce((total, jogadorId) => {
+                        const stats = this.novoJogo.estatisticas[jogadorId];
+                        return total + (stats?.golos || 0);
+                    }, 0);
+                },
+                // Validar se golos da Equipa A estão corretos
+                golosValidosEquipaA() {
+                    if (this.novoJogo.equipaA.length === 0) return true;
+                    return this.totalGolosEquipaA === (this.novoJogo.golosA || 0);
+                },
+                // Validar se golos da Equipa B estão corretos
+                golosValidosEquipaB() {
+                    if (this.novoJogo.equipaB.length === 0) return true;
+                    return this.totalGolosEquipaB === (this.novoJogo.golosB || 0);
+                },
+                // Calcular total de assistências da Equipa A
+                totalAssistenciasEquipaA() {
+                    if (this.novoJogo.equipaA.length === 0) return 0;
+                    return this.novoJogo.equipaA.reduce((total, jogadorId) => {
+                        const stats = this.novoJogo.estatisticas[jogadorId];
+                        return total + (stats?.assistencias || 0);
+                    }, 0);
+                },
+                // Calcular total de assistências da Equipa B
+                totalAssistenciasEquipaB() {
+                    if (this.novoJogo.equipaB.length === 0) return 0;
+                    return this.novoJogo.equipaB.reduce((total, jogadorId) => {
+                        const stats = this.novoJogo.estatisticas[jogadorId];
+                        return total + (stats?.assistencias || 0);
+                    }, 0);
+                },
+                // Validar se assistências da Equipa A estão corretas
+                assistenciasValidasEquipaA() {
+                    if (this.novoJogo.equipaA.length === 0) return true;
+                    return this.totalAssistenciasEquipaA <= (this.novoJogo.golosA || 0);
+                },
+                // Validar se assistências da Equipa B estão corretas
+                assistenciasValidasEquipaB() {
+                    if (this.novoJogo.equipaB.length === 0) return true;
+                    return this.totalAssistenciasEquipaB <= (this.novoJogo.golosB || 0);
+                },
+                jogoValido() {
+                    return this.novoJogo.equipaA.length > 0 &&
+                           this.novoJogo.equipaB.length > 0 &&
+                           this.novoJogo.equipaA.length <= this.maxJogadoresPorEquipa &&
+                           this.novoJogo.equipaB.length <= this.maxJogadoresPorEquipa &&
+                           this.novoJogo.data &&
+                           this.golosValidosEquipaA &&
+                           this.golosValidosEquipaB &&
+                           this.assistenciasValidasEquipaA &&
+                           this.assistenciasValidasEquipaB;
+                },
+                totalGolos() {
+                    return this.jogos.reduce((total, jogo) => total + jogo.golosA + jogo.golosB, 0);
+                },
+                jogadoresComStats() {
+                    return this.jogadores.map(jogador => {
+                        const stats = this.calcularStatsJogador(jogador.id);
+                        return {
+                            ...jogador,
+                            ...stats
+                        };
+                    });
+                },
+                topMarcadores() {
+                    return this.jogadoresComStats
+                        .filter(j => j.jogos > 0)
+                        .sort((a, b) => b.golos - a.golos)
+                        .slice(0, 20);
+                },
+                topMarcadoresMostrar() {
+                    return this.expandidoMarcadores ? this.topMarcadores : this.topMarcadores.slice(0, 3);
+                },
+                topAssistencias() {
+                    return this.jogadoresComStats
+                        .filter(j => j.jogos > 0)
+                        .sort((a, b) => b.assistencias - a.assistencias)
+                        .slice(0, 20);
+                },
+                topAssistenciasMostrar() {
+                    return this.expandidoAssistencias ? this.topAssistencias : this.topAssistencias.slice(0, 3);
+                },
+                topRatings() {
+                    return this.jogadoresComStats
+                        .filter(j => j.jogos > 0)
+                        .sort((a, b) => b.ratingMedio - a.ratingMedio)
+                        .slice(0, 20);
+                },
+                topRatingsMostrar() {
+                    return this.expandidoRatings ? this.topRatings : this.topRatings.slice(0, 3);
+                },
+                jogadorDetalhes() {
+                    if (!this.jogadorSelecionado) return null;
+                    const jogador = this.jogadores.find(j => j.id === this.jogadorSelecionado);
+                    if (!jogador) return null;
+                    const stats = this.calcularStatsJogador(jogador.id);
+                    const jogosDoJogador = this.jogos.filter(jogo => 
+                        jogo.equipaA.includes(jogador.id) || jogo.equipaB.includes(jogador.id)
+                    ).sort((a, b) => new Date(b.data) - new Date(a.data));
+                    
+                    return {
+                        ...jogador,
+                        ...stats,
+                        historicoJogos: jogosDoJogador
+                    };
+                },
+                jogosOrdenados() {
+                    return [...this.jogos].sort((a, b) => new Date(b.data) - new Date(a.data));
+                },
+                maxJogadoresSelecionaveis() {
+                    return this.maxJogadoresPorEquipa * 2;
+                }
+            },
+            methods: {
+                // Drag and Drop
+                onDragStart(event, jogadorId, from) {
+                    this.draggedPlayer = jogadorId;
+                    this.draggedFrom = from;
+                    event.target.classList.add('dragging');
+                },
+                onDragEnd(event) {
+                    event.target.classList.remove('dragging');
+                    this.draggedPlayer = null;
+                    this.draggedFrom = null;
+                    this.dragOverZone = null;
+                },
+                onDragOver(event, zone) {
+                    event.preventDefault();
+                    this.dragOverZone = zone;
+                },
+                onDragLeave(event, zone) {
+                    if (event.target.classList.contains('drop-zone')) {
+                        this.dragOverZone = null;
+                    }
+                },
+                onDrop(event, equipa) {
+                    event.preventDefault();
+                    this.dragOverZone = null;
+
+                    if (!this.draggedPlayer) return;
+
+                    // Verificar se a equipa já está completa
+                    if (equipa === 'A' && this.novoJogo.equipaA.length >= this.maxJogadoresPorEquipa && this.draggedFrom !== 'A') {
+                        alert(`A Equipa A já tem ${this.maxJogadoresPorEquipa} jogadores!`);
+                        return;
+                    }
+                    if (equipa === 'B' && this.novoJogo.equipaB.length >= this.maxJogadoresPorEquipa && this.draggedFrom !== 'B') {
+                        alert(`A Equipa B já tem ${this.maxJogadoresPorEquipa} jogadores!`);
+                        return;
+                    }
+
+                    // Remover jogador da origem
+                    if (this.draggedFrom === 'A') {
+                        this.novoJogo.equipaA = this.novoJogo.equipaA.filter(id => id !== this.draggedPlayer);
+                    } else if (this.draggedFrom === 'B') {
+                        this.novoJogo.equipaB = this.novoJogo.equipaB.filter(id => id !== this.draggedPlayer);
+                    }
+
+                    // Adicionar jogador ao destino
+                    if (equipa === 'A' && !this.novoJogo.equipaA.includes(this.draggedPlayer)) {
+                        this.novoJogo.equipaA.push(this.draggedPlayer);
+                    } else if (equipa === 'B' && !this.novoJogo.equipaB.includes(this.draggedPlayer)) {
+                        this.novoJogo.equipaB.push(this.draggedPlayer);
+                    }
+                },
+                removerJogadorEquipa(jogadorId, equipa) {
+                    if (equipa === 'A') {
+                        this.novoJogo.equipaA = this.novoJogo.equipaA.filter(id => id !== jogadorId);
+                    } else if (equipa === 'B') {
+                        this.novoJogo.equipaB = this.novoJogo.equipaB.filter(id => id !== jogadorId);
+                    }
+                    // Limpar estatísticas se existirem
+                    if (this.novoJogo.estatisticas[jogadorId]) {
+                        delete this.novoJogo.estatisticas[jogadorId];
+                    }
+                },
+                getTipoJogoLabel(tipoJogo) {
+                    const labels = {
+                        'fut5': 'Fut 5',
+                        'fut6': 'Fut 6',
+                        'fut7': 'Fut 7'
+                    };
+                    return labels[tipoJogo] || tipoJogo;
+                },
+                adicionarJogador() {
+                    if (!this.novoJogador.nome.trim()) return;
+                    
+                    const jogador = {
+                        id: Date.now().toString(),
+                        nome: this.novoJogador.nome.trim(),
+                        imagem: null
+                    };
+                    
+                    this.jogadores.push(jogador);
+                    this.novoJogador.nome = '';
+                    this.guardarDados();
+                },
+                toggleSelecionado(jogadorId) {
+                    const jaSelecionado = this.jogadoresSelecionadosJogo.includes(jogadorId);
+
+                    // Se já estiver selecionado → pode sempre remover
+                    if (jaSelecionado) {
+                        this.jogadoresSelecionadosJogo =
+                            this.jogadoresSelecionadosJogo.filter(id => id !== jogadorId);
+                        return;
+                    }
+
+                    // Se ainda não estiver selecionado, verificar limite
+                    if (this.jogadoresSelecionadosJogo.length >= this.maxJogadoresSelecionaveis) {
+                        return; // bloqueia seleção extra
+                    }
+
+                    this.jogadoresSelecionadosJogo.push(jogadorId);
+                },
+                verDetalhesJogador(jogadorId) {
+                    this.jogadorSelecionado = jogadorId;
+                    this.mostrarDetalhes = true;
+                },
+                fecharDetalhes() {
+                    this.mostrarDetalhes = false;
+                    this.jogadorSelecionado = null;
+                },
+                atualizarImagemJogador(jogadorId, event) {
+                    const file = event.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            const jogador = this.jogadores.find(j => j.id === jogadorId);
+                            if (jogador) {
+                                jogador.imagem = e.target.result;
+                                this.guardarDados();
+                            }
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                },
+                removerImagemJogador(jogadorId) {
+                    const jogador = this.jogadores.find(j => j.id === jogadorId);
+                    if (jogador) {
+                        jogador.imagem = null;
+                        this.guardarDados();
+                    }
+                },
+                removerJogador(id) {
+                    if (confirm('Tem a certeza que quer remover este jogador?')) {
+                        this.jogadores = this.jogadores.filter(j => j.id !== id);
+                        this.guardarDados();
+                    }
+                },
+                getNomeJogador(id) {
+                    const jogador = this.jogadores.find(j => j.id === id);
+                    return jogador ? jogador.nome : 'Desconhecido';
+                },
+                getStats(jogadorId) {
+                    if (!this.novoJogo.estatisticas[jogadorId]) {
+                        this.novoJogo.estatisticas[jogadorId] = {
+                            jogadorId,
+                            golos: 0,
+                            assistencias: 0,
+                            perdas: 0,
+                        };
+                    }
+                    return this.novoJogo.estatisticas[jogadorId];
+                },
+                calcularRatingJogo(jogadorId) {
+                    const stats = this.getStats(jogadorId);
+                    const rating = 6.0 + 
+                                   (stats.golos * 0.5) + 
+                                   (stats.assistencias * 0.4) - 
+                                   (stats.perdas * 0.3);
+                    return Math.max(0, Math.min(10, rating));
+                },
+                getRatingColor(rating) {
+                    if (rating >= 8.0) return 'text-green-600';
+                    if (rating >= 7.0) return 'text-blue-600';
+                    if (rating >= 6.0) return 'text-yellow-600';
+                    if (rating >= 5.0) return 'text-orange-600';
+                    return 'text-red-600';
+                },
+                guardarJogo() {
+                    const jogo = {
+                        id: Date.now().toString(),
+                        data: this.novoJogo.data,
+                        tipoJogo: this.novoJogo.tipoJogo,
+                        equipaA: [...this.novoJogo.equipaA],
+                        equipaB: [...this.novoJogo.equipaB],
+                        golosA: this.novoJogo.golosA,
+                        golosB: this.novoJogo.golosB,
+                        estatisticas: Object.values(this.novoJogo.estatisticas)
+                    };
+                    
+                    this.jogos.push(jogo);
+                    this.guardarDados();
+                    this.limparNovoJogo();
+                    this.activeTab = 'historico';
+                    alert('Jogo guardado com sucesso!');
+                },
+                limparNovoJogo() {
+                    this.novoJogo = {
+                        data: new Date().toISOString().split('T')[0],
+                        tipoJogo: 'fut7',
+                        equipaA: [],
+                        equipaB: [],
+                        golosA: 0,
+                        golosB: 0,
+                        estatisticas: {},
+                        jogadoresSelecionadosJogo: []
+                    };
+                },
+                equipasAleatorias() {
+                    const maxPorEquipa = this.maxJogadoresPorEquipa;
+                    const totalNecessario = maxPorEquipa * 2;
+
+                    if (this.jogadoresSelecionadosJogo.length < totalNecessario) {
+                        alert(`Seleciona pelo menos ${totalNecessario} jogadores para este jogo.`);
+                        return;
+                    }
+
+                    // Converter IDs em objetos jogador
+                    const base = this.jogadores
+                        .filter(j => this.jogadoresSelecionadosJogo.includes(j.id))
+                        .sort(() => Math.random() - 0.5)
+                        .slice(0, totalNecessario);
+
+                    // Limpar equipas
+                    this.novoJogo.equipaA = [];
+                    this.novoJogo.equipaB = [];
+                    this.novoJogo.estatisticas = {};
+
+                    // Distribuir
+                    base.forEach((jogador, index) => {
+                        if (index < maxPorEquipa) {
+                            this.novoJogo.equipaA.push(jogador.id);
+                        } else {
+                            this.novoJogo.equipaB.push(jogador.id);
+                        }
+                    });
+                },
+                removerJogo(id) {
+                    if (confirm('Tem a certeza que quer eliminar este jogo?')) {
+                        this.jogos = this.jogos.filter(j => j.id !== id);
+                        this.guardarDados();
+                    }
+                },
+                calcularStatsJogador(jogadorId) {
+                    let golos = 0;
+                    let assistencias = 0;
+                    let perdas = 0;
+                    let jogos = 0;
+                    let vitorias = 0;
+                    let derrotas = 0;
+                    let empates = 0;
+                    let somaRatings = 0;
+
+                    this.jogos.forEach(jogo => {
+                        const naEquipaA = jogo.equipaA.includes(jogadorId);
+                        const naEquipaB = jogo.equipaB.includes(jogadorId);
+                        
+                        if (naEquipaA || naEquipaB) {
+                            jogos++;
+                            
+                            if (naEquipaA) {
+                                if (jogo.golosA > jogo.golosB) vitorias++;
+                                else if (jogo.golosA < jogo.golosB) derrotas++;
+                                else empates++;
+                            } else {
+                                if (jogo.golosB > jogo.golosA) vitorias++;
+                                else if (jogo.golosB < jogo.golosA) derrotas++;
+                                else empates++;
+                            }
+                            
+                            let ratingJogo = 6.0;
+                            
+                            if (jogo.estatisticas && jogo.estatisticas.length > 0) {
+                                const stats = jogo.estatisticas.find(s => s.jogadorId === jogadorId);
+                                if (stats) {
+                                    const g = stats.golos || 0;
+                                    const a = stats.assistencias || 0;
+                                    const p = stats.perdas || 0;
+                                    
+                                    golos += g;
+                                    assistencias += a;
+                                    perdas += p;
+                                    
+                                    ratingJogo = 6.0 + (g * 0.5) + (a * 0.4) - (p * 0.3);
+                                    ratingJogo = Math.max(0, Math.min(10, ratingJogo));
+                                }
+                            }
+                            
+                            somaRatings += ratingJogo;
+                        }
+                    });
+
+                    const ratingMedio = jogos > 0 ? somaRatings / jogos : 6.0;
+
+                    return { golos, assistencias, perdas, jogos, vitorias, derrotas, empates, ratingMedio };
+                },
+                formatarData(data) {
+                    return new Date(data + 'T00:00:00').toLocaleDateString('pt-PT', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric'
+                    });
+                },
+                guardarDados() {
+                    localStorage.setItem('futebol7_jogadores', JSON.stringify(this.jogadores));
+                    localStorage.setItem('futebol7_jogos', JSON.stringify(this.jogos));
+                },
+                carregarDados() {
+                    const jogadoresSalvos = localStorage.getItem('futebol7_jogadores');
+                    const jogosSalvos = localStorage.getItem('futebol7_jogos');
+                    
+                    if (jogadoresSalvos) {
+                        this.jogadores = JSON.parse(jogadoresSalvos);
+                    }
+                    if (jogosSalvos) {
+                        this.jogos = JSON.parse(jogosSalvos);
+                    }
+                }
+            },
+            mounted() {
+                this.carregarDados();
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
