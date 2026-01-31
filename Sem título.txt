@@ -1,5 +1,5 @@
 
-%win rate (pagina de detalhes do jogador)
+%win rate (pagina de detalhes do jogador) -> feito
 mudar ícone de jogos (está um comando)
 adicionar foto (página jogador)
 atualizar nr de jogadores disponíveis quando selecionas

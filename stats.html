@@ -210,8 +210,20 @@
                                 <div v-for="jogador in jogadoresComStats" :key="jogador.id"
                                      class="p-4 border border-gray-200 rounded-lg hover:border-blue-500 transition cursor-pointer"
                                      @click="verDetalhesJogador(jogador.id)">
-                                    <div class="flex justify-between items-start">
-                                        <div class="flex-1">
+                                    <div class="flex gap-3 items-start">
+                                        <!-- Foto do jogador -->
+                                        <div class="w-20 h-30 flex-shrink-0 bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
+                                            <img v-if="jogador.imagem" 
+                                                 :src="jogador.imagem" 
+                                                 :alt="jogador.nome"
+                                                 class="w-full h-full object-cover">
+                                            <div v-else class="w-full h-full flex items-center justify-center text-gray-400 text-2xl">
+                                                👤
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Informações do jogador -->
+                                        <div class="flex-1 min-w-0">
                                             <h3 class="font-semibold text-gray-800">{{ jogador.nome }}</h3>
                                             <div class="mt-2 space-y-1 text-sm text-gray-600">
                                                 <div>⚽ {{ jogador.golos }} golos</div>
@@ -222,9 +234,11 @@
                                                 </div>
                                             </div>
                                         </div>
+                                        
+                                        <!-- Botão remover -->
                                         <button 
                                             @click.stop="removerJogador(jogador.id)"
-                                            class="text-red-500 hover:text-red-700 text-sm">
+                                            class="text-red-500 hover:text-red-700 text-sm flex-shrink-0">
                                             ✕
                                         </button>
                                     </div>
@@ -608,7 +622,7 @@
                     <div class="mb-6">
                         <h3 class="text-lg font-semibold text-gray-800 mb-3">Foto do Jogador</h3>
                         <div class="flex items-start space-x-4">
-                            <div class="w-48 h-48 bg-gray-100 rounded-lg overflow-hidden border-2 border-gray-200 flex items-center justify-center">
+                            <div class="w-64 h-96 bg-gray-100 rounded-lg overflow-hidden border-2 border-gray-200 flex items-center justify-center">
                                 <img v-if="jogadorDetalhes.imagem" 
                                      :src="jogadorDetalhes.imagem" 
                                      :alt="jogadorDetalhes.nome"
@@ -638,6 +652,10 @@
                     <div class="mb-6">
                         <h3 class="text-lg font-semibold text-gray-800 mb-3">Estatísticas Gerais</h3>
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div class="bg-purple-50 rounded-lg p-4 text-center">
+                                <div class="text-3xl font-bold text-purple-600">{{ jogadorDetalhes.jogos }}</div>
+                                <div class="text-sm text-gray-600 mt-1">🎮 Jogos</div>
+                            </div>
                             <div class="bg-blue-50 rounded-lg p-4 text-center">
                                 <div class="text-3xl font-bold text-blue-600">{{ jogadorDetalhes.golos }}</div>
                                 <div class="text-sm text-gray-600 mt-1">⚽ Golos</div>
@@ -648,7 +666,7 @@
                             </div>
                             <div class="bg-red-50 rounded-lg p-4 text-center">
                                 <div class="text-3xl font-bold text-red-600">{{ jogadorDetalhes.perdas }}</div>
-                                <div class="text-sm text-gray-600 mt-1">❌ Perdas</div>
+                                <div class="text-sm text-gray-600 mt-1">❌ Perdas de Bola</div>
                             </div>
                         </div>
                     </div>
@@ -656,7 +674,7 @@
                     <!-- Resultados -->
                     <div class="mb-6">
                         <h3 class="text-lg font-semibold text-gray-800 mb-3">Balanço</h3>
-                        <div class="grid grid-cols-3 gap-4">
+                        <div class="grid grid-cols-4 gap-4">
                             <div class="bg-green-50 rounded-lg p-4 text-center">
                                 <div class="text-2xl font-bold text-green-600">{{ jogadorDetalhes.vitorias }}</div>
                                 <div class="text-sm text-gray-600 mt-1">Vitórias</div>
@@ -668,6 +686,12 @@
                             <div class="bg-red-50 rounded-lg p-4 text-center">
                                 <div class="text-2xl font-bold text-red-600">{{ jogadorDetalhes.derrotas }}</div>
                                 <div class="text-sm text-gray-600 mt-1">Derrotas</div>
+                            </div>
+                            <div class="bg-blue-50 rounded-lg p-4 text-center">
+                                <div class="text-2xl font-bold text-blue-600">
+                                    {{ jogadorDetalhes.jogos > 0 ? ((jogadorDetalhes.vitorias / jogadorDetalhes.jogos) * 100).toFixed(1) : '0.0' }}%
+                                </div>
+                                <div class="text-sm text-gray-600 mt-1">Win Rate</div>
                             </div>
                         </div>
                     </div>
@@ -1041,17 +1065,67 @@
                 },
                 atualizarImagemJogador(jogadorId, event) {
                     const file = event.target.files[0];
-                    if (file) {
-                        const reader = new FileReader();
-                        reader.onload = (e) => {
+                    if (!file) return;
+                    
+                    console.log('Ficheiro original:', file.size, 'bytes');
+                    
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const img = new Image();
+                        img.onload = () => {
+                            console.log('Dimensões originais:', img.width, 'x', img.height);
+                            
+                            // Criar canvas
+                            const canvas = document.createElement('canvas');
+                            const ctx = canvas.getContext('2d');
+                            
+                            // Dimensões alvo
+                            const targetWidth = 800;
+                            const targetHeight = 1200;
+                            
+                            canvas.width = targetWidth;
+                            canvas.height = targetHeight;
+                            
+                            // Calcular crop para manter proporção
+                            const imgRatio = img.width / img.height;
+                            const targetRatio = targetWidth / targetHeight;
+                            
+                            let sx, sy, sWidth, sHeight;
+                            
+                            if (imgRatio > targetRatio) {
+                                // Imagem mais larga - cortar lados
+                                sHeight = img.height;
+                                sWidth = img.height * targetRatio;
+                                sx = (img.width - sWidth) / 2;
+                                sy = 0;
+                            } else {
+                                // Imagem mais alta - cortar topo/fundo
+                                sWidth = img.width;
+                                sHeight = img.width / targetRatio;
+                                sx = 0;
+                                sy = (img.height - sHeight) / 2;
+                            }
+                            
+                            // Desenhar imagem redimensionada
+                            ctx.drawImage(img, sx, sy, sWidth, sHeight, 0, 0, targetWidth, targetHeight);
+                            
+                            // Converter para JPEG com qualidade reduzida
+                            const resizedImage = canvas.toDataURL('image/jpeg', 0.7);
+                            
+                            console.log('Tamanho após redimensionar:', resizedImage.length, 'caracteres');
+                            console.log('Dimensões finais: 800x1200');
+                            
+                            // Guardar
                             const jogador = this.jogadores.find(j => j.id === jogadorId);
                             if (jogador) {
-                                jogador.imagem = e.target.result;
+                                jogador.imagem = resizedImage;
                                 this.guardarDados();
+                                console.log('Imagem guardada com sucesso!');
                             }
                         };
-                        reader.readAsDataURL(file);
-                    }
+                        img.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
                 },
                 removerImagemJogador(jogadorId) {
                     const jogador = this.jogadores.find(j => j.id === jogadorId);
