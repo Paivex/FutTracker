@@ -25,3 +25,8 @@ golos e assitencias por jogo (G+A/J)
 perdas de bola por jogo (P/J)
 jogos (J)
 Win Rate (W%)
+
+Jogadores que são premiados num mês têm uma carta com design associado a esse prémio durante a liga do próximo mês
+
+Perfil de Jogadores:
+Adicionar Biografia(alcunha,pé dominante,pior pé, data de nascimento, altura, etc...)
