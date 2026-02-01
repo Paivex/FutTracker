@@ -485,7 +485,7 @@
                     </div>
                 </div>
 
-                <!-- Tab: Histórico -->
+                <!-- Tab: Histórico de jogos -->
                 <div v-if="activeTab === 'historico'" class="space-y-6">
                     <div class="bg-white rounded-lg shadow">
                         <div class="p-6 border-b">
@@ -495,69 +495,42 @@
                             <div v-if="jogos.length === 0" class="text-gray-500 text-center py-8">
                                 Nenhum jogo registado ainda
                             </div>
-                            <div v-else class="space-y-4">
-                                <div v-for="jogo in jogosOrdenados" :key="jogo.id"
-                                     class="border border-gray-200 rounded-lg p-4 hover:border-blue-500 transition">
-                                    <div class="flex justify-between items-start mb-4">
-                                        <div>
-                                            <div class="text-sm text-gray-500">{{ formatarData(jogo.data) }}</div>
-                                            <div class="text-xs text-gray-400 mt-1">{{ getTipoJogoLabel(jogo.tipoJogo) }}</div>
-                                        </div>
-                                        <button 
-                                            @click="removerJogo(jogo.id)"
-                                            class="text-red-500 hover:text-red-700 text-sm">
-                                            Eliminar
-                                        </button>
+                            <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                                <button v-for="jogo in jogosOrdenados" :key="jogo.id"
+                                     @click="abrirDetalhesJogo(jogo.id)"
+                                     class="border-2 border-gray-200 rounded-lg p-3 hover:border-blue-500 hover:shadow-md transition text-left bg-white">
+                                    
+                                    <!-- Data e Tipo -->
+                                    <div class="text-xs text-gray-400 mb-2 flex justify-between items-center">
+                                        <span>{{ formatarData(jogo.data) }}</span>
+                                        <span class="bg-gray-100 px-2 py-0.5 rounded text-gray-600 font-medium">
+                                            {{ getTipoJogoLabel(jogo.tipoJogo) }}
+                                        </span>
                                     </div>
                                     
                                     <!-- Resultado -->
-                                    <div class="flex items-center justify-center space-x-4 mb-4">
-                                        <div class="text-center flex-1">
-                                            <div class="text-sm text-gray-600 mb-1">Equipa A</div>
-                                            <div class="text-3xl font-bold text-blue-600">{{ jogo.golosA }}</div>
-                                        </div>
-                                        <div class="text-2xl text-gray-400">-</div>
-                                        <div class="text-center flex-1">
-                                            <div class="text-sm text-gray-600 mb-1">Equipa B</div>
-                                            <div class="text-3xl font-bold text-red-600">{{ jogo.golosB }}</div>
-                                        </div>
+                                    <div class="flex items-center justify-center gap-3 mb-3">
+                                        <div class="text-2xl font-bold text-blue-600">{{ jogo.golosA }}</div>
+                                        <div class="text-gray-300">-</div>
+                                        <div class="text-2xl font-bold text-red-600">{{ jogo.golosB }}</div>
                                     </div>
 
-                                    <!-- Equipas -->
-                                    <div class="grid grid-cols-2 gap-4 text-sm">
-                                        <div class="bg-blue-50 rounded p-3">
-                                            <div class="font-medium text-blue-800 mb-2">Equipa A</div>
-                                            <div class="space-y-1 text-gray-700">
-                                                <div v-for="id in jogo.equipaA" :key="id">
-                                                    • {{ getNomeJogador(id) }}
-                                                </div>
+                                    <!-- Equipas (inline) -->
+                                    <div class="space-y-2 text-xs">
+                                        <div class="bg-blue-50 rounded p-2">
+                                            <div class="font-semibold text-blue-700 mb-1">Equipa A</div>
+                                            <div class="text-gray-700 leading-relaxed">
+                                                {{ jogo.equipaA.map(id => getNomeJogador(id)).join(' • ') }}
                                             </div>
                                         </div>
-                                        <div class="bg-red-50 rounded p-3">
-                                            <div class="font-medium text-red-800 mb-2">Equipa B</div>
-                                            <div class="space-y-1 text-gray-700">
-                                                <div v-for="id in jogo.equipaB" :key="id">
-                                                    • {{ getNomeJogador(id) }}
-                                                </div>
+                                        <div class="bg-red-50 rounded p-2">
+                                            <div class="font-semibold text-red-700 mb-1">Equipa B</div>
+                                            <div class="text-gray-700 leading-relaxed">
+                                                {{ jogo.equipaB.map(id => getNomeJogador(id)).join(' • ') }}
                                             </div>
                                         </div>
                                     </div>
-
-                                    <!-- Estatísticas destaque -->
-                                    <div v-if="jogo.estatisticas && jogo.estatisticas.length > 0" class="mt-4 pt-4 border-t">
-                                        <div class="text-sm text-gray-600 mb-2">Destaques:</div>
-                                        <div class="flex flex-wrap gap-2">
-                                            <span v-for="stat in jogo.estatisticas.filter(s => s.golos > 0)" :key="stat.jogadorId + '-g'"
-                                                  class="px-2 py-1 bg-orange-100 text-orange-800 rounded text-xs">
-                                                {{ getNomeJogador(stat.jogadorId) }}: {{ stat.golos }}⚽
-                                            </span>
-                                            <span v-for="stat in jogo.estatisticas.filter(s => s.assistencias > 0)" :key="stat.jogadorId + '-a'"
-                                                  class="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs">
-                                                {{ getNomeJogador(stat.jogadorId) }}: {{ stat.assistencias }}🎯
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -1011,6 +984,158 @@
                 </div>
             </div>
         </div>
+
+        <!-- Modal de Detalhes do Jogo -->
+        <div v-if="mostrarDetalhesJogo && jogoDetalhes" 
+             @click="fecharDetalhesJogo"
+             class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div @click.stop class="bg-white rounded-lg shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+                
+                <!-- Header -->
+                <div class="bg-gradient-to-r from-gray-700 to-gray-900 text-white p-6 rounded-t-lg">
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1">
+                            <h2 class="text-2xl font-bold">Ficha do Jogo</h2>
+                            <p class="text-gray-300 text-sm mt-1">{{ formatarDataCompleta(jogoDetalhes.data) }}</p>
+                            <span class="inline-block mt-2 bg-white bg-opacity-20 px-3 py-1 rounded text-sm">
+                                {{ getTipoJogoLabel(jogoDetalhes.tipoJogo) }}
+                            </span>
+                        </div>
+                        <button 
+                            @click="fecharDetalhesJogo"
+                            class="text-white hover:text-gray-200 text-2xl font-bold">
+                            ✕
+                        </button>
+                    </div>
+                </div>
+
+                <div class="p-6">
+                    <!-- Resultado Grande -->
+                    <div class="flex items-center justify-center gap-6 mb-6 p-4 bg-gray-50 rounded-lg">
+                        <div class="text-center">
+                            <div class="text-sm text-gray-500 mb-1">Equipa A</div>
+                            <div class="text-5xl font-bold text-blue-600">{{ jogoDetalhes.golosA }}</div>
+                        </div>
+                        <div class="text-3xl text-gray-300 font-light">-</div>
+                        <div class="text-center">
+                            <div class="text-sm text-gray-500 mb-1">Equipa B</div>
+                            <div class="text-5xl font-bold text-red-600">{{ jogoDetalhes.golosB }}</div>
+                        </div>
+                    </div>
+
+                    <!-- Estatísticas dos Jogadores -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Equipa A -->
+                        <div class="border-2 border-blue-200 rounded-lg p-4 bg-blue-50">
+                            <h3 class="font-bold text-blue-800 mb-3 text-center">Equipa A</h3>
+                            <div class="space-y-2">
+                                <div v-for="jogadorId in jogoDetalhes.equipaA" :key="'modal-a-' + jogadorId"
+                                     class="bg-white rounded p-3 border border-blue-100">
+                                    <div class="font-semibold text-gray-800 mb-2">{{ getNomeJogador(jogadorId) }}</div>
+                                    <div v-if="jogoDetalhes.estatisticas && jogoDetalhes.estatisticas.length > 0">
+                                        <div v-for="stat in jogoDetalhes.estatisticas.filter(s => s.jogadorId === jogadorId)" :key="stat.jogadorId"
+                                             class="text-sm text-gray-600 space-y-1">
+                                            <div class="flex justify-between">
+                                                <span>⚽ Golos:</span>
+                                                <span class="font-bold">{{ stat.golos || 0 }}</span>
+                                            </div>
+                                            <div class="flex justify-between">
+                                                <span>🎯 Assistências:</span>
+                                                <span class="font-bold">{{ stat.assistencias || 0 }}</span>
+                                            </div>
+                                            <div class="flex justify-between">
+                                                <span>😱 Falhanços:</span>
+                                                <span class="font-bold">{{ stat.falhancos || 0 }}</span>
+                                            </div>
+                                            <div class="flex justify-between">
+                                                <span>❌ Perdas:</span>
+                                                <span class="font-bold">{{ stat.perdas || 0 }}</span>
+                                            </div>
+                                            <div class="flex justify-between pt-2 border-t mt-2">
+                                                <span>⭐ Rating:</span>
+                                                <span class="font-bold" :class="getRatingColor(calcularRatingDoJogo(stat))">
+                                                    {{ calcularRatingDoJogo(stat).toFixed(1) }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div v-if="!jogoDetalhes.estatisticas.find(s => s.jogadorId === jogadorId)"
+                                             class="text-xs text-gray-400 italic">
+                                            Sem estatísticas registadas
+                                        </div>
+                                    </div>
+                                    <div v-else class="text-xs text-gray-400 italic">
+                                        Sem estatísticas registadas
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Equipa B -->
+                        <div class="border-2 border-red-200 rounded-lg p-4 bg-red-50">
+                            <h3 class="font-bold text-red-800 mb-3 text-center">Equipa B</h3>
+                            <div class="space-y-2">
+                                <div v-for="jogadorId in jogoDetalhes.equipaB" :key="'modal-b-' + jogadorId"
+                                     class="bg-white rounded p-3 border border-red-100">
+                                    <div class="font-semibold text-gray-800 mb-2">{{ getNomeJogador(jogadorId) }}</div>
+                                    <div v-if="jogoDetalhes.estatisticas && jogoDetalhes.estatisticas.length > 0">
+                                        <div v-for="stat in jogoDetalhes.estatisticas.filter(s => s.jogadorId === jogadorId)" :key="stat.jogadorId"
+                                             class="text-sm text-gray-600 space-y-1">
+                                            <div class="flex justify-between">
+                                                <span>⚽ Golos:</span>
+                                                <span class="font-bold">{{ stat.golos || 0 }}</span>
+                                            </div>
+                                            <div class="flex justify-between">
+                                                <span>🎯 Assistências:</span>
+                                                <span class="font-bold">{{ stat.assistencias || 0 }}</span>
+                                            </div>
+                                            <div class="flex justify-between">
+                                                <span>😱 Falhanços:</span>
+                                                <span class="font-bold">{{ stat.falhancos || 0 }}</span>
+                                            </div>
+                                            <div class="flex justify-between">
+                                                <span>❌ Perdas:</span>
+                                                <span class="font-bold">{{ stat.perdas || 0 }}</span>
+                                            </div>
+                                            <div class="flex justify-between pt-2 border-t mt-2">
+                                                <span>⭐ Rating:</span>
+                                                <span class="font-bold" :class="getRatingColor(calcularRatingDoJogo(stat))">
+                                                    {{ calcularRatingDoJogo(stat).toFixed(1) }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div v-if="!jogoDetalhes.estatisticas.find(s => s.jogadorId === jogadorId)"
+                                             class="text-xs text-gray-400 italic">
+                                            Sem estatísticas registadas
+                                        </div>
+                                    </div>
+                                    <div v-else class="text-xs text-gray-400 italic">
+                                        Sem estatísticas registadas
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botão Eliminar Jogo -->
+                    <div class="mt-6 pt-4 border-t">
+                        <button 
+                            @click="removerJogoModal(jogoDetalhes.id)"
+                            class="w-full px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition font-medium">
+                            🗑️ Eliminar este Jogo
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="bg-gray-50 px-6 py-4 rounded-b-lg flex justify-end">
+                    <button 
+                        @click="fecharDetalhesJogo"
+                        class="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition font-medium">
+                        Fechar
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -1025,7 +1150,7 @@
                         { id: 'dashboard', nome: '📊 Dashboard' },
                         { id: 'jogadores', nome: '👥 Jogadores' },
                         { id: 'novo-jogo', nome: '➕ Novo Jogo' },
-                        { id: 'historico', nome: '📋 Histórico' },
+                        { id: 'historico', nome: '📋 Jogos' },
                         { id: 'classificacao', nome: '🥇 Classificação' },
                         { id: 'tops', nome: '🏆 Tops' },
                         { id: 'premios', nome: '🎖️ Prémios' }
@@ -1045,15 +1170,8 @@
                         golosB: 0,
                         estatisticas: {}
                     },
-                    filtroTempo: '1_mes', // Default
-                    opcoesTempo: [
-                        { label: '📅 Esta Semana', valor: 'semana' },
-                        { label: '🗓️ Último Mês', valor: '1_mes' },
-                        { label: '🗓️ Últimos 3 Meses', valor: '3_meses' },
-                        { label: '🗓️ Últimos 6 Meses', valor: '6_meses' },
-                        { label: '🗓️ Últimos 12 Meses', valor: '12_meses' },
-                        { label: '♾️ Desde Sempre', valor: 'sempre' }
-                    ],
+                    filtroTempo: '', // Default
+                    opcoesTempo: [],
                     categoriasTops: [
                         { titulo: '🎮 Jogos (J)', chave: 'jogos', sulfixo: '', decimals: 0, cor: 'gray' },
                         { titulo: '⭐ Rating (R)', chave: 'ratingMedio', sulfixo: '', decimals: 2, cor: 'yellow' },
@@ -1084,7 +1202,10 @@
                     // Drag and drop
                     draggedPlayer: null,
                     draggedFrom: null,
-                    dragOverZone: null
+                    dragOverZone: null,
+                    // Modal detalhes do jogo
+                    mostrarDetalhesJogo: false,
+                    jogoSelecionado: null,
                 }
             },
             computed: {
@@ -1220,6 +1341,10 @@
 
                     return lista;
                 },
+                jogoDetalhes() {
+                    if (!this.jogoSelecionado) return null;
+                    return this.jogos.find(j => j.id === this.jogoSelecionado);
+                },
                 topMarcadores() {
                     return this.jogadoresComStats
                         .filter(j => j.jogos > 0)
@@ -1268,41 +1393,19 @@
                 maxJogadoresSelecionaveis() {
                     return this.maxJogadoresPorEquipa * 2;
                 },
-                // 1. Jogos filtrados pelo tempo selecionado
+                // 1. Jogos filtrados pelo mês selecionado
                 jogosFiltradosTempo() {
                     if (this.filtroTempo === 'sempre') return this.jogos;
-
-                    const hoje = new Date();
-                    // Reset para o início do dia de hoje para comparações justas
-                    hoje.setHours(23, 59, 59, 999);
                     
-                    let dataLimite = new Date();
-                    dataLimite.setHours(0, 0, 0, 0); // Início do dia
-
-                    switch(this.filtroTempo) {
-                        case 'semana':
-                            // Obter a segunda-feira desta semana
-                            const diaSemana = dataLimite.getDay(); // 0 (Dom) a 6 (Sab)
-                            const diff = dataLimite.getDate() - diaSemana + (diaSemana === 0 ? -6 : 1);
-                            dataLimite.setDate(diff);
-                            break;
-                        case '1_mes':
-                            dataLimite.setMonth(dataLimite.getMonth() - 1);
-                            break;
-                        case '3_meses':
-                            dataLimite.setMonth(dataLimite.getMonth() - 3);
-                            break;
-                        case '6_meses':
-                            dataLimite.setMonth(dataLimite.getMonth() - 6);
-                            break;
-                        case '12_meses':
-                            dataLimite.setFullYear(dataLimite.getFullYear() - 1);
-                            break;
-                    }
-
+                    // Filtro por mês específico (formato: "YYYY-MM")
+                    const [ano, mes] = this.filtroTempo.split('-').map(Number);
+                    
                     return this.jogos.filter(jogo => {
                         const dataJogo = new Date(jogo.data + 'T00:00:00');
-                        return dataJogo >= dataLimite;
+                        const anoJogo = dataJogo.getFullYear();
+                        const mesJogo = dataJogo.getMonth() + 1; // getMonth() retorna 0-11
+                        
+                        return anoJogo === ano && mesJogo === mes;
                     });
                 },
                 // 2. Jogadores com stats calculadas APENAS com os jogos filtrados
@@ -1552,6 +1655,29 @@
                     if (rating >= 5.0) return 'text-orange-600';
                     return 'text-red-600';
                 },
+                abrirDetalhesJogo(jogoId) {
+                    this.jogoSelecionado = jogoId;
+                    this.mostrarDetalhesJogo = true;
+                },
+                fecharDetalhesJogo() {
+                    this.mostrarDetalhesJogo = false;
+                    this.jogoSelecionado = null;
+                },
+                calcularRatingDoJogo(stat) {
+                    const rating = 6.0 + 
+                                   ((stat.golos || 0) * 0.5) + 
+                                   ((stat.assistencias || 0) * 0.4) - 
+                                   ((stat.perdas || 0) * 0.3) - 
+                                   ((stat.falhancos || 0) * 0.4);
+                    return Math.max(0, Math.min(10, rating));
+                },
+                removerJogoModal(jogoId) {
+                    if (confirm('Tem a certeza que quer eliminar este jogo?')) {
+                        this.jogos = this.jogos.filter(j => j.id !== jogoId);
+                        this.guardarDados();
+                        this.fecharDetalhesJogo();
+                    }
+                },
                 guardarJogo() {
                     const jogo = {
                         id: Date.now().toString(),
@@ -1710,7 +1836,68 @@
                     const diaSemana = d.toLocaleDateString('pt-PT', { weekday: 'long' });
                     return `${diaMesAno} - ${diaSemana}`;
                 },
-
+                gerarOpcoesMeses() {
+                    const hoje = new Date();
+                    const mesAtual = hoje.getMonth(); // 0-11
+                    const anoAtual = hoje.getFullYear();
+                    const mesAtualChave = `${anoAtual}-${String(mesAtual + 1).padStart(2, '0')}`;
+                    
+                    const opcoes = [];
+                    
+                    // SEMPRE adicionar "Este Mês" primeiro (mesmo sem jogos)
+                    opcoes.push({
+                        label: `📅 Este Mês (${this.getNomeMes(mesAtual)} ${anoAtual})`,
+                        valor: mesAtualChave
+                    });
+                    
+                    // Obter todos os meses únicos que têm jogos (exceto o mês atual)
+                    const mesesComJogos = new Set();
+                    
+                    this.jogos.forEach(jogo => {
+                        const dataJogo = new Date(jogo.data + 'T00:00:00');
+                        const ano = dataJogo.getFullYear();
+                        const mes = dataJogo.getMonth() + 1; // 1-12
+                        const chave = `${ano}-${String(mes).padStart(2, '0')}`;
+                        
+                        // Só adicionar se NÃO for o mês atual
+                        if (chave !== mesAtualChave) {
+                            mesesComJogos.add(chave);
+                        }
+                    });
+                    
+                    // Converter Set para Array e ordenar (mais recente primeiro)
+                    const mesesOrdenados = Array.from(mesesComJogos).sort((a, b) => {
+                        return b.localeCompare(a);
+                    });
+                    
+                    // Adicionar os meses que têm jogos
+                    mesesOrdenados.forEach(mesChave => {
+                        const [ano, mes] = mesChave.split('-').map(Number);
+                        const mesIndex = mes - 1; // Converter para 0-11
+                        
+                        opcoes.push({
+                            label: `🗓️ ${this.getNomeMes(mesIndex)} ${ano}`,
+                            valor: mesChave
+                        });
+                    });
+                    
+                    // Adicionar opção "Desde Sempre" no final (se houver jogos)
+                    if (this.jogos.length > 0) {
+                        opcoes.push({
+                            label: '♾️ Desde Sempre',
+                            valor: 'sempre'
+                        });
+                    }
+                    
+                    return opcoes;
+                },
+                getNomeMes(numeroMes) {
+                    const meses = [
+                        'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+                        'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+                    ];
+                    return meses[numeroMes];
+                },
                 // Determina se foi Vitória (W), Derrota (L) ou Empate (D)
                 getResultadoInfo(jogo, jogadorId) {
                     const naEquipaA = jogo.equipaA.includes(jogadorId);
@@ -1750,6 +1937,15 @@
             },
             mounted() {
                 this.carregarDados();
+                
+                // Gerar opções de meses dinamicamente
+                this.opcoesTempo = this.gerarOpcoesMeses();
+                
+                // Definir filtro default como o mês atual
+                const hoje = new Date();
+                const mesAtual = hoje.getMonth() + 1; // 1-12
+                const anoAtual = hoje.getFullYear();
+                this.filtroTempo = `${anoAtual}-${String(mesAtual).padStart(2, '0')}`;
             }
         }).mount('#app');
     </script>
