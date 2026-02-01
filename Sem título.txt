@@ -13,20 +13,7 @@ Ganhou - Nota * 2
 (tudo arredondado para inteiros)
 faz top pontos (os tops 3 tem quadrados especiais que mostra a imagem)
 
-Tops: -> falta colocar o filtro default para este mês (mostrar só as estatisticas que estão a contar para a Classificação atual)
-ratio (R)
-golos (G)
-assistencias (A)
-golos e assistencias (G+A)
-perdas de bola (PB)
-golos por jogo (G/J)
-assistencias por jogo (A/J)
-golos e assitencias por jogo (G+A/J)
-perdas de bola por jogo (P/J)
-jogos (J)
-Win Rate (W%)
-
-Jogadores que são premiados num mês têm uma carta com design associado a esse prémio durante a liga do próximo mês
+Jogadores que são premiados num mês têm uma carta com design associado a esse prémio durante a liga do próximo mês (ex:artilheiro)
 
 Perfil de Jogadores:
 Adicionar Biografia(alcunha,pé dominante,pior pé, data de nascimento, altura, etc...)

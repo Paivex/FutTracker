@@ -7,11 +7,45 @@
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* Estilos personalizados para scrollbar e drag & drop */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        
+        .jogador-card {
+            user-select: none;
+            touch-action: none; 
+        }
+        .jogador-card.dragging {
+            opacity: 0.5;
+            transform: scale(0.95);
+        }
+        .drop-zone.drag-over {
+            background-color: #e0f2fe; /* blue-100 */
+            border-color: #3b82f6; /* blue-500 */
+            border-style: dashed;
+        }
+        .drop-zone.equipa-completa {
+            opacity: 0.8;
+            border-style: solid;
+        }
+    </style>
 </head>
 <body class="bg-gray-100">
     <div id="app" v-cloak>
         <div class="min-h-screen">
-            <!-- Header -->
             <header class="bg-gradient-to-r from-blue-600 to-blue-800 text-white shadow-lg">
                 <div class="container mx-auto px-4 py-6">
                     <h1 class="text-3xl font-bold">⚽ FutTracker</h1>
@@ -19,26 +53,23 @@
                 </div>
             </header>
 
-            <!-- Navigation Tabs -->
             <div class="bg-white shadow">
                 <div class="container mx-auto px-4">
-                    <div class="flex space-x-1">
+                    <div class="flex space-x-1 overflow-x-auto">
                         <button 
                             v-for="tab in tabs" 
                             :key="tab.id"
                             @click="activeTab = tab.id"
                             :class="activeTab === tab.id ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-100'"
-                            class="px-6 py-3 font-medium transition-colors">
+                            class="px-6 py-3 font-medium transition-colors whitespace-nowrap">
                             {{ tab.nome }}
                         </button>
                     </div>
                 </div>
             </div>
             
-            <!-- Main Content -->
             <div class="container mx-auto px-4 py-8">
                 
-                <!-- Tab: página principal -->
                 <div v-if="activeTab === 'dashboard'" class="space-y-6">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div class="bg-white rounded-lg shadow p-6">
@@ -55,7 +86,6 @@
                         </div>
                     </div>
 
-                    <!-- Top Scorers -->
                     <div class="bg-white rounded-lg shadow">
                         <div class="p-6 border-b">
                             <h2 class="text-xl font-bold text-gray-800">🏆 Top Marcadores</h2>
@@ -95,7 +125,6 @@
                         </div>
                     </div>
 
-                    <!-- Top Assistências -->
                     <div class="bg-white rounded-lg shadow">
                         <div class="p-6 border-b">
                             <h2 class="text-xl font-bold text-gray-800">🎯 Top Assistências</h2>
@@ -135,7 +164,6 @@
                         </div>
                     </div>
 
-                    <!-- Top Ratings -->
                     <div class="bg-white rounded-lg shadow">
                         <div class="p-6 border-b">
                             <h2 class="text-xl font-bold text-gray-800">⭐ Top Ratings</h2>
@@ -177,7 +205,6 @@
                     </div>
                 </div>
 
-                <!-- Tab: Jogadores -->
                 <div v-if="activeTab === 'jogadores'" class="space-y-6">
                     
                     <div class="bg-white rounded-lg shadow p-6 border-b flex flex-col md:flex-row justify-between items-center gap-4">
@@ -224,283 +251,32 @@
                                             </div>
                                         </div>
                                     </div>
-                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Tab: Novo Jogo -->
-                <div v-if="activeTab === 'novo-jogo'" class="space-y-6">
-                    <div class="bg-white rounded-lg shadow p-6">
-                        <div class="flex items-center justify-between mb-6">
-                            <h2 class="text-xl font-bold text-gray-800">
-                                Registar Novo Jogo
-                            </h2>
-
-                            <button
-                                @click="equipasAleatorias"
-                                class="px-5 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition font-medium">
-                                Gerar Equipas Aleatórias
-                            </button>
-                        </div>
-                        <div v-if="jogadores.length < 10" class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-yellow-800 mb-6">
-                            ⚠️ Precisas de pelo menos 10 jogadores registados para criar um jogo.
-                        </div>
-
-                        <div v-else class="space-y-6">
-                            <!-- Data e Tipo de Jogo -->
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Data do Jogo</label>
-                                    <input v-model="novoJogo.data" type="date"
-                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Tipo de Jogo</label>
-                                    <select v-model="novoJogo.tipoJogo"
-                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white">
-                                        <option value="fut5">Fut 5 (5 jogadores por equipa)</option>
-                                        <option value="fut6">Fut 6 (6 jogadores por equipa)</option>
-                                        <option value="fut7">Fut 7 (7 jogadores por equipa)</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <!-- Interface Drag and Drop -->
-                            <div class="grid grid-cols-3 gap-4">
-                                <!-- Equipa A -->
-                                <div class="space-y-2">
-                                    <h3 class="font-semibold text-blue-800 text-center">Equipa A</h3>
-                                    <div class="text-center text-sm text-gray-600 mb-2">
-                                        {{ novoJogo.equipaA.length }} / {{ maxJogadoresPorEquipa }}
-                                    </div>
-                                    <div 
-                                        @drop="onDrop($event, 'A')"
-                                        @dragover.prevent="onDragOver($event, 'A')"
-                                        @dragleave="onDragLeave($event, 'A')"
-                                        :class="[
-                                            'drop-zone border-2 border-blue-300 rounded-lg p-3 bg-blue-50',
-                                            dragOverZone === 'A' ? 'drag-over' : '',
-                                            novoJogo.equipaA.length >= maxJogadoresPorEquipa ? 'equipa-completa' : ''
-                                        ]"
-                                        style="min-height: 400px; max-height: 400px; overflow-y: auto;"
-                                        class="custom-scrollbar">
-                                        <div v-if="novoJogo.equipaA.length === 0" class="text-center text-gray-400 mt-20">
-                                            Arrasta jogadores aqui
-                                        </div>
-                                        <div class="space-y-2">
-                                            <div 
-                                                v-for="jogadorId in novoJogo.equipaA" 
-                                                :key="'a-' + jogadorId"
-                                                draggable="true"
-                                                @dragstart="onDragStart($event, jogadorId, 'A')"
-                                                @dragend="onDragEnd"
-                                                class="jogador-card bg-blue-100 border border-blue-300 rounded-lg p-3 cursor-move">
-                                                <div class="flex justify-between items-center">
-                                                    <span class="font-medium text-blue-900">{{ getNomeJogador(jogadorId) }}</span>
-                                                    <button 
-                                                        @click="removerJogadorEquipa(jogadorId, 'A')"
-                                                        class="text-blue-600 hover:text-blue-800 text-sm">
-                                                        ✕
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Jogadores Disponíveis (Centro) -->
-                                <div class="space-y-2">
-                                    <h3 class="font-semibold text-gray-800 text-center">Jogadores Disponíveis</h3>
-                                    <div class="text-center text-sm text-gray-600 mb-2">
-                                        {{ jogadoresDisponiveis.length }} disponíveis
-                                    </div>
-                                    <div 
-                                        class="border-2 border-gray-300 rounded-lg p-3 bg-gray-50 custom-scrollbar"
-                                        style="min-height: 400px; max-height: 400px; overflow-y: auto;">
-                                        <div v-if="jogadoresDisponiveis.length === 0" class="text-center text-gray-400 mt-20">
-                                            Todos os jogadores foram selecionados
-                                        </div>
-                                        <div class="space-y-2">
-                                            <div 
-                                                v-for="jogador in jogadoresDisponiveis" 
-                                                :key="'disp-' + jogador.id"
-                                                draggable="true"
-                                                @dragstart="onDragStart($event, jogador.id, 'disponivel')"
-                                                @dragend="onDragEnd"
-                                                @click="toggleSelecionado(jogador.id)"
-                                                :class="[
-                                                    'jogador-card border rounded-lg p-3 transition',
-                                                    jogadoresSelecionadosJogo.includes(jogador.id)
-                                                        ? 'bg-green-100 border-green-400 text-green-900 cursor-pointer'
-                                                        : jogadoresSelecionadosJogo.length >= maxJogadoresSelecionaveis
-                                                            ? 'bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed'
-                                                            : 'bg-white border-gray-300 hover:border-gray-400 cursor-pointer'
-                                                ]">
-                                                <div class="font-medium">
-                                                    {{ jogador.nome }}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Equipa B -->
-                                <div class="space-y-2">
-                                    <h3 class="font-semibold text-red-800 text-center">Equipa B</h3>
-                                    <div class="text-center text-sm text-gray-600 mb-2">
-                                        {{ novoJogo.equipaB.length }} / {{ maxJogadoresPorEquipa }}
-                                    </div>
-                                    <div 
-                                        @drop="onDrop($event, 'B')"
-                                        @dragover.prevent="onDragOver($event, 'B')"
-                                        @dragleave="onDragLeave($event, 'B')"
-                                        :class="[
-                                            'drop-zone border-2 border-red-300 rounded-lg p-3 bg-red-50',
-                                            dragOverZone === 'B' ? 'drag-over' : '',
-                                            novoJogo.equipaB.length >= maxJogadoresPorEquipa ? 'equipa-completa' : ''
-                                        ]"
-                                        style="min-height: 400px; max-height: 400px; overflow-y: auto;"
-                                        class="custom-scrollbar">
-                                        <div v-if="novoJogo.equipaB.length === 0" class="text-center text-gray-400 mt-20">
-                                            Arrasta jogadores aqui
-                                        </div>
-                                        <div class="space-y-2">
-                                            <div 
-                                                v-for="jogadorId in novoJogo.equipaB" 
-                                                :key="'b-' + jogadorId"
-                                                draggable="true"
-                                                @dragstart="onDragStart($event, jogadorId, 'B')"
-                                                @dragend="onDragEnd"
-                                                class="jogador-card bg-red-100 border border-red-300 rounded-lg p-3 cursor-move">
-                                                <div class="flex justify-between items-center">
-                                                    <span class="font-medium text-red-900">{{ getNomeJogador(jogadorId) }}</span>
-                                                    <button 
-                                                        @click="removerJogadorEquipa(jogadorId, 'B')"
-                                                        class="text-red-600 hover:text-red-800 text-sm">
-                                                        ✕
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>                                    
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-2 gap-4 mt-4">
-                                <div>
-                                    <label class="block text-sm font-medium text-blue-700 mb-2">Golos Equipa A</label>
-                                    <input 
-                                        v-model.number="novoJogo.golosA"
-                                        type="number" 
-                                        min="0"
-                                        class="w-full px-4 py-2 border border-blue-300 rounded-lg bg-blue-50">
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-red-700 mb-2">Golos Equipa B</label>
-                                    <input 
-                                        v-model.number="novoJogo.golosB"
-                                        type="number" 
-                                        min="0"
-                                        class="w-full px-4 py-2 border border-red-300 rounded-lg bg-red-50">
-                                </div>
-                            </div>
-
-                            <!-- Avisos de validação de golos e assistências -->
-                            <div v-if="todosJogadoresJogo.length > 0" class="space-y-2">
-                                <div v-if="!golosValidosEquipaA" class="bg-red-50 border border-red-300 rounded-lg p-4 text-red-800">
-                                    ⚠️ <strong>Equipa A:</strong> A soma dos golos dos jogadores ({{ totalGolosEquipaA }}) tem que ser exatamente igual ao total de golos da equipa ({{ novoJogo.golosA }})
-                                </div>
-                                <div v-if="!golosValidosEquipaB" class="bg-red-50 border border-red-300 rounded-lg p-4 text-red-800">
-                                    ⚠️ <strong>Equipa B:</strong> A soma dos golos dos jogadores ({{ totalGolosEquipaB }}) tem que ser exatamente igual ao total de golos da equipa ({{ novoJogo.golosB }})
-                                </div>
-                                <div v-if="!assistenciasValidasEquipaA" class="bg-red-50 border border-red-300 rounded-lg p-4 text-red-800">
-                                    ⚠️ <strong>Equipa A:</strong> A soma das assistências dos jogadores ({{ totalAssistenciasEquipaA }}) excede o total de golos da equipa ({{ novoJogo.golosA }})
-                                </div>
-                                <div v-if="!assistenciasValidasEquipaB" class="bg-red-50 border border-red-300 rounded-lg p-4 text-red-800">
-                                    ⚠️ <strong>Equipa B:</strong> A soma das assistências dos jogadores ({{ totalAssistenciasEquipaB }}) excede o total de golos da equipa ({{ novoJogo.golosB }})
-                                </div>
-                            </div>
-                            
-                            <!-- Estatísticas por Jogador -->
-                            <div v-if="todosJogadoresJogo.length > 0" class="border-t pt-6">
-                                <h3 class="font-semibold text-gray-800 mb-4">Estatísticas Individuais</h3>
-                                <div class="space-y-4">
-                                    <div v-for="jogadorId in todosJogadoresJogo" :key="jogadorId" 
-                                         class="border border-gray-200 rounded-lg p-4">
-                                        <h4 class="font-medium text-gray-800 mb-3">
-                                            {{ getNomeJogador(jogadorId) }}
-                                            <span class="text-sm text-gray-500 ml-2">
-                                                ({{ novoJogo.equipaA.includes(jogadorId) ? 'Equipa A' : 'Equipa B' }})
-                                            </span>
-                                        </h4>
-                                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                            <div>
-                                                <label class="block text-xs font-bold text-gray-500 mb-1 uppercase">⚽ Golos</label>
-                                                <input v-model.number="getStats(jogadorId).golos" type="number" min="0" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500">
-                                            </div>
-                                            <div>
-                                                <label class="block text-xs font-bold text-gray-500 mb-1 uppercase">🎯 Assistências</label>
-                                                <input v-model.number="getStats(jogadorId).assistencias" type="number" min="0" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500">
-                                            </div>
-                                            <div>
-                                                <label class="block text-xs font-bold text-gray-500 mb-1 uppercase">❌ Perdas</label>
-                                                <input v-model.number="getStats(jogadorId).perdas" type="number" min="0" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500">
-                                            </div>
-                                            <div>
-                                                <label class="block text-xs font-bold text-gray-500 mb-1 uppercase">😱 Falhanços</label>
-                                                <input v-model.number="getStats(jogadorId).falhancos" type="number" min="0" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500">
-                                            </div>
-                                        </div>
-                                        <!-- Rating calculado automaticamente -->
-                                        <div class="mt-3 p-3 bg-gray-50 rounded">
-                                            <div class="flex items-center justify-between">
-                                                <span class="text-sm font-medium text-gray-700">⭐ Rating do jogo:</span>
-                                                <span class="text-lg font-bold" :class="getRatingColor(calcularRatingJogo(jogadorId))">
-                                                    {{ calcularRatingJogo(jogadorId).toFixed(1) }}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Botões -->
-                            <div class="flex gap-4">
-                                <button 
-                                    @click="guardarJogo"
-                                    :disabled="!jogoValido"
-                                    :class="jogoValido ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-400 cursor-not-allowed'"
-                                    class="flex-1 px-6 py-3 text-white rounded-lg transition font-medium">
-                                    ✓ Guardar Jogo
-                                </button>
-                                <button 
-                                    @click="limparNovoJogo"
-                                    class="px-6 py-3 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition font-medium">
-                                    Limpar
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Tab: Histórico de jogos -->
-                <div v-if="activeTab === 'historico'" class="space-y-6">
+                <div v-if="activeTab === 'jogos'" class="space-y-6">
                     <div class="bg-white rounded-lg shadow">
-                        <div class="p-6 border-b">
+                        <div class="p-6 border-b flex justify-between items-center">
                             <h2 class="text-xl font-bold text-gray-800">Histórico de Jogos ({{ jogos.length }})</h2>
+                            
+                            <button 
+                                @click="abrirNovoJogo"
+                                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center gap-2 shadow-sm font-medium">
+                                ➕ Novo Jogo
+                            </button>
                         </div>
                         <div class="p-6">
                             <div v-if="jogos.length === 0" class="text-gray-500 text-center py-8">
-                                Nenhum jogo registado ainda
+                                Nenhum jogo registado ainda.
                             </div>
                             <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                                 <button v-for="jogo in jogosOrdenados" :key="jogo.id"
                                      @click="abrirDetalhesJogo(jogo.id)"
                                      class="border-2 border-gray-200 rounded-lg p-3 hover:border-blue-500 hover:shadow-md transition text-left bg-white">
                                     
-                                    <!-- Data e Tipo -->
                                     <div class="text-xs text-gray-400 mb-2 flex justify-between items-center">
                                         <span>{{ formatarData(jogo.data) }}</span>
                                         <span class="bg-gray-100 px-2 py-0.5 rounded text-gray-600 font-medium">
@@ -508,14 +284,12 @@
                                         </span>
                                     </div>
                                     
-                                    <!-- Resultado -->
                                     <div class="flex items-center justify-center gap-3 mb-3">
                                         <div class="text-2xl font-bold text-blue-600">{{ jogo.golosA }}</div>
                                         <div class="text-gray-300">-</div>
                                         <div class="text-2xl font-bold text-red-600">{{ jogo.golosB }}</div>
                                     </div>
 
-                                    <!-- Equipas (inline) -->
                                     <div class="space-y-2 text-xs">
                                         <div class="bg-blue-50 rounded p-2">
                                             <div class="font-semibold text-blue-700 mb-1">Equipa A</div>
@@ -536,7 +310,6 @@
                     </div>
                 </div>
 
-                <!-- Tab: Tops -->
                 <div v-if="activeTab === 'tops'" class="space-y-6">
                     <div class="bg-white rounded-lg shadow p-6">
                         
@@ -608,7 +381,6 @@
                     </div>
                 </div>
 
-                <!-- Tab: Classificação -->
                 <div v-if="activeTab === 'classificacao'" class="space-y-6">
                     <div class="bg-white rounded-lg shadow">
                         <div class="p-6 border-b">
@@ -625,7 +397,6 @@
                     </div>
                 </div>
 
-                <!-- Tab: premios -->
                 <div v-if="activeTab === 'premios'" class="space-y-6">
                     <div class="bg-white rounded-lg shadow">
                         <div class="p-6 border-b">
@@ -644,12 +415,182 @@
             </div>
         </div>
 
-        <!-- Modal de Detalhes do Jogador -->
+        <div v-if="mostrarNovoJogo" 
+             @click="fecharNovoJogo"
+             class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            
+            <div @click.stop class="bg-white rounded-lg shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-y-auto">
+                
+                <div class="bg-blue-700 text-white p-6 rounded-t-lg flex justify-between items-center sticky top-0 z-10 shadow">
+                    <h2 class="text-2xl font-bold">Registar Novo Jogo</h2>
+                    <button @click="fecharNovoJogo" class="text-blue-100 hover:text-white text-2xl font-bold">✕</button>
+                </div>
+
+                <div class="p-6">
+                    <div v-if="jogadores.length < 10" class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-yellow-800 mb-6">
+                        ⚠️ Precisas de pelo menos 10 jogadores registados para criar um jogo.
+                    </div>
+
+                    <div v-else class="space-y-6">
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b pb-6">
+                            <div class="flex gap-4 flex-1 w-full">
+                                <div class="flex-1">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Data</label>
+                                    <input v-model="novoJogo.data" type="date" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                <div class="flex-1">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Tipo</label>
+                                    <select v-model="novoJogo.tipoJogo" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white">
+                                        <option value="fut5">Fut 5 (5v5)</option>
+                                        <option value="fut6">Fut 6 (6v6)</option>
+                                        <option value="fut7">Fut 7 (7v7)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button @click="equipasAleatorias" class="px-5 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition font-medium w-full md:w-auto mt-6 md:mt-0">
+                                🎲 Gerar Equipas Aleatórias
+                            </button>
+                        </div>
+
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                            <div class="space-y-2">
+                                <h3 class="font-bold text-blue-800 text-center bg-blue-50 py-2 rounded">Equipa A ({{ novoJogo.equipaA.length }}/{{ maxJogadoresPorEquipa }})</h3>
+                                <div @drop="onDrop($event, 'A')" @dragover.prevent="onDragOver($event, 'A')" @dragleave="onDragLeave($event, 'A')"
+                                     :class="['drop-zone border-2 border-blue-200 rounded-lg p-3 bg-blue-50 min-h-[400px]', dragOverZone === 'A' ? 'drag-over' : '']">
+                                    <div v-if="novoJogo.equipaA.length === 0" class="text-center text-blue-300 mt-20 font-medium">Arrasta jogadores aqui</div>
+                                    <div class="space-y-2">
+                                        <div v-for="jogadorId in novoJogo.equipaA" :key="'a-' + jogadorId" draggable="true" @dragstart="onDragStart($event, jogadorId, 'A')" @dragend="onDragEnd"
+                                             class="jogador-card bg-white border-l-4 border-blue-500 shadow-sm rounded p-3 cursor-move flex justify-between items-center hover:shadow-md transition">
+                                            <span class="font-medium text-gray-700">{{ getNomeJogador(jogadorId) }}</span>
+                                            <button @click="removerJogadorEquipa(jogadorId, 'A')" class="text-gray-400 hover:text-red-500">✕</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="space-y-2 order-last lg:order-none">
+                                <h3 class="font-bold text-gray-700 text-center bg-gray-100 py-2 rounded">Disponíveis ({{ jogadoresDisponiveis.length }})</h3>
+                                <div class="border-2 border-gray-200 rounded-lg p-3 bg-white min-h-[400px] max-h-[400px] overflow-y-auto custom-scrollbar">
+                                    <div v-if="jogadoresDisponiveis.length === 0" class="text-center text-gray-300 mt-20">Todos selecionados</div>
+                                    <div class="space-y-2">
+                                        <div v-for="jogador in jogadoresDisponiveis" :key="'disp-' + jogador.id" draggable="true" 
+                                             @dragstart="onDragStart($event, jogador.id, 'disponivel')" @dragend="onDragEnd" @click="toggleSelecionado(jogador.id)"
+                                             :class="['jogador-card border rounded p-2 transition cursor-pointer flex justify-between items-center', jogadoresSelecionadosJogo.includes(jogador.id) ? 'bg-green-50 border-green-300 ring-1 ring-green-300' : 'bg-gray-50 border-gray-200 hover:bg-gray-100']">
+                                            <span class="font-medium">{{ jogador.nome }}</span>
+                                            <span v-if="jogadoresSelecionadosJogo.includes(jogador.id)" class="text-green-600 text-sm">✓</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="text-xs text-center text-gray-400">Seleciona jogadores para gerar equipas ou arrasta.</p>
+                            </div>
+
+                            <div class="space-y-2">
+                                <h3 class="font-bold text-red-800 text-center bg-red-50 py-2 rounded">Equipa B ({{ novoJogo.equipaB.length }}/{{ maxJogadoresPorEquipa }})</h3>
+                                <div @drop="onDrop($event, 'B')" @dragover.prevent="onDragOver($event, 'B')" @dragleave="onDragLeave($event, 'B')"
+                                     :class="['drop-zone border-2 border-red-200 rounded-lg p-3 bg-red-50 min-h-[400px]', dragOverZone === 'B' ? 'drag-over' : '']">
+                                    <div v-if="novoJogo.equipaB.length === 0" class="text-center text-red-300 mt-20 font-medium">Arrasta jogadores aqui</div>
+                                    <div class="space-y-2">
+                                        <div v-for="jogadorId in novoJogo.equipaB" :key="'b-' + jogadorId" draggable="true" @dragstart="onDragStart($event, jogadorId, 'B')" @dragend="onDragEnd"
+                                             class="jogador-card bg-white border-l-4 border-red-500 shadow-sm rounded p-3 cursor-move flex justify-between items-center hover:shadow-md transition">
+                                            <span class="font-medium text-gray-700">{{ getNomeJogador(jogadorId) }}</span>
+                                            <button @click="removerJogadorEquipa(jogadorId, 'B')" class="text-gray-400 hover:text-red-500">✕</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-center gap-8 py-6 bg-gray-50 rounded-xl border border-gray-200">
+                            <div class="text-center">
+                                <label class="block text-sm font-bold text-blue-700 mb-2 uppercase tracking-wider">Golos Equipa A</label>
+                                <input v-model.number="novoJogo.golosA" type="number" min="0" class="w-24 text-center text-3xl font-bold px-2 py-2 border-2 border-blue-200 rounded-lg focus:ring-blue-500 focus:border-blue-500 bg-white text-blue-700">
+                            </div>
+                            <span class="text-4xl text-gray-300 font-light">-</span>
+                            <div class="text-center">
+                                <label class="block text-sm font-bold text-red-700 mb-2 uppercase tracking-wider">Golos Equipa B</label>
+                                <input v-model.number="novoJogo.golosB" type="number" min="0" class="w-24 text-center text-3xl font-bold px-2 py-2 border-2 border-red-200 rounded-lg focus:ring-red-500 focus:border-red-500 bg-white text-red-700">
+                            </div>
+                        </div>
+
+                        <div v-if="todosJogadoresJogo.length > 0" class="space-y-2">
+                            <div v-if="!golosValidosEquipaA" class="bg-red-50 border border-red-200 rounded px-4 py-3 flex items-center gap-2 text-red-700 text-sm">
+                                <span class="text-lg">⚠️</span> 
+                                <span><strong>Equipa A:</strong> A soma dos golos dos jogadores ({{ totalGolosEquipaA }}) tem de ser igual ao resultado ({{ novoJogo.golosA }}).</span>
+                            </div>
+                            <div v-if="!golosValidosEquipaB" class="bg-red-50 border border-red-200 rounded px-4 py-3 flex items-center gap-2 text-red-700 text-sm">
+                                <span class="text-lg">⚠️</span> 
+                                <span><strong>Equipa B:</strong> A soma dos golos dos jogadores ({{ totalGolosEquipaB }}) tem de ser igual ao resultado ({{ novoJogo.golosB }}).</span>
+                            </div>
+                            <div v-if="!assistenciasValidasEquipaA" class="bg-yellow-50 border border-yellow-200 rounded px-4 py-3 flex items-center gap-2 text-yellow-800 text-sm">
+                                <span class="text-lg">⚠️</span> 
+                                <span><strong>Equipa A:</strong> Assistências ({{ totalAssistenciasEquipaA }}) excedem o número de golos.</span>
+                            </div>
+                            <div v-if="!assistenciasValidasEquipaB" class="bg-yellow-50 border border-yellow-200 rounded px-4 py-3 flex items-center gap-2 text-yellow-800 text-sm">
+                                <span class="text-lg">⚠️</span> 
+                                <span><strong>Equipa B:</strong> Assistências ({{ totalAssistenciasEquipaB }}) excedem o número de golos.</span>
+                            </div>
+                        </div>
+
+                        <div v-if="todosJogadoresJogo.length > 0">
+                            <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
+                                📊 Estatísticas Individuais
+                                <span class="text-xs font-normal text-gray-500 bg-gray-100 px-2 py-1 rounded">Preenchimento Obrigatório</span>
+                            </h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div v-for="jogadorId in todosJogadoresJogo" :key="jogadorId" 
+                                     :class="['border rounded-lg p-4 transition', novoJogo.equipaA.includes(jogadorId) ? 'bg-blue-50 border-blue-100' : 'bg-red-50 border-red-100']">
+                                    
+                                    <div class="flex justify-between items-center mb-3">
+                                        <h4 class="font-bold text-gray-800">{{ getNomeJogador(jogadorId) }}</h4>
+                                        <div class="mt-3 p-2 bg-white rounded border border-gray-200 shadow-sm inline-flex items-center gap-2">
+                                            <span class="text-xs font-bold text-gray-400 uppercase">Rating</span>
+                                            <span class="text-lg font-bold" :class="getRatingColor(calcularRatingJogo(jogadorId))">
+                                                {{ calcularRatingJogo(jogadorId).toFixed(1) }}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div class="grid grid-cols-4 gap-2">
+                                        <div>
+                                            <label class="block text-[10px] font-bold text-gray-500 mb-1 uppercase text-center">⚽ Golos</label>
+                                            <input v-model.number="getStats(jogadorId).golos" type="number" min="0" class="w-full text-center px-1 py-1 border border-gray-300 rounded focus:border-blue-500">
+                                        </div>
+                                        <div>
+                                            <label class="block text-[10px] font-bold text-gray-500 mb-1 uppercase text-center">🎯 Assist</label>
+                                            <input v-model.number="getStats(jogadorId).assistencias" type="number" min="0" class="w-full text-center px-1 py-1 border border-gray-300 rounded focus:border-blue-500">
+                                        </div>
+                                        <div>
+                                            <label class="block text-[10px] font-bold text-gray-500 mb-1 uppercase text-center">❌ Perdas</label>
+                                            <input v-model.number="getStats(jogadorId).perdas" type="number" min="0" class="w-full text-center px-1 py-1 border border-gray-300 rounded focus:border-blue-500">
+                                        </div>
+                                        <div>
+                                            <label class="block text-[10px] font-bold text-gray-500 mb-1 uppercase text-center">😱 Falha</label>
+                                            <input v-model.number="getStats(jogadorId).falhancos" type="number" min="0" class="w-full text-center px-1 py-1 border border-gray-300 rounded bg-gray-50 focus:border-blue-500">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 p-6 border-t rounded-b-lg flex justify-between items-center">
+                    <button @click="limparNovoJogo" class="px-6 py-2 text-gray-600 hover:text-gray-800 font-medium">Limpar Tudo</button>
+                    <div class="flex gap-3">
+                        <button @click="fecharNovoJogo" class="px-6 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium">Cancelar</button>
+                        <button @click="guardarJogo" :disabled="!jogoValido" 
+                                :class="['px-8 py-2 rounded-lg font-bold shadow-sm transition flex items-center gap-2', jogoValido ? 'bg-green-600 text-white hover:bg-green-700 transform hover:-translate-y-0.5' : 'bg-gray-300 text-gray-500 cursor-not-allowed']">
+                            <span>💾 Guardar Jogo</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div v-if="mostrarDetalhes && jogadorDetalhes" 
              @click="fecharDetalhes"
              class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div @click.stop class="bg-white rounded-lg shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-                <!-- Header -->
                 <div class="bg-gradient-to-r from-blue-600 to-blue-800 text-white p-6 rounded-t-lg">
                     <div class="flex justify-between items-start">
                         <div class="flex-1">
@@ -670,7 +611,6 @@
                 </div>
 
                 <div class="p-6">
-                    <!-- Imagem do Jogador -->
                     <div class="mb-6">
                         <h3 class="text-lg font-semibold text-gray-800 mb-3">Foto do Jogador</h3>
                         <div class="flex items-start space-x-4">
@@ -700,7 +640,6 @@
                         </div>
                     </div>
 
-                    <!-- Estatísticas Gerais -->
                     <div class="mb-6">
                         <h3 class="text-lg font-semibold text-gray-800 mb-3">Estatísticas Gerais</h3>
                         <div class="grid grid-cols-2 md:grid-cols-5 gap-4"> 
@@ -723,11 +662,10 @@
                             <div class="bg-red-50 rounded-lg p-3 text-center">
                                 <div class="text-2xl font-bold text-red-600">{{ jogadorDetalhes.perdas }}</div>
                                 <div class="text-xs text-gray-600 mt-1">❌ Perdas</div>
-                            </div>                         
+                            </div>                          
                         </div>
                     </div>
 
-                    <!-- Resultados -->
                     <div class="mb-6">
                         <h3 class="text-lg font-semibold text-gray-800 mb-3">Balanço</h3>
                         <div class="grid grid-cols-4 gap-4">
@@ -752,10 +690,9 @@
                         </div>
                     </div>
 
-                    <!-- Médias -->
                     <div class="mb-6">
                         <h3 class="text-lg font-semibold text-gray-800 mb-3">Médias por Jogo</h3>
-                        <div class="grid grid-cols-3 gap-4">
+                        <div class="grid grid-cols-3 md:grid-cols-5 gap-4">
                             <div class="bg-blue-50 rounded-lg p-4 text-center">
                                 <div class="text-2xl font-bold text-blue-600">
                                     {{ jogadorDetalhes.jogos > 0 ? (jogadorDetalhes.golos / jogadorDetalhes.jogos).toFixed(2) : '0.00' }}
@@ -766,19 +703,13 @@
                                 <div class="text-2xl font-bold text-green-600">
                                     {{ jogadorDetalhes.jogos > 0 ? (jogadorDetalhes.assistencias / jogadorDetalhes.jogos).toFixed(2) : '0.00' }}
                                 </div>
-                                <div class="text-sm text-gray-600 mt-1">Assistências/jogo</div>
+                                <div class="text-sm text-gray-600 mt-1">Assist./jogo</div>
                             </div>
                             <div class="bg-purple-50 rounded-lg p-4 text-center">
                                 <div class="text-2xl font-bold text-purple-600">
                                     {{ jogadorDetalhes.jogos > 0 ? ((jogadorDetalhes.golos + jogadorDetalhes.assistencias) / jogadorDetalhes.jogos).toFixed(2) : '0.00' }}
                                 </div>
-                                <div class="text-sm text-gray-600 mt-1">Contribuições/jogo</div>
-                            </div>
-                            <div class="bg-orange-50 rounded-lg p-4 text-center">
-                                <div class="text-2xl font-bold text-orange-600">
-                                    {{ jogadorDetalhes.jogos > 0 ? (jogadorDetalhes.falhancos / jogadorDetalhes.jogos).toFixed(2) : '0.00' }}
-                                </div>
-                                <div class="text-sm text-gray-600 mt-1">Falhanços/jogo</div>
+                                <div class="text-sm text-gray-600 mt-1">Contrib./jogo</div>
                             </div>
                             <div class="bg-red-50 rounded-lg p-4 text-center">
                                 <div class="text-2xl font-bold text-red-600">
@@ -786,10 +717,15 @@
                                 </div>
                                 <div class="text-sm text-gray-600 mt-1">Perdas/jogo</div>
                             </div>
+                            <div class="bg-orange-50 rounded-lg p-4 text-center">
+                                <div class="text-2xl font-bold text-orange-600">
+                                    {{ jogadorDetalhes.jogos > 0 ? (jogadorDetalhes.falhancos / jogadorDetalhes.jogos).toFixed(2) : '0.00' }}
+                                </div>
+                                <div class="text-sm text-gray-600 mt-1">Falhanços/jogo</div>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Histórico de Jogos -->
                     <div>
                         <h3 class="text-lg font-semibold text-gray-800 mb-3">Últimos Jogos</h3>
                         
@@ -826,8 +762,8 @@
                                         <span class="flex gap-2">
                                             <span>{{ stat.golos || 0 }}⚽</span>
                                             <span>{{ stat.assistencias || 0 }}🎯</span>
+                                            <span>{{ stat.perdas || 0 }}❌</span>
                                             <span>{{ stat.falhancos || 0 }}😱</span>
-                                            <span>{{ stat.perdas || 0 }}❌</span>             
                                         </span>
 
                                         <span class="text-gray-300">|</span>
@@ -843,7 +779,6 @@
                     </div>
                 </div>
 
-                <!-- Footer -->
                 <div class="bg-gray-50 px-6 py-4 rounded-b-lg flex justify-end">
                     <button 
                         @click="fecharDetalhes"
@@ -925,7 +860,6 @@
             </div>
         </div>
 
-        <!-- Adicionar/Remover jogador-->
         <div v-if="mostrarGestaoJogadores" 
              @click="mostrarGestaoJogadores = false"
              class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -985,13 +919,11 @@
             </div>
         </div>
 
-        <!-- Modal de Detalhes do Jogo -->
         <div v-if="mostrarDetalhesJogo && jogoDetalhes" 
              @click="fecharDetalhesJogo"
              class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div @click.stop class="bg-white rounded-lg shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
                 
-                <!-- Header -->
                 <div class="bg-gradient-to-r from-gray-700 to-gray-900 text-white p-6 rounded-t-lg">
                     <div class="flex justify-between items-start">
                         <div class="flex-1">
@@ -1010,7 +942,6 @@
                 </div>
 
                 <div class="p-6">
-                    <!-- Resultado Grande -->
                     <div class="flex items-center justify-center gap-6 mb-6 p-4 bg-gray-50 rounded-lg">
                         <div class="text-center">
                             <div class="text-sm text-gray-500 mb-1">Equipa A</div>
@@ -1023,9 +954,7 @@
                         </div>
                     </div>
 
-                    <!-- Estatísticas dos Jogadores -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <!-- Equipa A -->
                         <div class="border-2 border-blue-200 rounded-lg p-4 bg-blue-50">
                             <h3 class="font-bold text-blue-800 mb-3 text-center">Equipa A</h3>
                             <div class="space-y-2">
@@ -1070,7 +999,6 @@
                             </div>
                         </div>
 
-                        <!-- Equipa B -->
                         <div class="border-2 border-red-200 rounded-lg p-4 bg-red-50">
                             <h3 class="font-bold text-red-800 mb-3 text-center">Equipa B</h3>
                             <div class="space-y-2">
@@ -1116,7 +1044,6 @@
                         </div>
                     </div>
 
-                    <!-- Botão Eliminar Jogo -->
                     <div class="mt-6 pt-4 border-t">
                         <button 
                             @click="removerJogoModal(jogoDetalhes.id)"
@@ -1126,7 +1053,6 @@
                     </div>
                 </div>
 
-                <!-- Footer -->
                 <div class="bg-gray-50 px-6 py-4 rounded-b-lg flex justify-end">
                     <button 
                         @click="fecharDetalhesJogo"
@@ -1149,8 +1075,7 @@
                     tabs: [
                         { id: 'dashboard', nome: '📊 Dashboard' },
                         { id: 'jogadores', nome: '👥 Jogadores' },
-                        { id: 'novo-jogo', nome: '➕ Novo Jogo' },
-                        { id: 'historico', nome: '📋 Jogos' },
+                        { id: 'jogos', nome: '📋 Jogos' }, // Renomeado
                         { id: 'classificacao', nome: '🥇 Classificação' },
                         { id: 'tops', nome: '🏆 Tops' },
                         { id: 'premios', nome: '🎖️ Prémios' }
@@ -1206,6 +1131,8 @@
                     // Modal detalhes do jogo
                     mostrarDetalhesJogo: false,
                     jogoSelecionado: null,
+                    // Modal Novo Jogo
+                    mostrarNovoJogo: false,
                 }
             },
             computed: {
@@ -1526,7 +1453,7 @@
 
                     // Se já estiver selecionado → pode sempre remover
                     if (jaSelecionado) {
-                        this.jogadoresSelecionadosJogo =
+                        this.jogadoresSelecionadosJogo = 
                             this.jogadoresSelecionadosJogo.filter(id => id !== jogadorId);
                         return;
                     }
@@ -1693,7 +1620,7 @@
                     this.jogos.push(jogo);
                     this.guardarDados();
                     this.limparNovoJogo();
-                    this.activeTab = 'historico';
+                    this.fecharNovoJogo(); // Fecha o modal
                     alert('Jogo guardado com sucesso!');
                 },
                 limparNovoJogo() {
@@ -1705,8 +1632,8 @@
                         golosA: 0,
                         golosB: 0,
                         estatisticas: {},
-                        jogadoresSelecionadosJogo: []
                     };
+                    this.jogadoresSelecionadosJogo = [];
                 },
                 equipasAleatorias() {
                     const maxPorEquipa = this.maxJogadoresPorEquipa;
@@ -1919,6 +1846,13 @@
                     if (isDerrota) return { texto: 'L', classe: 'text-red-600 bg-red-100 border-red-200' };
                     return { texto: 'D', classe: 'text-gray-600 bg-gray-100 border-gray-200' };
                 },
+                abrirNovoJogo() {
+                    this.limparNovoJogo();
+                    this.mostrarNovoJogo = true;
+                },
+                fecharNovoJogo() {
+                    this.mostrarNovoJogo = false;
+                },
                 guardarDados() {
                     localStorage.setItem('futebol7_jogadores', JSON.stringify(this.jogadores));
                     localStorage.setItem('futebol7_jogos', JSON.stringify(this.jogos));
@@ -1933,7 +1867,7 @@
                     if (jogosSalvos) {
                         this.jogos = JSON.parse(jogosSalvos);
                     }
-                }               
+                }                
             },
             mounted() {
                 this.carregarDados();
