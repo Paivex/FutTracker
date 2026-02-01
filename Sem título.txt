@@ -1,8 +1,5 @@
 mudar ícone de jogos (está um comando)
 atualizar nr de jogadores disponíveis quando selecionas ao criar um novo jogo
-juntar novo jogo e histórico num só (Jogos):
--tirar destaques do histórico dos jogos
--cada jogo no histórico ser um botão com estatísticas (golos dos jogadores, motm, etc)
 
 criar lógica de pontos para a classificação pontos serão calculados tendo em conta a nota e o resultado
 Classificação:
