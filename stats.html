@@ -315,13 +315,7 @@
                         
                         <div class="border-b pb-4 mb-6 flex flex-col md:flex-row justify-between items-center gap-4">
                             <div>
-                                <h2 class="text-2xl font-bold text-gray-800">🏆 Tops</h2>
-                                <p class="text-sm text-gray-500">
-                                    A mostrar dados de: 
-                                    <span class="font-semibold text-blue-600">
-                                        {{ jogosFiltradosTempo.length }} jogos
-                                    </span>
-                                </p>
+                                <h2 class="text-2xl font-bold text-gray-800">Tabelas de estatísticas</h2>
                             </div>
 
                             <div class="flex items-center gap-2 bg-gray-100 p-1 rounded-lg">
@@ -341,7 +335,7 @@
                                  class="border rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-all transform hover:-translate-y-1 bg-white cursor-pointer group relative">
                                 
                                 <div class="absolute top-2 right-2 text-gray-300 group-hover:text-blue-500 transition">
-                                    <span class="text-xs font-medium">⤢ Ver tudo</span>
+                                    <span class="text-xs font-medium"></span>
                                 </div>
 
                                 <div :class="`bg-${cat.cor}-50 border-b border-${cat.cor}-100 p-3`">
@@ -373,7 +367,7 @@
                                 </div>
                                 
                                 <div class="bg-gray-50 p-2 text-center text-xs text-gray-500 font-medium border-t group-hover:bg-blue-50 group-hover:text-blue-600 transition">
-                                    Clicar para ver classificação completa
+                                    Ver Tudo ⤢
                                 </div>
                             </div>
 
@@ -1106,11 +1100,11 @@
                         { titulo: '❌ Perdas de Bola (PB)', chave: 'perdas', sulfixo: '', decimals: 0, cor: 'red' },
                         { titulo: '😱 Falhanços (F)', chave: 'falhancos', sulfixo: '', decimals: 0, cor: 'orange' },
                         { titulo: '📈 Win Rate (W%)', chave: 'winRate', sulfixo: '%', decimals: 1, cor: 'indigo' },
-                        { titulo: '⚽ Média Golos', chave: 'golosPorJogo', sulfixo: '', decimals: 2, cor: 'blue' },
-                        { titulo: '🎯 Média Assistências', chave: 'assistenciasPorJogo', sulfixo: '', decimals: 2, cor: 'green' },
-                        { titulo: '🤝 Média Contribuições', chave: 'contribuicoesPorJogo', sulfixo: '', decimals: 2, cor: 'purple' },
-                        { titulo: '❌ Média Perdas de Bola', chave: 'perdasPorJogo', sulfixo: '', decimals: 2, cor: 'red' },
-                        { titulo: '😱 Média Falhanços', chave: 'falhancosPorJogo', sulfixo: '', decimals: 2, cor: 'orange' },
+                        { titulo: '⚽ Média Golos (GPJ)', chave: 'golosPorJogo', sulfixo: '', decimals: 2, cor: 'blue' },
+                        { titulo: '🎯 Média Assistências (APJ)', chave: 'assistenciasPorJogo', sulfixo: '', decimals: 2, cor: 'green' },
+                        { titulo: '🤝 Média Contribuições (GAPJ)', chave: 'contribuicoesPorJogo', sulfixo: '', decimals: 2, cor: 'purple' },
+                        { titulo: '❌ Média Perdas de Bola (PBPJ)', chave: 'perdasPorJogo', sulfixo: '', decimals: 2, cor: 'red' },
+                        { titulo: '😱 Média Falhanços (FPJ)', chave: 'falhancosPorJogo', sulfixo: '', decimals: 2, cor: 'orange' },
                     ],
                     // Adicionar/Remover jogadores
                     mostrarGestaoJogadores: false,
@@ -1519,8 +1513,8 @@
                             // Desenhar imagem redimensionada
                             ctx.drawImage(img, sx, sy, sWidth, sHeight, 0, 0, targetWidth, targetHeight);
                             
-                            // Converter para JPEG com qualidade reduzida
-                            const resizedImage = canvas.toDataURL('image/jpeg', 0.7);
+                            // Converter para PNG (mantém a transparência)
+                            const resizedImage = canvas.toDataURL('image/png');
                             
                             console.log('Tamanho após redimensionar:', resizedImage.length, 'caracteres');
                             console.log('Dimensões finais: 800x1200');
@@ -1773,7 +1767,7 @@
                     
                     // SEMPRE adicionar "Este Mês" primeiro (mesmo sem jogos)
                     opcoes.push({
-                        label: `📅 Este Mês (${this.getNomeMes(mesAtual)} ${anoAtual})`,
+                        label: `📅 ${this.getNomeMes(mesAtual)} ${anoAtual} (classificação atual)`,
                         valor: mesAtualChave
                     });
                     

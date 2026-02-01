@@ -4,7 +4,7 @@ juntar novo jogo e histórico num só (Jogos):
 -tirar destaques do histórico dos jogos
 -cada jogo no histórico ser um botão com estatísticas (golos dos jogadores, motm, etc)
 
-criar lógica de pontos (aba nova) pontos serão calculados tendo em conta a nota e o resultado
+criar lógica de pontos para a classificação pontos serão calculados tendo em conta a nota e o resultado
 Classificação:
 Lógica Pontos:
 Perdeu - Nota/2
@@ -16,4 +16,4 @@ faz top pontos (os tops 3 tem quadrados especiais que mostra a imagem)
 Jogadores que são premiados num mês têm uma carta com design associado a esse prémio durante a liga do próximo mês (ex:artilheiro)
 
 Perfil de Jogadores:
-Adicionar Biografia(alcunha,pé dominante,pior pé, data de nascimento, altura, etc...)
+Adicionar Biografia (alcunha,pé dominante,pior pé, data de nascimento, altura, etc...)
