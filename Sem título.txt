@@ -14,3 +14,5 @@ Jogadores que são premiados num mês têm uma carta com design associado a esse
 
 Perfil de Jogadores:
 Adicionar Biografia (alcunha,pé dominante,pior pé, data de nascimento, altura, etc...)
+
+Num jogo não pode haver um jogador com mais do que (golosdaequipa-seusgolos) assistências.

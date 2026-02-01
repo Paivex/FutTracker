@@ -256,22 +256,41 @@
                         </div>
                     </div>
                 </div>
-
+             
                 <div v-if="activeTab === 'jogos'" class="space-y-6">
                     <div class="bg-white rounded-lg shadow">
-                        <div class="p-6 border-b flex justify-between items-center">
-                            <h2 class="text-xl font-bold text-gray-800">Histórico de Jogos ({{ jogos.length }})</h2>
+                        
+                        <div class="p-6 border-b flex flex-col md:flex-row justify-between items-center gap-4">
+                            
+                            <div class="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
+                                <h2 class="text-xl font-bold text-gray-800 whitespace-nowrap">
+                                    Jogos ({{ jogosOrdenados.length }})
+                                </h2>
+                                
+                                <div class="flex items-center gap-2 bg-gray-100 p-1 rounded-lg w-full sm:w-auto">
+                                    <select v-model="filtroTempo" 
+                                            class="bg-transparent border-none text-sm font-medium text-gray-700 focus:ring-0 cursor-pointer py-1 pl-2 pr-8 w-full">
+                                        <option v-for="opt in opcoesTempo" :key="opt.valor" :value="opt.valor">
+                                            {{ opt.label }}
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
                             
                             <button 
                                 @click="abrirNovoJogo"
-                                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center gap-2 shadow-sm font-medium">
+                                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center gap-2 shadow-sm font-medium whitespace-nowrap w-full md:w-auto justify-center">
                                 ➕ Novo Jogo
                             </button>
                         </div>
+
                         <div class="p-6">
-                            <div v-if="jogos.length === 0" class="text-gray-500 text-center py-8">
-                                Nenhum jogo registado ainda.
+                            <div v-if="jogosOrdenados.length === 0" class="text-center py-12">
+                                <div class="text-4xl mb-3">📅</div>
+                                <div class="text-gray-500 font-medium">Nenhum jogo encontrado neste período.</div>
+                                <div class="text-sm text-gray-400 mt-1">Tenta mudar o filtro ou adicionar um novo jogo.</div>
                             </div>
+                            
                             <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                                 <button v-for="jogo in jogosOrdenados" :key="jogo.id"
                                      @click="abrirDetalhesJogo(jogo.id)"
@@ -293,13 +312,13 @@
                                     <div class="space-y-2 text-xs">
                                         <div class="bg-blue-50 rounded p-2">
                                             <div class="font-semibold text-blue-700 mb-1">Equipa A</div>
-                                            <div class="text-gray-700 leading-relaxed">
+                                            <div class="text-gray-700 leading-relaxed line-clamp-2">
                                                 {{ jogo.equipaA.map(id => getNomeJogador(id)).join(' • ') }}
                                             </div>
                                         </div>
                                         <div class="bg-red-50 rounded p-2">
                                             <div class="font-semibold text-red-700 mb-1">Equipa B</div>
-                                            <div class="text-gray-700 leading-relaxed">
+                                            <div class="text-gray-700 leading-relaxed line-clamp-2">
                                                 {{ jogo.equipaB.map(id => getNomeJogador(id)).join(' • ') }}
                                             </div>
                                         </div>
@@ -1089,8 +1108,7 @@
                         golosB: 0,
                         estatisticas: {}
                     },
-                    filtroTempo: '', // Default
-                    opcoesTempo: [],
+                    filtroTempo: '', 
                     categoriasTops: [
                         { titulo: '🎮 Jogos (J)', chave: 'jogos', sulfixo: '', decimals: 0, cor: 'gray' },
                         { titulo: '⭐ Rating (R)', chave: 'ratingMedio', sulfixo: '', decimals: 2, cor: 'yellow' },
@@ -1309,10 +1327,68 @@
                     };
                 },
                 jogosOrdenados() {
-                    return [...this.jogos].sort((a, b) => new Date(b.data) - new Date(a.data));
+                    return [...this.jogosFiltradosTempo].sort((a, b) => new Date(b.data) - new Date(a.data));
                 },
                 maxJogadoresSelecionaveis() {
                     return this.maxJogadoresPorEquipa * 2;
+                },
+                // Gera a lista de meses dinamicamente baseada nos jogos existentes
+                opcoesTempo() {
+                    const hoje = new Date();
+                    const mesAtual = hoje.getMonth(); // 0-11
+                    const anoAtual = hoje.getFullYear();
+                    // Formato YYYY-MM
+                    const mesAtualChave = `${anoAtual}-${String(mesAtual + 1).padStart(2, '0')}`;
+                    
+                    const opcoes = [];
+                    
+                    // 1. Adicionar SEMPRE o mês atual (para teres onde cair por defeito)
+                    opcoes.push({
+                        label: `📅 ${this.getNomeMes(mesAtual)} ${anoAtual} (atual)`,
+                        valor: mesAtualChave
+                    });
+                    
+                    // 2. Procurar nos jogos quais os meses que existem
+                    const mesesComJogos = new Set();
+                    
+                    this.jogos.forEach(jogo => {
+                        // O truque do T00:00:00 garante que a data é lida corretamente
+                        const dataJogo = new Date(jogo.data + 'T00:00:00');
+                        // Verificar se a data é válida antes de processar
+                        if (!isNaN(dataJogo)) {
+                            const ano = dataJogo.getFullYear();
+                            const mes = dataJogo.getMonth() + 1;
+                            const chave = `${ano}-${String(mes).padStart(2, '0')}`;
+                            
+                            // Só adicionamos à lista se NÃO for o mês atual (já adicionado acima)
+                            if (chave !== mesAtualChave) {
+                                mesesComJogos.add(chave);
+                            }
+                        }
+                    });
+                    
+                    // 3. Ordenar do mais recente para o mais antigo
+                    const mesesOrdenados = Array.from(mesesComJogos).sort().reverse();
+                    
+                    // 4. Criar os objetos bonitos para o menu
+                    mesesOrdenados.forEach(mesChave => {
+                        const [ano, mes] = mesChave.split('-').map(Number);
+                        // mes - 1 porque o array de nomes começa em 0
+                        opcoes.push({
+                            label: `🗓️ ${this.getNomeMes(mes - 1)} ${ano}`,
+                            valor: mesChave
+                        });
+                    });
+                    
+                    // 5. Opção "Desde Sempre"
+                    if (this.jogos.length > 0) {
+                        opcoes.push({
+                            label: '♾️ Desde Sempre',
+                            valor: 'sempre'
+                        });
+                    }
+                    
+                    return opcoes;
                 },
                 // 1. Jogos filtrados pelo mês selecionado
                 jogosFiltradosTempo() {
@@ -1757,61 +1833,7 @@
                     const diaSemana = d.toLocaleDateString('pt-PT', { weekday: 'long' });
                     return `${diaMesAno} - ${diaSemana}`;
                 },
-                gerarOpcoesMeses() {
-                    const hoje = new Date();
-                    const mesAtual = hoje.getMonth(); // 0-11
-                    const anoAtual = hoje.getFullYear();
-                    const mesAtualChave = `${anoAtual}-${String(mesAtual + 1).padStart(2, '0')}`;
-                    
-                    const opcoes = [];
-                    
-                    // SEMPRE adicionar "Este Mês" primeiro (mesmo sem jogos)
-                    opcoes.push({
-                        label: `📅 ${this.getNomeMes(mesAtual)} ${anoAtual} (classificação atual)`,
-                        valor: mesAtualChave
-                    });
-                    
-                    // Obter todos os meses únicos que têm jogos (exceto o mês atual)
-                    const mesesComJogos = new Set();
-                    
-                    this.jogos.forEach(jogo => {
-                        const dataJogo = new Date(jogo.data + 'T00:00:00');
-                        const ano = dataJogo.getFullYear();
-                        const mes = dataJogo.getMonth() + 1; // 1-12
-                        const chave = `${ano}-${String(mes).padStart(2, '0')}`;
-                        
-                        // Só adicionar se NÃO for o mês atual
-                        if (chave !== mesAtualChave) {
-                            mesesComJogos.add(chave);
-                        }
-                    });
-                    
-                    // Converter Set para Array e ordenar (mais recente primeiro)
-                    const mesesOrdenados = Array.from(mesesComJogos).sort((a, b) => {
-                        return b.localeCompare(a);
-                    });
-                    
-                    // Adicionar os meses que têm jogos
-                    mesesOrdenados.forEach(mesChave => {
-                        const [ano, mes] = mesChave.split('-').map(Number);
-                        const mesIndex = mes - 1; // Converter para 0-11
-                        
-                        opcoes.push({
-                            label: `🗓️ ${this.getNomeMes(mesIndex)} ${ano}`,
-                            valor: mesChave
-                        });
-                    });
-                    
-                    // Adicionar opção "Desde Sempre" no final (se houver jogos)
-                    if (this.jogos.length > 0) {
-                        opcoes.push({
-                            label: '♾️ Desde Sempre',
-                            valor: 'sempre'
-                        });
-                    }
-                    
-                    return opcoes;
-                },
+                
                 getNomeMes(numeroMes) {
                     const meses = [
                         'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
@@ -1865,9 +1887,6 @@
             },
             mounted() {
                 this.carregarDados();
-                
-                // Gerar opções de meses dinamicamente
-                this.opcoesTempo = this.gerarOpcoesMeses();
                 
                 // Definir filtro default como o mês atual
                 const hoje = new Date();
