@@ -51,6 +51,10 @@ app.post('/api/dados', async (req, res) => {
     }
 });
 
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../FutTracker_frontend/index.html'));
+});
+
 app.listen(PORT, () => {
     console.log(`🚀 Site Full-Stack a rodar em http://localhost:${PORT}`);
 });
