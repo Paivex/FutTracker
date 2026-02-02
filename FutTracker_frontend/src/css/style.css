@@ -22,8 +22,8 @@
      transform: scale(0.95);
  }
 .drop-zone.drag-over {
-     background-color: #e0f2fe; /* blue-100 */
-      border-color: #3b82f6; /* blue-500 */
+     background-color: #e0f2fe; 
+      border-color: #3b82f6; 
       border-style: dashed;
 }
 .drop-zone.equipa-completa {

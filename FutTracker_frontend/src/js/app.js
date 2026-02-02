@@ -24,6 +24,10 @@ createApp({
             colunasClassificacao: Config.colunasClassificacao,
             categoriasTops: Config.categoriasTops,
             
+            // --- NOVO: Variável de Admin ---
+            isAdmin: false,
+            // -------------------------------
+
             activeTab: 'dashboard',
             pesquisaJogador: '',
             jogadores: [],
@@ -325,6 +329,23 @@ createApp({
     },
      methods: {
                 
+                alternarAdmin() {
+                    if (this.isAdmin) {
+                        this.isAdmin = false;
+                        localStorage.removeItem('modoAdmin');
+                        alert("Modo Admin: DESATIVADO 🔒");
+                    } else {
+                        const pass = prompt("Insira a password de Admin:");
+                        if (pass === "fut123") {
+                            this.isAdmin = true;
+                            localStorage.setItem('modoAdmin', 'true');
+                            alert("Modo Admin: ATIVADO 🔓");
+                        } else if (pass !== null) {
+                            alert("Password errada!");
+                        }
+                    }
+                },
+
                 onDragStart(event, jogadorId, from) {
                     this.draggedPlayer = jogadorId;
                     this.draggedFrom = from;
@@ -596,12 +617,10 @@ createApp({
                         .sort(() => Math.random() - 0.5)
                         .slice(0, totalNecessario);
 
-                    // Limpar equipas
                     this.novoJogo.equipaA = [];
                     this.novoJogo.equipaB = [];
                     this.novoJogo.estatisticas = {};
 
-                    // Distribuir
                     base.forEach((jogador, index) => {
                         if (index < maxPorEquipa) {
                             this.novoJogo.equipaA.push(jogador.id);
@@ -716,5 +735,9 @@ createApp({
                 const mesAtual = hoje.getMonth() + 1; 
                 const anoAtual = hoje.getFullYear();
                 this.filtroTempo = `${anoAtual}-${String(mesAtual).padStart(2, '0')}`;
+
+                if (localStorage.getItem('modoAdmin') === 'true') {
+                    this.isAdmin = true;
+                }
             }
         }).mount('#app');
