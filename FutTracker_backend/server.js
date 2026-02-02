@@ -1,37 +1,56 @@
 const express = require('express');
 const cors = require('cors');
-const fs = require('fs');
 const path = require('path');
+const mongoose = require('mongoose');
 const app = express();
 const PORT = 3000;
-const DB_FILE = './database.json';
 
-app.use(cors()); 
+const MONGO_URI = "mongodb+srv://admin:123@futtracker.bmtlp1q.mongodb.net/?appName=FutTracker";
+
+mongoose.connect(MONGO_URI)
+    .then(() => console.log("✅ Conectado ao MongoDB Atlas!"))
+    .catch(err => console.error("❌ Erro ao ligar ao MongoDB:", err));
+
+const DadosSchema = new mongoose.Schema({
+    id_unico: { type: String, default: 'dados_futtracker' }, 
+    jogadores: Array,
+    jogos: Array
+});
+const DadosModel = mongoose.model('Dados', DadosSchema);
+
+app.use(cors());
 app.use(express.json({ limit: '50mb' }));
-app.use(express.static(path.join(__dirname, '../FutTracker_frontend'))); 
+app.use(express.static(path.join(__dirname, '../FutTracker_frontend')));
 
-function lerDados() {
-    if (!fs.existsSync(DB_FILE)) {
-        
-        const defaultData = { jogadores: [], jogos: [] };
-        fs.writeFileSync(DB_FILE, JSON.stringify(defaultData));
-        return defaultData;
+app.get('/api/dados', async (req, res) => {
+    try {
+        let dados = await DadosModel.findOne({ id_unico: 'dados_futtracker' });
+        if (!dados) {
+            
+            dados = await DadosModel.create({ jogadores: [], jogos: [] });
+        }
+        res.json(dados);
+    } catch (error) {
+        res.status(500).json({ error: 'Erro ao ler da base de dados' });
     }
-    const data = fs.readFileSync(DB_FILE);
-    return JSON.parse(data);
-}
-
-app.get('/api/dados', (req, res) => {
-    const dados = lerDados();
-    res.json(dados);
 });
 
-app.post('/api/dados', (req, res) => {
-    const { jogadores, jogos } = req.body;
-    fs.writeFileSync(DB_FILE, JSON.stringify({ jogadores, jogos }, null, 2));
-    res.json({ message: 'Guardado com sucesso!' });
+app.post('/api/dados', async (req, res) => {
+    try {
+        const { jogadores, jogos } = req.body;
+        
+        await DadosModel.findOneAndUpdate(
+            { id_unico: 'dados_futtracker' },
+            { jogadores, jogos },
+            { upsert: true, new: true }
+        );
+        res.json({ message: 'Guardado na Nuvem com sucesso!' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Erro ao guardar' });
+    }
 });
 
 app.listen(PORT, () => {
-    console.log(`🚀 Servidor a rodar na porta ${PORT}`);
+    console.log(`🚀 Site Full-Stack a rodar em http://localhost:${PORT}`);
 });
