@@ -1952,12 +1952,12 @@
                             let multiplicador = 1; // Empate = 1x
                             
                             if (naEquipaA) {
-                                if (jogo.golosA > jogo.golosB) { vitorias++; multiplicador = 2; } // Vitória = 2x
-                                else if (jogo.golosA < jogo.golosB) { derrotas++; multiplicador = 0.5; } // Derrota = 0.5x
+                                if (jogo.golosA > jogo.golosB) { vitorias++; multiplicador = 1.5; } // Vitória = 1.5x
+                                else if (jogo.golosA < jogo.golosB) { derrotas++; multiplicador = 0.75; } // Derrota = 0.75x
                                 else empates++;
                             } else {
-                                if (jogo.golosB > jogo.golosA) { vitorias++; multiplicador = 2; }
-                                else if (jogo.golosB < jogo.golosA) { derrotas++; multiplicador = 0.5; }
+                                if (jogo.golosB > jogo.golosA) { vitorias++; multiplicador = 1.5; }
+                                else if (jogo.golosB < jogo.golosA) { derrotas++; multiplicador = 0.75; }
                                 else empates++;
                             }
                             
