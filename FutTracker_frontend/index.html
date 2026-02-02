@@ -215,7 +215,7 @@
                                     <div class="flex-1 min-w-0">
                                         <h3 class="font-semibold text-gray-800">{{ jogador.nome }}</h3>
                                         <div class="mt-2 space-y-1 text-sm text-gray-600">
-                                            <div>⚽ {{ jogador.golos }} | 🎯 {{ jogador.assistencias }} | 🥅 {{ jogador.jogos }}</div>
+                                            <div>🥅 {{ jogador.jogos }} | ⚽ {{ jogador.golos }} | 🎯 {{ jogador.assistencias }}</div>
                                             <div v-if="jogador.jogos > 0" class="font-medium" :class="getRatingColor(jogador.ratingMedio)">
                                                 ⭐ {{ jogador.ratingMedio.toFixed(2) }}
                                             </div>
