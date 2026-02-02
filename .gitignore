@@ -1,0 +1,14 @@
+# Dependências gigantes
+node_modules/
+
+# A tua base de dados (Opcional, mas recomendado)
+# Se não ignorares isto, o git vai tentar guardar cada golo novo.
+# Normalmente em equipa, cada um tem a sua base de dados local.
+database.json
+
+# Ficheiros de sistema do Mac/Windows (Lixo)
+.DS_Store
+Thumbs.db
+
+# Logs de erro
+npm-debug.log
