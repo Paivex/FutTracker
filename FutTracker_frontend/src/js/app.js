@@ -35,7 +35,14 @@ createApp({
             mostrarDetalhesJogo: false,
             mostrarRankingCompleto: false,
             
-            novoJogador: { nome: '' },
+            // 👇 novoJogador com estrutura base
+            novoJogador: { 
+                nome: '',
+                pePreferencial: '',
+                dataNascimento: '',
+                altura: null
+            },
+
             novoJogo: getInitialNovoJogo(),
             filtroTempo: '',
             ordenacaoClassificacao: { chave: 'pontos', ordem: 'desc' },
@@ -47,6 +54,15 @@ createApp({
             draggedFrom: null,
             dragOverZone: null,
             jogadoresSelecionadosJogo: [],
+
+            editarDadosJogador: false,
+
+            formJogador: {
+                nome: '',
+                pePreferencial: '',
+                dataNascimento: '',
+                altura: null
+            },
         }
     },
     computed: {
@@ -283,6 +299,10 @@ createApp({
             ).sort((a, b) => new Date(b.data) - new Date(a.data));
             
             return {
+                pePreferencial: jogador.pePreferencial ?? '',
+                dataNascimento: jogador.dataNascimento ?? '',
+                altura: jogador.altura ?? null,
+
                 ...jogador,
                 ...stats,
                 historicoJogos: jogosDoJogador
@@ -399,9 +419,14 @@ createApp({
                     const jogador = {
                         id: Date.now().toString(),
                         nome: this.novoJogador.nome.trim(),
-                        imagem: null
+                        imagem: null,
+
+                        // 👇 novos campos
+                        pePreferencial: '',
+                        dataNascimento: '',
+                        altura: null
                     };
-                    
+
                     this.jogadores.push(jogador);
                     this.novoJogador.nome = '';
                     this.guardarDados();
@@ -426,6 +451,18 @@ createApp({
 
                 verDetalhesJogador(jogadorId) {
                     this.jogadorSelecionado = jogadorId;
+
+                    const j = this.jogadores.find(j => j.id === jogadorId);
+                    if (j) {
+                        this.formJogador = {
+                            nome: j.nome,
+                            pePreferencial: j.pePreferencial ?? '',
+                            dataNascimento: j.dataNascimento ?? '',
+                            altura: j.altura ?? null
+                        };
+                    }
+
+                    this.editarDadosJogador = false;
                     this.mostrarDetalhes = true;
                 },
 
@@ -531,6 +568,33 @@ createApp({
                 abrirDetalhesJogo(jogoId) {
                     this.jogoSelecionado = jogoId;
                     this.mostrarDetalhesJogo = true;
+                },
+                ativarEdicaoJogador() {
+                    this.editarDadosJogador = true;
+                },
+                cancelarEdicaoJogador() {
+                    const j = this.jogadores.find(j => j.id === this.jogadorSelecionado);
+                    if (j) {
+                        this.formJogador = {
+                            nome: j.nome,
+                            pePreferencial: j.pePreferencial ?? '',
+                            dataNascimento: j.dataNascimento ?? '',
+                            altura: j.altura ?? null
+                        };
+                    }
+                    this.editarDadosJogador = false;
+                },
+                guardarEdicaoJogador() {
+                    const j = this.jogadores.find(j => j.id === this.jogadorSelecionado);
+                    if (!j) return;
+
+                    j.nome = this.formJogador.nome.trim();
+                    j.pePreferencial = this.formJogador.pePreferencial;
+                    j.dataNascimento = this.formJogador.dataNascimento;
+                    j.altura = this.formJogador.altura;
+
+                    this.guardarDados();
+                    this.editarDadosJogador = false;
                 },
                 fecharDetalhesJogo() {
                     this.mostrarDetalhesJogo = false;
