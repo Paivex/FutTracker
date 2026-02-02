@@ -3,7 +3,7 @@ const cors = require('cors');
 const path = require('path');
 const mongoose = require('mongoose');
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 const MONGO_URI = "mongodb+srv://admin:123@futtracker.bmtlp1q.mongodb.net/?appName=FutTracker";
 
