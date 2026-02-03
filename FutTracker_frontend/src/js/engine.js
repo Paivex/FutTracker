@@ -4,9 +4,9 @@ export const Engine = {
     calculateRating(stats) {
         const rating = 6.0 + 
             ((stats.golos || 0) * 0.5) + 
-            ((stats.assistencias || 0) * 0.4) - 
-            ((stats.perdas || 0) * 0.3) - 
-            ((stats.falhancos || 0) * 0.4);
+            ((stats.assistencias || 0) * 0.25) - 
+            ((stats.perdas || 0) * 0.25) - 
+            ((stats.falhancos || 0) * 0.25);
 
         return Math.max(0, Math.min(10, rating));
     },
