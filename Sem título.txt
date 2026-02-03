@@ -1,21 +1,20 @@
 mudar ícone de jogos (está um comando)
 atualizar nr de jogadores disponíveis quando selecionas ao criar um novo jogo
 
-criar lógica de pontos para a classificação pontos serão calculados tendo em conta a nota e o resultado
-Classificação:
-Lógica Pontos:
-Perdeu - Nota/2
-Empate - Nota
-Ganhou - Nota * 2 
-(tudo arredondado para inteiros)
-faz top pontos (os tops 3 tem quadrados especiais que mostra a imagem)
-
 Jogadores que são premiados num mês têm uma carta com design associado a esse prémio durante a liga do próximo mês (ex:artilheiro)
-
-Perfil de Jogadores:
-Adicionar Biografia (alcunha,pé dominante,pior pé, data de nascimento, altura, etc...)
 
 Num jogo não pode haver um jogador com mais do que (golosdasuaequipa-seusgolos) assistências.
 
 para rodar ir a backend e fazer "node server.js", após isso, "http://localhost:3000" 
-Alterar para vercel asap
+
+gráfica de estatisticas em teia
+
+lobby de jogo (onde mostra o elenco das equipas e algumas informações)
+
+objetivos de jogo:
+para cada jogador vai ser sorteado um objetivo aleatório no lobby (ex: golo de cabeça +1 ponto, golo de letra +1 ponto, bicicleta +3 pontos, etc)
+
+Equipas balanceadas:
+-gerar equipas equilibradas no lobby com base nos pontos da classificação atual. isto permite aos jogadores com menos pontos de subir na tabela.
+
+adicionar a funcionalidade de agendar jogos
