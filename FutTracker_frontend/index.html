@@ -378,7 +378,7 @@
                             <div>
                                 <h2 class="text-2xl font-bold text-gray-800">🥇 Classificação da Liga</h2>
                                 <p class="text-sm text-gray-500">
-                                    Baseado em Rating x Resultado (V=1.5x, E=1x, D=0.75x)
+                                    Vit - 3p | Emp - 1p | Der - 0p | Golo - 2p | Ast - 1p
                                 </p>
                             </div>
                             <div class="flex items-center gap-2 bg-gray-100 p-1 rounded-lg">
@@ -401,7 +401,7 @@
                                         </div>
                                         <div class="absolute -top-2 -left-2 bg-gray-400 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm z-10 shadow-md border-2 border-white">2</div>
                                     </div>
-                                    <div class="text-center font-bold text-gray-700">{{ podiumJogadores[1].pontos.toFixed(1) }} P</div>
+                                    <div class="text-center font-bold text-gray-700">{{ podiumJogadores[1].pontos }} P</div>
                                 </div>
 
                                 <div v-if="podiumJogadores[0]" class="flex flex-col items-center w-1/3 max-w-[200px] cursor-pointer z-10 group mb-6 relative" @click="verDetalhesJogador(podiumJogadores[0].id)">
@@ -416,7 +416,7 @@
                                         </div>
                                         <div class="absolute -top-3 -left-3 bg-yellow-400 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg z-10 shadow-md border-2 border-white">1</div>
                                     </div>
-                                    <div class="text-center font-extrabold text-gray-900 text-xl">{{ podiumJogadores[0].pontos.toFixed(1) }} P</div>
+                                    <div class="text-center font-extrabold text-gray-900 text-xl">{{ podiumJogadores[0].pontos }} P</div>
                                 </div>
 
                                 <div v-if="podiumJogadores[2]" class="flex flex-col items-center w-1/3 max-w-[160px] cursor-pointer group relative" @click="verDetalhesJogador(podiumJogadores[2].id)">
@@ -429,7 +429,7 @@
                                         </div>
                                         <div class="absolute -top-2 -left-2 bg-orange-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm z-10 shadow-md border-2 border-white">3</div>
                                     </div>
-                                    <div class="text-center font-bold text-gray-700">{{ podiumJogadores[2].pontos.toFixed(1) }} P</div>
+                                    <div class="text-center font-bold text-gray-700">{{ podiumJogadores[2].pontos }} P</div>
                                 </div>
                             </div>
                         </div>
@@ -470,7 +470,7 @@
                                         </td>
 
                                         <td class="p-3 text-right font-bold text-blue-600 bg-blue-50/30">
-                                            {{ jogador.pontos.toFixed(1) }}
+                                            {{ jogador.pontos }}
                                         </td>
 
                                         <td class="p-3 text-right text-gray-600">{{ jogador.jogos }}</td>
