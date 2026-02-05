@@ -20,7 +20,7 @@ const DadosModel = mongoose.model('Dados', DadosSchema);
 
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
-app.use(express.static(path.join(__dirname, '../FutTracker_frontend')));
+app.use(express.static(path.join(__dirname, '../FutTracker_frontend/dist')));
 
 app.get('/api/dados', async (req, res) => {
     try {
@@ -52,7 +52,7 @@ app.post('/api/dados', async (req, res) => {
 });
 
 app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../FutTracker_frontend/index.html'));
+    res.sendFile(path.join(__dirname, '../FutTracker_frontend/dist/index.html'));
 });
 
 app.listen(PORT, () => {

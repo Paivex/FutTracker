@@ -1,4 +1,4 @@
-const API_URL = '/api/dados';
+const API_URL = 'https://futtracker.onrender.com/api/dados';
 
 export const Store = {
    
