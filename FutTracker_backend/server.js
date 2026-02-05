@@ -3,8 +3,13 @@ const cors = require('cors');
 const path = require('path');
 const mongoose = require('mongoose');
 const compression = require('compression');
+const NodeCache = require('node-cache'); 
+
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+const myCache = new NodeCache({ stdTTL: 600 }); 
+const CACHE_KEY = 'todos_os_dados';
 
 const MONGO_URI = "mongodb+srv://admin:123@futtracker.bmtlp1q.mongodb.net/?appName=FutTracker";
 
@@ -26,13 +31,21 @@ app.use(express.static(path.join(__dirname, 'FutTracker_frontend/dist')));
 
 app.get('/api/dados', async (req, res) => {
     try {
+        const cachedData = myCache.get(CACHE_KEY);
+        if (cachedData) {
+            return res.json(cachedData);
+        }
+
         let dados = await DadosModel.findOne({ id_unico: 'dados_futtracker' });
         if (!dados) {
-            
             dados = await DadosModel.create({ jogadores: [], jogos: [] });
         }
+
+        myCache.set(CACHE_KEY, dados);
+
         res.json(dados);
     } catch (error) {
+        console.error(error);
         res.status(500).json({ error: 'Erro ao ler da base de dados' });
     }
 });
@@ -46,6 +59,10 @@ app.post('/api/dados', async (req, res) => {
             { jogadores, jogos },
             { upsert: true, new: true }
         );
+
+        myCache.del(CACHE_KEY); 
+        console.log("🧹 Cache limpa após atualização!");
+
         res.json({ message: 'Guardado na Nuvem com sucesso!' });
     } catch (error) {
         console.error(error);
