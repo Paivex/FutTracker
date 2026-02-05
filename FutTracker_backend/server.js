@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const mongoose = require('mongoose');
+const compression = require('compression');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -19,6 +20,7 @@ const DadosSchema = new mongoose.Schema({
 const DadosModel = mongoose.model('Dados', DadosSchema);
 
 app.use(cors());
+app.use(compression());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.static(path.join(__dirname, 'FutTracker_frontend/dist')));
 

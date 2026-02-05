@@ -5,8 +5,9 @@
   "scripts": {
     "start": "node server.js",
     "build": "npm install && cd FutTracker_frontend && npm install && npm run build"
-},
+  },
   "dependencies": {
+    "compression": "^1.8.1",
     "cookie-parser": "~1.4.4",
     "cors": "^2.8.6",
     "debug": "~2.6.9",
