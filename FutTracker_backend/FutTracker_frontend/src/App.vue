@@ -6,7 +6,6 @@ import { Utils } from './utils/utils.js'
 const isAdmin = ref(false)
 
 onMounted(() => {
-
     if (localStorage.getItem('modoAdmin') === 'true') {
         isAdmin.value = true
     }
@@ -38,7 +37,9 @@ const alternarAdmin = async () => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-100 pb-20"> <header class="bg-gradient-to-r from-blue-600 to-blue-800 text-white shadow-lg">
+  <div class="min-h-screen bg-gray-100 pb-20"> 
+    
+    <header class="bg-gradient-to-r from-blue-600 to-blue-800 text-white shadow-lg">
       <div class="container mx-auto px-4 py-6">
         <h1 class="text-3xl font-bold">⚽ FutTracker</h1>
         <p class="text-blue-100 mt-1">Gestão de jogos e estatísticas</p>
@@ -59,7 +60,11 @@ const alternarAdmin = async () => {
     </div>
 
     <div class="container mx-auto px-4 py-8">
-       <RouterView />
+        <router-view v-slot="{ Component }">
+            <keep-alive>
+                <component :is="Component" />
+            </keep-alive>
+        </router-view>
     </div>
 
     <button 
