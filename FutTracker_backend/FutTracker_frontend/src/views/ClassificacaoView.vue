@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { Store } from '../utils/store.js'
+import SkeletonTable from '../components/SkeletonTable.vue'
 import { Engine } from '../utils/engine.js'
 import { Config } from '../utils/config.js'
 import { Utils } from '../utils/utils.js'
@@ -101,6 +102,14 @@ const mudarOrdenacao = (chave) => {
 </script>
 
 <template>
+    <div class="p-6">
+    <div v-if="loading">
+       <SkeletonTable />
+    </div>
+
+    <div v-else>
+       </div>
+  </div>
   <div class="space-y-6">
     <div class="bg-white rounded-lg shadow p-6 border-b flex flex-col md:flex-row justify-between items-center gap-4">
         <div>
