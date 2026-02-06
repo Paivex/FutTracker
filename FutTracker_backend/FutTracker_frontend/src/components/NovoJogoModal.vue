@@ -15,7 +15,8 @@ const novoJogo = ref({
     equipaB: [],
     golosA: 0,
     golosB: 0,
-    estatisticas: {} 
+    estatisticas: {},
+    jdj: null
 })
 
 const jogadoresSelecionadosJogo = ref([]) 
@@ -155,6 +156,7 @@ const guardar = () => {
         estatisticas: Object.values(novoJogo.value.estatisticas) 
     };
     emit('save', jogoFinal);
+
 }
 </script>
 
@@ -260,6 +262,29 @@ const guardar = () => {
                 </div>
             </div>
 
+        </div>
+
+        <div v-if="todosJogadoresJogo.length > 0" class="mt-8 p-4 border rounded-lg bg-emerald-50">
+            <label class="block font-bold text-emerald-800 mb-2">
+                🛡️ Jogador Defensivo do Jogo
+            </label>
+
+            <select
+                v-model="novoJogo.jdj"
+                class="w-full border rounded p-2 bg-white">
+                <option :value="null">— Nenhum —</option>
+
+                <option
+                    v-for="id in todosJogadoresJogo"
+                    :key="id"
+                    :value="id">
+                    {{ getNomeJogador(id) }}
+                </option>
+            </select>
+
+            <p class="text-xs text-emerald-700 mt-1">
+                Este jogador recebe +3 pontos na classificação.
+            </p>
         </div>
 
         <div class="bg-gray-50 p-6 border-t flex justify-end gap-3 rounded-b-lg">

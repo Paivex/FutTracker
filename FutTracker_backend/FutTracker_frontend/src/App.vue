@@ -21,7 +21,7 @@ const alternarAdmin = async () => {
         const pass = prompt("Insira a password de Admin:");
         if (pass) {
             const hashDigitado = await Utils.sha256(pass);
-            const HASH_SECRETO = "ad4b7405d46820556555541571d953d537f59728271036322588147d287178c7";
+            const HASH_SECRETO = "a1cc9e7d482da312018a0b3bb0b4c3adae351836eaa4314a57f61b14c3d5c026";
 
             if (hashDigitado === HASH_SECRETO) {
                 isAdmin.value = true;

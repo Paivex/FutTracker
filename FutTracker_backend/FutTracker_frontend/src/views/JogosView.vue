@@ -14,13 +14,18 @@ const isAdmin = ref(false)
 
 onMounted(async () => {
     const dados = await Store.load()
-    jogos.value = dados.jogos || []
+
+    jogos.value = (dados.jogos || []).map(j => ({
+        jdj: null,   // 🛡️ garante compatibilidade
+        ...j
+    }))
+
     jogadores.value = dados.jogadores || []
-    
-    const hoje = new Date();
-    filtroTempo.value = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}`;
-    
-    if (localStorage.getItem('modoAdmin') === 'true') isAdmin.value = true;
+
+    const hoje = new Date()
+    filtroTempo.value = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}`
+
+    if (localStorage.getItem('modoAdmin') === 'true') isAdmin.value = true
 })
 
 const getNomeJogador = (id) => {
