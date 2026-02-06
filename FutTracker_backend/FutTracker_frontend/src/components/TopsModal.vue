@@ -37,15 +37,15 @@ const getRankColor = (index) => {
 
             <div class="overflow-y-auto custom-scrollbar flex-1 p-2">
                 <div v-for="(jogador, index) in lista" :key="jogador.id" 
-                     class="grid grid-cols-12 gap-2 items-center p-3 mb-1 bg-white border border-gray-100 rounded hover:shadow-sm transition">
+                     class="grid grid-cols-12 gap-1 items-center p-3 mb-1 bg-white border border-gray-100 rounded hover:shadow-sm transition">
                     
                     <div class="col-span-1 text-center">
                         <span :class="getRankColor(index)">{{ index + 1 }}</span>
                     </div>
 
                     <div class="col-span-7 flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-full bg-gray-100 border border-gray-200 overflow-hidden flex-shrink-0">
-                            <img v-if="jogador.imagem" :src="jogador.imagem" class="w-full h-full object-cover">
+                        <div class="w-10 h-14">
+                            <img v-if="jogador.imagem" :src="jogador.imagem" class="w-full h-full">
                             <div v-else class="w-full h-full flex items-center justify-center text-gray-400 text-xs">👤</div>
                         </div>
                         <span class="font-bold text-gray-800 text-sm truncate">{{ jogador.nome }}</span>
