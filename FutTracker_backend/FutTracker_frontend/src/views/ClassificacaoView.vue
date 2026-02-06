@@ -127,43 +127,54 @@ const mudarOrdenacao = (chave) => {
 
           <!-- 2º -->
           <div v-if="podium[1]" class="flex flex-col items-center w-36">
-            <div class="w-28 h-40 bg-white flex items-center justify-center">
+            <div class="relative w-28 h-40 bg-white flex items-center justify-center">
+              <!-- medalha -->
+              <div class="absolute -top-1 -left-3 w-8 h-8 rounded-full bg-gray-300
+                          text-gray-800 flex items-center justify-center font-bold shadow">
+                2
+              </div>
               <img :src="podium[1].imagem" class="max-w-full max-h-full object-contain">
             </div>
-            <div class="mt-2 text-sm font-bold text-gray-700">
-              {{ podium[1].pontos }} P
-            </div>
+            <div class="mt-2 text-sm font-bold text-gray-700">{{ podium[1].pontos }} P</div>
             <div class="text-base font-semibold text-gray-800 truncate text-center">
-              {{ podium[1].nome }} 🥈
+              {{ podium[1].nome }}
             </div>
           </div>
 
-          <!-- 1º (mais alto + nome maior) -->
+          <!-- 1º -->
           <div
             v-if="podium[0]"
             class="flex flex-col items-center w-40 -mb-2 transform -translate-y-4"
           >
-            <div class="w-32 h-48 bg-white flex items-center justify-center">
+            <div class="relative w-32 h-48 bg-white flex items-center justify-center">
+              <!-- medalha -->
+              <div class="absolute -top-1 -left-4 w-10 h-10 rounded-full bg-yellow-400
+                          text-yellow-900 flex items-center justify-center font-extrabold text-lg shadow">
+                1
+              </div>
               <img :src="podium[0].imagem" class="max-w-full max-h-full object-contain">
             </div>
             <div class="mt-2 text-base font-extrabold text-gray-800">
               {{ podium[0].pontos }} P
             </div>
             <div class="text-base font-semibold text-gray-800 truncate text-center">
-              {{ podium[0].nome }} 🏅
+              {{ podium[0].nome }}
             </div>
           </div>
 
           <!-- 3º -->
           <div v-if="podium[2]" class="flex flex-col items-center w-36">
-            <div class="w-28 h-40 bg-white flex items-center justify-center">
+            <div class="relative w-28 h-40 bg-white flex items-center justify-center">
+              <!-- medalha -->
+              <div class="absolute -top-1 -left-3 w-8 h-8 rounded-full bg-orange-500
+                          text-orange-900 flex items-center justify-center font-bold shadow">
+                3
+              </div>
               <img :src="podium[2].imagem" class="max-w-full max-h-full object-contain">
             </div>
-            <div class="mt-2 text-sm font-bold text-gray-700">
-              {{ podium[2].pontos }} P
-            </div>
+            <div class="mt-2 text-sm font-bold text-gray-700">{{ podium[2].pontos }} P</div>
             <div class="text-base font-semibold text-gray-800 truncate text-center">
-              {{ podium[2].nome }} 🥉
+              {{ podium[2].nome }}
             </div>
           </div>
 
