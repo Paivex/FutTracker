@@ -18,3 +18,7 @@ Equipas balanceadas:
 -gerar equipas equilibradas no lobby com base nos pontos da classificação atual. isto permite aos jogadores com menos pontos de subir na tabela.
 
 adicionar a funcionalidade de agendar jogos 
+
+perfis de jogadores:
+-adicionar abas nos perfis dos jogadores (estatisticas, historico de jogos, premios, etc)
+-adicionar winstreaks,losestreaks,etc na aba estatisticas

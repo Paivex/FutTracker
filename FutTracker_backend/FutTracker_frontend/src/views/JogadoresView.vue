@@ -108,9 +108,12 @@ const jogadoresOrdenadosNome = computed(() => {
             A carregar...
         </div>
         
-        <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"> <div v-for="jogador in jogadoresComStats" :key="jogador.id"
-                 @click="jogadorSelecionado = jogador"
-                 class="relative group p-6 border border-gray-200 rounded-xl hover:border-blue-500 hover:shadow-lg transition bg-white cursor-pointer flex gap-5 items-center"> <div class="w-24 aspect-[1288/1800] flex-shrink-0 bg-gray-50 rounded-lg overflow-hidden border border-gray-200 shadow-sm">
+        <div v-else class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2"> <div v-for="jogador in jogadoresComStats" :key="jogador.id"
+                @click="jogadorSelecionado = jogador"
+                class="relative group p-6 border border-blue-700 rounded-xl rounded-xl bg-white cursor-pointer flex gap-5 items-center
+                       transition-all duration-300
+                       hover:border-green-400 hover:shadow-2xl hover:scale-[1.02]"> 
+                <div class="w-24 aspect-[1000/1200]">
                     <img v-if="jogador.imagem" :src="jogador.imagem" class="w-full h-full object-cover">
                     <div v-else class="w-full h-full flex items-center justify-center text-gray-400 text-3xl">👤</div>
                 </div>
