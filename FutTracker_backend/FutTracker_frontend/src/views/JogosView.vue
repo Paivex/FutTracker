@@ -3,13 +3,11 @@ import { ref, computed, onMounted } from 'vue'
 import { Store } from '../utils/store.js'
 import { Utils } from '../utils/utils.js'
 import NovoJogoModal from '../components/NovoJogoModal.vue'
-import JogoDetalhesModal from '../components/DetalhesJogoModal.vue' 
 
 const jogos = ref([])
 const jogadores = ref([])
 const filtroTempo = ref('')
 const mostrarNovoJogo = ref(false)
-const jogoSelecionado = ref(null) 
 const isAdmin = ref(false)
 
 onMounted(async () => {
@@ -33,7 +31,7 @@ const getNomeJogador = (id) => {
     return j ? j.nome : 'Desconhecido'
 }
 
-const formatarData = (d) => Utils.formatarData(d)
+const formatarData = (d) => Utils.formatarDataComDiaSemana(d)
 const getTipoJogoLabel = (t) => t === 'fut5' ? 'Fut 5' : (t === 'fut6' ? 'Fut 6' : 'Fut 7')
 
 const salvarNovoJogo = async (jogo) => {
@@ -43,8 +41,12 @@ const salvarNovoJogo = async (jogo) => {
     alert("Jogo guardado! ⚽");
 }
 
+import { useRouter } from 'vue-router'
+const router = useRouter()
+
 const abrirDetalhes = (jogo) => {
-    jogoSelecionado.value = jogo;
+    // Navegar para a página dedicada do jogo
+    router.push({ name: 'jogo', params: { id: jogo.id } })
 }
 
 const apagarJogo = async (id) => {
@@ -124,13 +126,6 @@ const opcoesTempo = computed(() => {
 
     <NovoJogoModal v-if="mostrarNovoJogo" :jogadores="jogadores" @close="mostrarNovoJogo = false" @save="salvarNovoJogo"/>
     
-    <JogoDetalhesModal 
-        v-if="jogoSelecionado" 
-        :jogo="jogoSelecionado" 
-        :jogadores="jogadores"
-        :isAdmin="isAdmin" 
-        @close="jogoSelecionado = null"
-        @delete="apagarJogo"
-    />
+    <!-- Agora abrimos a página dedicada ao clicar num jogo -->
   </div>
 </template>

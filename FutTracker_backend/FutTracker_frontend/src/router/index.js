@@ -5,6 +5,7 @@ import JogosView from '../views/JogosView.vue'
 import ClassificacaoView from '../views/ClassificacaoView.vue'
 import TopsView from '../views/TopsView.vue'
 import PremiosView from '../views/PremiosView.vue'
+import JogoPage from '../views/JogoPage.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -14,7 +15,8 @@ const router = createRouter({
     { path: '/jogos', name: 'jogos', component: JogosView },
     { path: '/classificacao', name: 'classificacao', component: ClassificacaoView },
     { path: '/tops', name: 'tops', component: TopsView },
-    { path: '/premios', name: 'premios', component: PremiosView } 
+    { path: '/premios', name: 'premios', component: PremiosView },
+    { path: '/jogos/:id', name: 'jogo', component: JogoPage }
    
   ]
 })

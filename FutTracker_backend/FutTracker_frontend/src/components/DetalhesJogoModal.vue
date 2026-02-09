@@ -17,7 +17,7 @@ const getNome = (id) => {
     return j ? j.nome : 'Desconhecido'
 }
 
-const formatarData = (d) => Utils.formatarDataCompleta(d)
+const formatarData = (d) => Utils.formatarDataComDiaSemana(d)
 
 const getTipoLabel = (t) => {
     const map = { 'fut5': 'Fut 5', 'fut6': 'Fut 6', 'fut7': 'Fut 7' }
@@ -51,7 +51,7 @@ const getRatingColor = (r) => {
         <div class="bg-gradient-to-r from-gray-700 to-gray-900 text-white p-6 rounded-t-lg flex justify-between items-start">
             <div>
                 <h2 class="text-2xl font-bold">Ficha do Jogo</h2>
-                <p class="text-gray-300 text-sm mt-1 uppercase tracking-wide">{{ formatarData(jogo.data) }}</p>
+                <p class="text-gray-300 text-sm mt-1 tracking-wide">{{ formatarData(jogo.data) }}</p>
                 <span class="inline-block mt-2 bg-white bg-opacity-20 px-3 py-1 rounded text-xs font-bold">
                     {{ getTipoLabel(jogo.tipoJogo) }}
                 </span>
