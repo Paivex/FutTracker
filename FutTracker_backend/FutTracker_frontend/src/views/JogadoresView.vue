@@ -1,14 +1,14 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { Store } from '../utils/store.js'
 import { Engine } from '../utils/engine.js'
 import { Utils } from '../utils/utils.js'
-import JogadorModal from '../components/JogadorModal.vue'
 
 const jogadores = ref([])
 const jogos = ref([])
 const pesquisaJogador = ref('')
-const jogadorSelecionado = ref(null)
+const router = useRouter()
 
 const isAdmin = ref(false)
 const mostrarGestao = ref(false)
@@ -56,7 +56,6 @@ const salvarEdicaoJogador = async (jogadorAtualizado) => {
     const index = jogadores.value.findIndex(j => j.id === jogadorAtualizado.id);
     if (index !== -1) {
         jogadores.value[index] = jogadorAtualizado;
-        jogadorSelecionado.value = jogadorAtualizado; 
         await Store.save(jogadores.value, jogos.value);
     }
 }
@@ -108,11 +107,11 @@ const jogadoresOrdenadosNome = computed(() => {
             A carregar...
         </div>
         
-        <div v-else class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2"> <div v-for="jogador in jogadoresComStats" :key="jogador.id"
-                @click="jogadorSelecionado = jogador"
-                class="relative group p-6 border border-blue-700 rounded-xl rounded-xl bg-white cursor-pointer flex gap-5 items-center
-                       transition-all duration-300
-                       hover:border-green-400 hover:shadow-2xl hover:scale-[1.02]"> 
+    <div v-else class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2"> <div v-for="jogador in jogadoresComStats" :key="jogador.id"
+        @click="router.push({ name: 'jogador', params: { id: jogador.id } })"
+        class="relative group p-6 border border-blue-700 rounded-xl rounded-xl bg-white cursor-pointer flex gap-5 items-center
+               transition-all duration-300
+               hover:border-green-400 hover:shadow-2xl hover:scale-[1.02]"> 
                 <div class="w-24 aspect-[1000/1200]">
                     <img v-if="jogador.imagem" :src="jogador.imagem" class="w-full h-full object-cover">
                     <div v-else class="w-full h-full flex items-center justify-center text-gray-400 text-3xl">👤</div>
@@ -168,7 +167,7 @@ const jogadoresOrdenadosNome = computed(() => {
         </div>
     </div>
 
-    <JogadorModal v-if="jogadorSelecionado" :jogador="jogadorSelecionado" :todos-jogos="jogos" :is-admin="isAdmin" @update="salvarEdicaoJogador" @close="jogadorSelecionado = null" />
+    <!-- JogadorModal removed: agora navegamos para /jogador/:id ao clicar num jogador -->
 
   </div>
 </template>

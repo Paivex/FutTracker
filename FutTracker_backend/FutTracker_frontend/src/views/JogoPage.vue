@@ -45,6 +45,34 @@ const getStatsJogador = (id) => {
 
 const calcularRating = (stat) => Engine.calculateRating(stat || {})
 
+const getPontosJogador = (playerId) => {
+  if (!jogo.value) return 0
+  const naEquipaA = jogo.value.equipaA.includes(playerId)
+  const naEquipaB = jogo.value.equipaB.includes(playerId)
+  if (!naEquipaA && !naEquipaB) return 0
+
+  let pontos = 0
+
+  // Pontos por resultado do jogo
+  if (jogo.value.golosA !== jogo.value.golosB) {
+    const ganhou = (naEquipaA && jogo.value.golosA > jogo.value.golosB) || (naEquipaB && jogo.value.golosB > jogo.value.golosA)
+    if (ganhou) pontos += 3
+  } else {
+    // empate
+    pontos += 1
+  }
+
+  // Pontos individuais (golos = 2, assistencias = 1)
+  const s = getStatsJogador(playerId) || {}
+  pontos += (s.golos || 0) * 2
+  pontos += (s.assistencias || 0) * 1
+
+  // Bonus JDJ
+  if (jogo.value.jdj === playerId) pontos += 3
+
+  return pontos
+}
+
 const voltar = () => router.push({ name: 'jogos' })
 
 const apagarJogo = async (idToDel) => {
@@ -116,7 +144,7 @@ const apagarJogo = async (idToDel) => {
           <div v-else class="overflow-x-auto">
             <table class="min-w-full text-sm table-auto">
               <thead>
-                <tr class="text-left text-xs text-gray-500">
+                <tr class="text-center text-xs text-gray-500">
                   <th class="px-2 py-2">Jogador</th>
                   <th class="px-2 py-2">Equipa</th>
                   <th class="px-2 py-2">Golos</th>
@@ -124,17 +152,19 @@ const apagarJogo = async (idToDel) => {
                   <th class="px-2 py-2">Perdas</th>
                   <th class="px-2 py-2">Falhanços</th>
                   <th class="px-2 py-2">Rating</th>
+                  <th class="px-2 py-2">Pontos</th>
                 </tr>
               </thead>
               <tbody>
                 <tr v-for="pid in [...jogo.equipaA, ...jogo.equipaB]" :key="pid" class="border-t">
-                  <td class="px-2 py-2">{{ getNome(pid) }}</td>
-                  <td class="px-2 py-2">{{ jogo.equipaA.includes(pid) ? 'A' : 'B' }}</td>
-                  <td class="px-2 py-2">{{ (getStatsJogador(pid)?.golos) || 0 }}</td>
-                  <td class="px-2 py-2">{{ (getStatsJogador(pid)?.assistencias) || 0 }}</td>
-                  <td class="px-2 py-2">{{ (getStatsJogador(pid)?.perdas) || 0 }}</td>
-                  <td class="px-2 py-2">{{ (getStatsJogador(pid)?.falhancos) || 0 }}</td>
-                  <td class="px-2 py-2">{{ calcularRating(getStatsJogador(pid)).toFixed(1) }}</td>
+                  <td class="px-2 py-2 text-center">{{ getNome(pid) }}</td>
+                  <td class="px-2 py-2 text-center">{{ jogo.equipaA.includes(pid) ? 'A' : 'B' }}</td>
+                  <td class="px-2 py-2 text-center">{{ (getStatsJogador(pid)?.golos) || 0 }}</td>
+                  <td class="px-2 py-2 text-center">{{ (getStatsJogador(pid)?.assistencias) || 0 }}</td>
+                  <td class="px-2 py-2 text-center">{{ (getStatsJogador(pid)?.perdas) || 0 }}</td>
+                  <td class="px-2 py-2 text-center">{{ (getStatsJogador(pid)?.falhancos) || 0 }}</td>
+                  <td class="px-2 py-2 text-center">{{ calcularRating(getStatsJogador(pid)).toFixed(1) }}</td>
+                  <td class="px-2 py-2 text-center">{{ getPontosJogador(pid) }}</td>
                 </tr>
               </tbody>
             </table>
