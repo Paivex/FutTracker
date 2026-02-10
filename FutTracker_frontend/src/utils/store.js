@@ -25,6 +25,11 @@ export const Store = {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ jogadores, jogos })
             });
+
+            if (!res.ok) {
+            throw new Error(`HTTP ${res.status} - ${res.statusText}`);
+            }
+
             console.log("Dados guardados no Servidor!");
         } catch (error) {
             console.error("Erro ao guardar no servidor:", error);
