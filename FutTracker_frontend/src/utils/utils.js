@@ -34,7 +34,7 @@ export const Utils = {
         return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
     },
 
-    resizeImage(file, targetWidth = 644, targetHeight = 900) {
+    resizeImage(file, targetWidth = 1200, targetHeight = 1500) {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.readAsDataURL(file);
