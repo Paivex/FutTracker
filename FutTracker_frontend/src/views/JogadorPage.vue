@@ -190,9 +190,9 @@ const voltar = () => router.push({ name: 'jogadores' })
 
         <div class="bg-white rounded-lg shadow p-6">
           <div class="flex flex-col md:flex-row gap-6 mb-6">
-            <div class="w-full md:w-60 flex flex-col items-center gap-2">
-              <div class="aspect-[1288/1800] w-full bg-gray-50 rounded-lg overflow-hidden border border-gray-200 shadow-inner flex items-center justify-center relative">
-                <img v-if="form.imagem || jogador.imagem" :src="form.imagem || jogador.imagem" class="w-full h-full object-contain">
+            <div class="flex flex-col items-center gap-2 max-w-[25%]">
+              <div class="player_img_container">
+                <img v-if="form.imagem || jogador.imagem" :src="form.imagem || jogador.imagem">
                 <div v-else class="text-5xl text-gray-300">👤</div>
               </div>
               <div v-if="isAdmin" class="w-full space-y-2">
