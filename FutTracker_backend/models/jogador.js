@@ -4,6 +4,8 @@ const JogadorSchema = new mongoose.Schema({
     _id: { type: mongoose.Schema.Types.ObjectId, auto: true },
     nome: { type: String, required: true },
     dataNascimento: Date,
+    pe: String,
+    altura: Number,
     carta: String,
     estatisticas: {
         n_jogos: { type: Number, default: 0 },
