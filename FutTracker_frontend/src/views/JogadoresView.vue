@@ -125,7 +125,7 @@ const jogadoresOrdenadosNome = computed(() => {
         
         <div v-else class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
             <div v-for="jogador in jogadoresComStats" :key="jogador.id"
-                @click="router.push({ name: 'jogador', params: { id: jogador.id } })"
+                @click="router.push({ name: 'jogador', params: { id: jogador._id } })"
                 class="relative group p-6 border border-blue-700 rounded-xl bg-white cursor-pointer flex gap-5 items-center
                        transition-all duration-300
                        hover:border-green-400 hover:shadow-2xl hover:scale-[1.02]"> 
