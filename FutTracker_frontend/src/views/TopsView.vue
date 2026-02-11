@@ -9,71 +9,83 @@ import TopModal from '../components/TopsModal.vue'
 const jogadores = ref([])
 const jogos = ref([])
 const filtroTempo = ref('')
+const loading = ref(true)
 
 const modalAberto = ref(false)
 const dadosModal = ref({ titulo: '', lista: [], cor: 'blue' })
 
 onMounted(async () => {
-    const dados = await Store.load()
-    jogadores.value = dados.jogadores || []
-    jogos.value = dados.jogos || []
-    
-    const hoje = new Date();
-    filtroTempo.value = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}`;
+    try {
+        // ✅ Usar os novos métodos específicos
+        const [jogadoresData, jogosData] = await Promise.all([
+            Store.getJogadores(),
+            Store.getJogos()
+        ])
+        
+        jogadores.value = jogadoresData || []
+        jogos.value = jogosData || []
+        
+        const hoje = new Date()
+        filtroTempo.value = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}`
+    } catch (error) {
+        console.error('Erro ao carregar dados:', error)
+    } finally {
+        loading.value = false
+    }
 })
 
 const opcoesTempo = computed(() => {
-    const opcoes = [];
-    const mesesComJogos = new Set();
+    const opcoes = []
+    const mesesComJogos = new Set()
     jogos.value.forEach(j => {
-        const d = new Date(j.data);
-        if(!isNaN(d)) mesesComJogos.add(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`);
-    });
-    opcoes.push({ label: '♾️ Desde Sempre', valor: 'sempre' });
+        const d = new Date(j.data)
+        if(!isNaN(d)) mesesComJogos.add(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`)
+    })
+    opcoes.push({ label: '♾️ Desde Sempre', valor: 'sempre' })
     Array.from(mesesComJogos).sort().reverse().forEach(chave => {
-        const [ano, mes] = chave.split('-').map(Number);
-        opcoes.push({ label: `📅 ${Utils.getNomeMes(mes - 1)} ${ano}`, valor: chave });
-    });
-    return opcoes;
+        const [ano, mes] = chave.split('-').map(Number)
+        opcoes.push({ label: `📅 ${Utils.getNomeMes(mes - 1)} ${ano}`, valor: chave })
+    })
+    return opcoes
 })
 
 const jogadoresCalculados = computed(() => {
-    let jogosFiltrados = jogos.value;
+    let jogosFiltrados = jogos.value
     if (filtroTempo.value && filtroTempo.value !== 'sempre') {
-        const [ano, mes] = filtroTempo.value.split('-').map(Number);
+        const [ano, mes] = filtroTempo.value.split('-').map(Number)
         jogosFiltrados = jogos.value.filter(j => {
-            const d = new Date(j.data);
-            return d.getFullYear() === ano && (d.getMonth() + 1) === mes;
-        });
+            const d = new Date(j.data)
+            return d.getFullYear() === ano && (d.getMonth() + 1) === mes
+        })
     }
 
     return jogadores.value.map(jogador => {
-        const stats = Engine.calcularStatsJogador(jogador.id, jogosFiltrados);
-        const contribuicoes = stats.golos + stats.assistencias;
-        const winRate = stats.jogos > 0 ? (stats.vitorias / stats.jogos) * 100 : 0;
-        const golosPorJogo = stats.jogos > 0 ? stats.golos / stats.jogos : 0;
-        const assistenciasPorJogo = stats.jogos > 0 ? stats.assistencias / stats.jogos : 0;
+        const stats = Engine.calcularStatsJogador(jogador.id, jogosFiltrados)
+        const contribuicoes = stats.golos + stats.assistencias
+        const winRate = stats.jogos > 0 ? (stats.vitorias / stats.jogos) * 100 : 0
+        const golosPorJogo = stats.jogos > 0 ? stats.golos / stats.jogos : 0
+        const assistenciasPorJogo = stats.jogos > 0 ? stats.assistencias / stats.jogos : 0
 
-        return { ...jogador, ...stats, contribuicoes, winRate, golosPorJogo, assistenciasPorJogo };
-    }).filter(j => j.jogos > 0);
+        return { ...jogador, ...stats, contribuicoes, winRate, golosPorJogo, assistenciasPorJogo }
+    }).filter(j => j.jogos > 0)
 })
 
 const getListaOrdenada = (chave) => {
-    return [...jogadoresCalculados.value].sort((a, b) => b[chave] - a[chave]);
+    return [...jogadoresCalculados.value].sort((a, b) => b[chave] - a[chave])
 }
 
 const abrirTopCompleto = (categoria) => {
     const listaCompleta = getListaOrdenada(categoria.chave).map(j => ({
         ...j,
         valorFormatado: j[categoria.chave].toFixed(categoria.decimals) + categoria.sulfixo
-    }));
+    }))
 
     dadosModal.value = {
         titulo: categoria.titulo,
         lista: listaCompleta,
         cor: categoria.cor
-    };
-    modalAberto.value = true;
+    }
+    modalAberto.value = true
 }
 
 </script>
@@ -87,7 +99,11 @@ const abrirTopCompleto = (categoria) => {
         </select>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    <div v-if="loading" class="text-center py-12 text-gray-400">
+        A carregar estatísticas...
+    </div>
+
+    <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         <div v-for="cat in Config.categoriasTops" :key="cat.chave" 
              class="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all bg-white flex flex-col">
             

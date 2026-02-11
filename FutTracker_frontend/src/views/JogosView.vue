@@ -1,29 +1,45 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { Store } from '../utils/store.js'
 import { Utils } from '../utils/utils.js'
 import NovoJogoModal from '../components/NovoJogoModal.vue'
+
+const router = useRouter()
 
 const jogos = ref([])
 const jogadores = ref([])
 const filtroTempo = ref('')
 const mostrarNovoJogo = ref(false)
 const isAdmin = ref(false)
+const loading = ref(true)
 
 onMounted(async () => {
-    const dados = await Store.load()
+    try {
+        // ✅ Usar os novos métodos específicos
+        const [jogosData, jogadoresData] = await Promise.all([
+            Store.getJogos(),
+            Store.getJogadores()
+        ])
 
-    jogos.value = (dados.jogos || []).map(j => ({
-        jdj: null,   // 🛡️ garante compatibilidade
-        ...j
-    }))
+        jogos.value = (jogosData || []).map(j => ({
+            jdj: null,   // 🛡️ garante compatibilidade
+            ...j
+        }))
 
-    jogadores.value = dados.jogadores || []
+        jogadores.value = jogadoresData || []
 
-    const hoje = new Date()
-    filtroTempo.value = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}`
+        const hoje = new Date()
+        filtroTempo.value = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}`
 
-    if (localStorage.getItem('modoAdmin') === 'true') isAdmin.value = true
+        if (localStorage.getItem('modoAdmin') === 'true') {
+            isAdmin.value = true
+        }
+    } catch (error) {
+        console.error('Erro ao carregar dados:', error)
+    } finally {
+        loading.value = false
+    }
 })
 
 const getNomeJogador = (id) => {
@@ -35,54 +51,52 @@ const formatarData = (d) => Utils.formatarDataComDiaSemana(d)
 const getTipoJogoLabel = (t) => t === 'fut5' ? 'Fut 5' : (t === 'fut6' ? 'Fut 6' : 'Fut 7')
 
 const salvarNovoJogo = async (jogo) => {
-    jogos.value.push(jogo);
-    await Store.save(jogadores.value, jogos.value);
-    mostrarNovoJogo.value = false;
-    alert("Jogo guardado! ⚽");
+    try {
+        // ✅ Usar o novo método criarJogo
+        const jogoCriado = await Store.criarJogo(jogo)
+        jogos.value.push({
+            jdj: null,
+            ...jogoCriado
+        })
+        mostrarNovoJogo.value = false
+        alert("Jogo guardado! ⚽")
+    } catch (error) {
+        console.error('Erro ao criar jogo:', error)
+        alert("Erro ao guardar jogo. Verifica a consola.")
+    }
 }
-
-import { useRouter } from 'vue-router'
-const router = useRouter()
 
 const abrirDetalhes = (jogo) => {
     // Navegar para a página dedicada do jogo
     router.push({ name: 'jogo', params: { id: jogo.id } })
 }
 
-const apagarJogo = async (id) => {
-    if(confirm("Tens a certeza que queres apagar este jogo? Isto vai afetar as classificações.")) {
-        jogos.value = jogos.value.filter(j => j.id !== id);
-        await Store.save(jogadores.value, jogos.value);
-        jogoSelecionado.value = null; 
-    }
-}
-
 // Filtros
 const jogosFiltrados = computed(() => {
-    let lista = jogos.value;
+    let lista = jogos.value
     if (filtroTempo.value && filtroTempo.value !== 'sempre') {
-        const [ano, mes] = filtroTempo.value.split('-').map(Number);
+        const [ano, mes] = filtroTempo.value.split('-').map(Number)
         lista = lista.filter(jogo => {
-            const d = new Date(jogo.data + 'T00:00:00');
-            return d.getFullYear() === ano && (d.getMonth() + 1) === mes;
-        });
+            const d = new Date(jogo.data + 'T00:00:00')
+            return d.getFullYear() === ano && (d.getMonth() + 1) === mes
+        })
     }
-    return lista.sort((a, b) => new Date(b.data) - new Date(a.data));
+    return lista.sort((a, b) => new Date(b.data) - new Date(a.data))
 })
 
 const opcoesTempo = computed(() => {
-    const opcoes = [];
-    const meses = new Set();
+    const opcoes = []
+    const meses = new Set()
     jogos.value.forEach(j => {
-        const d = new Date(j.data + 'T00:00:00');
-        if(!isNaN(d)) meses.add(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`);
-    });
-    opcoes.push({ label: '♾️ Desde Sempre', valor: 'sempre' });
+        const d = new Date(j.data + 'T00:00:00')
+        if(!isNaN(d)) meses.add(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`)
+    })
+    opcoes.push({ label: '♾️ Desde Sempre', valor: 'sempre' })
     Array.from(meses).sort().reverse().forEach(k => {
-        const [a, m] = k.split('-').map(Number);
-        opcoes.push({ label: `📅 ${Utils.getNomeMes(m-1)} ${a}`, valor: k });
-    });
-    return opcoes;
+        const [a, m] = k.split('-').map(Number)
+        opcoes.push({ label: `📅 ${Utils.getNomeMes(m-1)} ${a}`, valor: k })
+    })
+    return opcoes
 })
 </script>
 
@@ -101,7 +115,12 @@ const opcoesTempo = computed(() => {
     </div>
 
     <div class="bg-white rounded-lg shadow p-6">
-        <div v-if="jogosFiltrados.length === 0" class="text-center py-12 text-gray-400">Nenhum jogo encontrado.</div>
+        <div v-if="loading" class="text-center py-12 text-gray-400">
+            A carregar jogos...
+        </div>
+        <div v-else-if="jogosFiltrados.length === 0" class="text-center py-12 text-gray-400">
+            Nenhum jogo encontrado.
+        </div>
         <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
             <div v-for="jogo in jogosFiltrados" :key="jogo.id"
                  @click="abrirDetalhes(jogo)"
@@ -125,7 +144,5 @@ const opcoesTempo = computed(() => {
     </div>
 
     <NovoJogoModal v-if="mostrarNovoJogo" :jogadores="jogadores" @close="mostrarNovoJogo = false" @save="salvarNovoJogo"/>
-    
-    <!-- Agora abrimos a página dedicada ao clicar num jogo -->
   </div>
 </template>

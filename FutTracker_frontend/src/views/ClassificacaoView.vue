@@ -13,13 +13,23 @@ const ordenacao = ref({ chave: 'pontos', ordem: 'desc' })
 const loading = ref(true)
 
 onMounted(async () => {
-  const dados = await Store.load()
-  jogadores.value = dados.jogadores || []
-  jogos.value = dados.jogos || []
+  try {
+    // ✅ Usar os novos métodos específicos
+    const [jogadoresData, jogosData] = await Promise.all([
+      Store.getJogadores(),
+      Store.getJogos()
+    ])
+    
+    jogadores.value = jogadoresData || []
+    jogos.value = jogosData || []
 
-  const hoje = new Date()
-  filtroTempo.value = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}`
-  loading.value = false
+    const hoje = new Date()
+    filtroTempo.value = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}`
+  } catch (error) {
+    console.error('Erro ao carregar dados:', error)
+  } finally {
+    loading.value = false
+  }
 })
 
 const getRatingColor = (r) => {

@@ -3,7 +3,6 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { Store } from '../utils/store.js'
 import { Engine } from '../utils/engine.js'
-import { Utils } from '../utils/utils.js'
 
 const jogadores = ref([])
 const jogos = ref([])
@@ -13,73 +12,85 @@ const router = useRouter()
 const isAdmin = ref(false)
 const mostrarGestao = ref(false)
 const novoNome = ref('')
+const loading = ref(true)
 
 onMounted(async () => {
     await carregarDados()
     if (localStorage.getItem('modoAdmin') === 'true') {
-        isAdmin.value = true;
+        isAdmin.value = true
     }
 })
 
 const carregarDados = async () => {
-    const dados = await Store.load()
-    jogadores.value = dados.jogadores || []
-    jogos.value = dados.jogos || []
+    try {
+        // ✅ Usar os novos métodos específicos
+        const [jogadoresData, jogosData] = await Promise.all([
+            Store.getJogadores(),
+            Store.getJogos()
+        ])
+        
+        jogadores.value = jogadoresData || []
+        jogos.value = jogosData || []
+    } catch (error) {
+        console.error('Erro ao carregar dados:', error)
+    } finally {
+        loading.value = false
+    }
 }
 
-
 const adicionarJogador = async () => {
-    if (!novoNome.value.trim()) return;
+    if (!novoNome.value.trim()) return
     
     const novo = {
-        id: Date.now().toString(),
         nome: novoNome.value.trim(),
         imagem: null,
         pePreferencial: '',
         dataNascimento: '',
         altura: null
-    };
+    }
 
-    jogadores.value.push(novo);
-    await Store.save(jogadores.value, jogos.value);
-    novoNome.value = '';
+    try {
+        // ✅ Usar o novo método criarJogador
+        const jogadorCriado = await Store.criarJogador(novo)
+        jogadores.value.push(jogadorCriado)
+        novoNome.value = ''
+    } catch (error) {
+        console.error('Erro ao adicionar jogador:', error)
+    }
 }
 
 const removerJogador = async (id) => {
     if (confirm('Tem a certeza? Isto apaga o histórico e estatísticas deste jogador para sempre.')) {
-        jogadores.value = jogadores.value.filter(j => j.id !== id);
-        await Store.save(jogadores.value, jogos.value);
-    }
-}
-
-const salvarEdicaoJogador = async (jogadorAtualizado) => {
-    const index = jogadores.value.findIndex(j => j.id === jogadorAtualizado.id);
-    if (index !== -1) {
-        jogadores.value[index] = jogadorAtualizado;
-        await Store.save(jogadores.value, jogos.value);
+        try {
+            // ✅ Usar o novo método deletarJogador
+            await Store.deletarJogador(id)
+            jogadores.value = jogadores.value.filter(j => j.id !== id)
+        } catch (error) {
+            console.error('Erro ao remover jogador:', error)
+        }
     }
 }
 
 const jogadoresComStats = computed(() => {
     let lista = jogadores.value.map(jogador => {
-        const stats = Engine.calcularStatsJogador(jogador.id, jogos.value);
-        let corRating = 'text-red-600';
-        if (stats.ratingMedio >= 8.0) corRating = 'text-green-600';
-        else if (stats.ratingMedio >= 7.0) corRating = 'text-blue-600';
-        else if (stats.ratingMedio >= 6.0) corRating = 'text-yellow-600';
-        else if (stats.ratingMedio >= 5.0) corRating = 'text-orange-600';
-        return { ...jogador, ...stats, corRating };
-    });
+        const stats = Engine.calcularStatsJogador(jogador.id, jogos.value)
+        let corRating = 'text-red-600'
+        if (stats.ratingMedio >= 8.0) corRating = 'text-green-600'
+        else if (stats.ratingMedio >= 7.0) corRating = 'text-blue-600'
+        else if (stats.ratingMedio >= 6.0) corRating = 'text-yellow-600'
+        else if (stats.ratingMedio >= 5.0) corRating = 'text-orange-600'
+        return { ...jogador, ...stats, corRating }
+    })
 
     if (pesquisaJogador.value) {
-        const termo = pesquisaJogador.value.toLowerCase();
-        lista = lista.filter(j => j.nome.toLowerCase().includes(termo));
+        const termo = pesquisaJogador.value.toLowerCase()
+        lista = lista.filter(j => j.nome.toLowerCase().includes(termo))
     }
-    return lista.sort((a, b) => a.nome.localeCompare(b.nome));
+    return lista.sort((a, b) => a.nome.localeCompare(b.nome))
 })
 
 const jogadoresOrdenadosNome = computed(() => {
-    return [...jogadores.value].sort((a, b) => a.nome.localeCompare(b.nome));
+    return [...jogadores.value].sort((a, b) => a.nome.localeCompare(b.nome))
 })
 </script>
 
@@ -103,15 +114,20 @@ const jogadoresOrdenadosNome = computed(() => {
     </div>
 
     <div class="bg-white rounded-lg shadow p-6">
-        <div v-if="jogadores.length === 0" class="text-gray-500 text-center py-8">
+        <div v-if="loading" class="text-gray-500 text-center py-8">
             A carregar...
         </div>
         
-    <div v-else class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2"> <div v-for="jogador in jogadoresComStats" :key="jogador.id"
-        @click="router.push({ name: 'jogador', params: { id: jogador.id } })"
-        class="relative group p-6 border border-blue-700 rounded-xl rounded-xl bg-white cursor-pointer flex gap-5 items-center
-               transition-all duration-300
-               hover:border-green-400 hover:shadow-2xl hover:scale-[1.02]"> 
+        <div v-else-if="jogadores.length === 0" class="text-gray-500 text-center py-8">
+            Nenhum jogador encontrado. Adiciona o primeiro jogador!
+        </div>
+        
+        <div v-else class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+            <div v-for="jogador in jogadoresComStats" :key="jogador.id"
+                @click="router.push({ name: 'jogador', params: { id: jogador.id } })"
+                class="relative group p-6 border border-blue-700 rounded-xl bg-white cursor-pointer flex gap-5 items-center
+                       transition-all duration-300
+                       hover:border-green-400 hover:shadow-2xl hover:scale-[1.02]"> 
                 <div class="w-24 aspect-[1000/1200]">
                     <img v-if="jogador.imagem" :src="jogador.imagem" class="w-full h-full object-cover">
                     <div v-else class="w-full h-full flex items-center justify-center text-gray-400 text-3xl">👤</div>
@@ -135,7 +151,6 @@ const jogadoresOrdenadosNome = computed(() => {
                         <div v-else class="text-xs text-gray-400 italic">Sem jogos</div>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
@@ -166,8 +181,6 @@ const jogadoresOrdenadosNome = computed(() => {
             </div>
         </div>
     </div>
-
-    <!-- JogadorModal removed: agora navegamos para /jogador/:id ao clicar num jogador -->
 
   </div>
 </template>

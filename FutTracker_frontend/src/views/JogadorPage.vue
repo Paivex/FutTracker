@@ -26,13 +26,29 @@ const form = reactive({
 
 const loadJogador = async (idParam) => {
   loading.value = true
-  const dados = await Store.load()
-  jogadores.value = dados.jogadores || []
-  todosJogos.value = dados.jogos || []
-  jogador.value = jogadores.value.find(j => String(j.id) === String(idParam)) || null
-  if (jogador.value) Object.assign(form, JSON.parse(JSON.stringify(jogador.value)))
-  if (localStorage.getItem('modoAdmin') === 'true') isAdmin.value = true
-  loading.value = false
+  try {
+    // ✅ Carregar jogador específico e jogos
+    const [jogadorData, jogosData] = await Promise.all([
+      Store.getJogador(idParam),
+      Store.getJogos()
+    ])
+    
+    jogador.value = jogadorData
+    todosJogos.value = jogosData || []
+    
+    if (jogador.value) {
+      Object.assign(form, JSON.parse(JSON.stringify(jogador.value)))
+    }
+    
+    if (localStorage.getItem('modoAdmin') === 'true') {
+      isAdmin.value = true
+    }
+  } catch (error) {
+    console.error('Erro ao carregar jogador:', error)
+    jogador.value = null
+  } finally {
+    loading.value = false
+  }
 }
 
 onMounted(() => {
@@ -94,42 +110,60 @@ const toggleEdicao = () => {
 
 const guardarAlteracoes = async () => {
   if (!jogador.value) return
-  const jogadorAtualizado = { ...jogador.value, ...form }
-  const idx = jogadores.value.findIndex(j => j.id === jogadorAtualizado.id)
-  if (idx !== -1) jogadores.value[idx] = jogadorAtualizado
-  await Store.save(jogadores.value, todosJogos.value)
-  jogador.value = jogadorAtualizado
-  emEdicao.value = false
-  // Atualiza local para navegação imediata
+  
+  try {
+    // ✅ Usar o novo método atualizarJogador
+    const dadosAtualizados = {
+      nome: form.nome,
+      pePreferencial: form.pePreferencial,
+      dataNascimento: form.dataNascimento,
+      altura: form.altura,
+      imagem: form.imagem
+    }
+    
+    const jogadorAtualizado = await Store.atualizarJogador(jogador.value.id, dadosAtualizados)
+    jogador.value = jogadorAtualizado
+    emEdicao.value = false
+  } catch (error) {
+    console.error('Erro ao guardar alterações:', error)
+  }
 }
 
 const atualizarFoto = async (event) => {
   const file = event.target.files[0]
   if (!file) return
+  
   try {
     const imagemRedimensionada = await Utils.resizeImage(file)
     form.imagem = imagemRedimensionada
+    
+    // Se não está em modo edição, atualiza imediatamente
     if (!emEdicao.value && jogador.value) {
-      const jogadorAtualizado = { ...jogador.value, imagem: imagemRedimensionada }
-      const idx = jogadores.value.findIndex(j => j.id === jogadorAtualizado.id)
-      if (idx !== -1) jogadores.value[idx] = jogadorAtualizado
-      await Store.save(jogadores.value, todosJogos.value)
+      const jogadorAtualizado = await Store.atualizarJogador(jogador.value.id, {
+        imagem: imagemRedimensionada
+      })
       jogador.value = jogadorAtualizado
     }
   } catch (e) {
-    console.error(e)
+    console.error('Erro ao atualizar foto:', e)
   }
 }
 
 const removerFoto = async () => {
   if (!confirm('Remover a foto?')) return
-  form.imagem = null
-  if (!emEdicao.value && jogador.value) {
-    const jogadorAtualizado = { ...jogador.value, imagem: null }
-    const idx = jogadores.value.findIndex(j => j.id === jogadorAtualizado.id)
-    if (idx !== -1) jogadores.value[idx] = jogadorAtualizado
-    await Store.save(jogadores.value, todosJogos.value)
-    jogador.value = jogadorAtualizado
+  
+  try {
+    form.imagem = null
+    
+    // Se não está em modo edição, atualiza imediatamente
+    if (!emEdicao.value && jogador.value) {
+      const jogadorAtualizado = await Store.atualizarJogador(jogador.value.id, {
+        imagem: null
+      })
+      jogador.value = jogadorAtualizado
+    }
+  } catch (error) {
+    console.error('Erro ao remover foto:', error)
   }
 }
 

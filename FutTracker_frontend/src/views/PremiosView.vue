@@ -5,11 +5,23 @@ import { Utils } from '../utils/utils.js'
 
 const jogos = ref([])
 const jogadores = ref([])
+const loading = ref(true)
 
 onMounted(async () => {
-  const dados = await Store.load()
-  jogos.value = dados.jogos || []
-  jogadores.value = dados.jogadores || []
+  try {
+    // ✅ Usar os novos métodos específicos
+    const [jogosData, jogadoresData] = await Promise.all([
+      Store.getJogos(),
+      Store.getJogadores()
+    ])
+    
+    jogos.value = jogosData || []
+    jogadores.value = jogadoresData || []
+  } catch (error) {
+    console.error('Erro ao carregar dados:', error)
+  } finally {
+    loading.value = false
+  }
 })
 
 const premios = computed(() => {
@@ -56,9 +68,17 @@ const premios = computed(() => {
         <p class="text-sm text-gray-500">Hall of Fame e Conquistas</p>
       </div>
 
+      <!-- LOADING -->
+      <div
+        v-if="loading"
+        class="p-12 flex flex-col items-center justify-center text-gray-400 min-h-[400px]"
+      >
+        <div class="text-lg">A carregar prémios...</div>
+      </div>
+
       <!-- ESTADO VAZIO -->
       <div
-        v-if="premios.length === 0"
+        v-else-if="premios.length === 0"
         class="p-12 flex flex-col items-center justify-center text-gray-400 min-h-[400px]"
       >
         <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4 text-4xl">

@@ -7,63 +7,75 @@ import { Utils } from '../utils/utils.js'
 const jogadores = ref([])
 const jogos = ref([])
 const filtroTempo = ref('')
+const loading = ref(true)
 
 onMounted(async () => {
-    const dados = await Store.load()
-    jogadores.value = dados.jogadores || []
-    jogos.value = dados.jogos || []
-    
-    const hoje = new Date();
-    filtroTempo.value = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}`;
+    try {
+        // ✅ Usar os novos métodos específicos
+        const [jogadoresData, jogosData] = await Promise.all([
+            Store.getJogadores(),
+            Store.getJogos()
+        ])
+        
+        jogadores.value = jogadoresData || []
+        jogos.value = jogosData || []
+        
+        const hoje = new Date()
+        filtroTempo.value = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}`
+    } catch (error) {
+        console.error('Erro ao carregar dados:', error)
+    } finally {
+        loading.value = false
+    }
 })
 
 const opcoesTempo = computed(() => {
-    const opcoes = [];
-    const mesesComJogos = new Set();
+    const opcoes = []
+    const mesesComJogos = new Set()
     jogos.value.forEach(j => {
-        const d = new Date(j.data);
-        if(!isNaN(d)) mesesComJogos.add(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`);
-    });
-    opcoes.push({ label: '♾️ Desde Sempre', valor: 'sempre' });
+        const d = new Date(j.data)
+        if(!isNaN(d)) mesesComJogos.add(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`)
+    })
+    opcoes.push({ label: '♾️ Desde Sempre', valor: 'sempre' })
     Array.from(mesesComJogos).sort().reverse().forEach(chave => {
-        const [ano, mes] = chave.split('-').map(Number);
-        opcoes.push({ label: `📅 ${Utils.getNomeMes(mes - 1)} ${ano}`, valor: chave });
-    });
-    return opcoes;
+        const [ano, mes] = chave.split('-').map(Number)
+        opcoes.push({ label: `📅 ${Utils.getNomeMes(mes - 1)} ${ano}`, valor: chave })
+    })
+    return opcoes
 })
 
 const jogosFiltrados = computed(() => {
     if (!filtroTempo.value || filtroTempo.value === 'sempre') {
-        return jogos.value;
+        return jogos.value
     }
-    const [ano, mes] = filtroTempo.value.split('-').map(Number);
+    const [ano, mes] = filtroTempo.value.split('-').map(Number)
     return jogos.value.filter(j => {
-        const d = new Date(j.data);
-        return d.getFullYear() === ano && (d.getMonth() + 1) === mes;
-    });
+        const d = new Date(j.data)
+        return d.getFullYear() === ano && (d.getMonth() + 1) === mes
+    })
 })
 
 const totalGolos = computed(() => {
-    return jogosFiltrados.value.reduce((acc, jogo) => acc + jogo.golosA + jogo.golosB, 0);
+    return jogosFiltrados.value.reduce((acc, jogo) => acc + jogo.golosA + jogo.golosB, 0)
 })
 
 const jogadoresCalculados = computed(() => {
     return jogadores.value.map(jogador => {
-        const stats = Engine.calcularStatsJogador(jogador.id, jogosFiltrados.value);
-        return { ...jogador, ...stats };
-    }).filter(j => j.jogos > 0);
+        const stats = Engine.calcularStatsJogador(jogador.id, jogosFiltrados.value)
+        return { ...jogador, ...stats }
+    }).filter(j => j.jogos > 0)
 })
 
-const topMarcadores = computed(() => [...jogadoresCalculados.value].sort((a, b) => b.golos - a.golos).slice(0, 3));
-const topAssistencias = computed(() => [...jogadoresCalculados.value].sort((a, b) => b.assistencias - a.assistencias).slice(0, 3));
-const topRating = computed(() => [...jogadoresCalculados.value].sort((a, b) => b.ratingMedio - a.ratingMedio).slice(0, 3));
+const topMarcadores = computed(() => [...jogadoresCalculados.value].sort((a, b) => b.golos - a.golos).slice(0, 3))
+const topAssistencias = computed(() => [...jogadoresCalculados.value].sort((a, b) => b.assistencias - a.assistencias).slice(0, 3))
+const topRating = computed(() => [...jogadoresCalculados.value].sort((a, b) => b.ratingMedio - a.ratingMedio).slice(0, 3))
 
 const getRatingColor = (r) => {
-    if (r >= 8) return 'text-green-600';
-    if (r >= 7) return 'text-blue-600';
-    if (r >= 6) return 'text-yellow-600';
-    if (r >= 5) return 'text-orange-600';
-    return 'text-red-600';
+    if (r >= 8) return 'text-green-600'
+    if (r >= 7) return 'text-blue-600'
+    if (r >= 6) return 'text-yellow-600'
+    if (r >= 5) return 'text-orange-600'
+    return 'text-red-600'
 }
 </script>
 
@@ -76,7 +88,11 @@ const getRatingColor = (r) => {
         </select>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div v-if="loading" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div v-for="i in 3" :key="i" class="bg-gray-100 rounded-lg shadow-sm p-6 h-32 animate-pulse"></div>
+    </div>
+
+    <div v-else class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100 flex flex-col justify-center h-32">
             <h3 class="text-gray-500 font-medium mb-1">Total de Jogos</h3>
             <div class="text-4xl font-bold text-blue-600">{{ jogosFiltrados.length }}</div>
@@ -93,11 +109,11 @@ const getRatingColor = (r) => {
         </div>
     </div>
 
-    <div v-if="jogadoresCalculados.length === 0" class="text-center py-12 text-gray-400">
+    <div v-if="!loading && jogadoresCalculados.length === 0" class="text-center py-12 text-gray-400">
         Sem estatísticas para mostrar neste período.
     </div>
 
-    <div v-else class="space-y-8">
+    <div v-else-if="!loading" class="space-y-8">
 
         <div class="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100">
             <div class="p-4 border-b border-gray-100 flex items-center gap-2">

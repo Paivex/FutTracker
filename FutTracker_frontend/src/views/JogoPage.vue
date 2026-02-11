@@ -16,12 +16,25 @@ const selectedTab = ref('Elenco')
 
 const loadJogo = async (idParam) => {
   loading.value = true
-  const dados = await Store.load()
-  jogadores.value = dados.jogadores || []
-  const jogos = dados.jogos || []
-  jogo.value = jogos.find(j => String(j.id) === String(idParam)) || null
-  if (localStorage.getItem('modoAdmin') === 'true') isAdmin.value = true
-  loading.value = false
+  try {
+    // ✅ Carregar jogo específico e jogadores
+    const [jogoData, jogadoresData] = await Promise.all([
+      Store.getJogo(idParam),
+      Store.getJogadores()
+    ])
+    
+    jogo.value = jogoData
+    jogadores.value = jogadoresData || []
+    
+    if (localStorage.getItem('modoAdmin') === 'true') {
+      isAdmin.value = true
+    }
+  } catch (error) {
+    console.error('Erro ao carregar jogo:', error)
+    jogo.value = null
+  } finally {
+    loading.value = false
+  }
 }
 
 onMounted(() => {
@@ -77,10 +90,14 @@ const voltar = () => router.push({ name: 'jogos' })
 
 const apagarJogo = async (idToDel) => {
   if (!confirm('Tens a certeza que queres apagar este jogo? Isto vai afetar as classificações.')) return
-  const dados = await Store.load()
-  const jogos = (dados.jogos || []).filter(j => j.id !== idToDel)
-  await Store.save(dados.jogadores || [], jogos)
-  router.push({ name: 'jogos' })
+  
+  try {
+    // ✅ Usar o novo método deletarJogo
+    await Store.deletarJogo(idToDel)
+    router.push({ name: 'jogos' })
+  } catch (error) {
+    console.error('Erro ao apagar jogo:', error)
+  }
 }
 </script>
 
