@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { Store } from '../utils/store.js'
 import { Utils } from '../utils/utils.js'
 import { Engine } from '../utils/engine.js'
+import { isAdmin } from '../utils/admin.js'
 
 const route = useRoute()
 const router = useRouter()
@@ -11,7 +12,7 @@ const router = useRouter()
 const jogo = ref(null)
 const jogadores = ref([])
 const loading = ref(true)
-const isAdmin = ref(false)
+//const isAdmin = ref(false)
 const selectedTab = ref('Elenco')
 
 const loadJogo = async (idParam) => {
@@ -26,9 +27,9 @@ const loadJogo = async (idParam) => {
     jogo.value = jogoData
     jogadores.value = jogadoresData || []
     
-    if (localStorage.getItem('modoAdmin') === 'true') {
-      isAdmin.value = true
-    }
+    //if (localStorage.getItem('modoAdmin') === 'true') {
+    //  isAdmin.value = true
+    //}
   } catch (error) {
     console.error('Erro ao carregar jogo:', error)
     jogo.value = null

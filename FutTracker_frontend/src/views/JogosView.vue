@@ -3,6 +3,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { Store } from '../utils/store.js'
 import { Utils } from '../utils/utils.js'
+import { isAdmin } from '../utils/admin.js'
 import NovoJogoModal from '../components/NovoJogoModal.vue'
 
 const router = useRouter()
@@ -11,7 +12,7 @@ const jogos = ref([])
 const jogadores = ref([])
 const filtroTempo = ref('')
 const mostrarNovoJogo = ref(false)
-const isAdmin = ref(false)
+//const isAdmin = ref(false)
 const loading = ref(true)
 
 onMounted(async () => {
@@ -32,9 +33,9 @@ onMounted(async () => {
         const hoje = new Date()
         filtroTempo.value = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}`
 
-        if (localStorage.getItem('modoAdmin') === 'true') {
-            isAdmin.value = true
-        }
+        //if (localStorage.getItem('modoAdmin') === 'true') {
+        //    isAdmin.value = true
+        //}
     } catch (error) {
         console.error('Erro ao carregar dados:', error)
     } finally {

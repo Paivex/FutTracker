@@ -3,7 +3,8 @@ import { RouterView } from 'vue-router'
 import { ref, onMounted } from 'vue'
 import { Utils } from './utils/utils.js'
 
-const isAdmin = ref(false)
+//const isAdmin = ref(false)
+import { isAdmin } from './utils/admin.js'
 
 onMounted(() => {
     if (localStorage.getItem('modoAdmin') === 'true') {
@@ -16,7 +17,7 @@ const alternarAdmin = async () => {
         isAdmin.value = false;
         localStorage.removeItem('modoAdmin');
         alert("Modo Admin: DESATIVADO 🔒");
-        window.location.reload();
+        //window.location.reload();
     } else {
         const pass = prompt("Insira a password de Admin:");
         if (pass) {
@@ -27,7 +28,7 @@ const alternarAdmin = async () => {
                 isAdmin.value = true;
                 localStorage.setItem('modoAdmin', 'true');
                 alert("Modo Admin: ATIVADO 🔓");
-                window.location.reload(); 
+                //window.location.reload(); 
             } else {
                 alert("Password errada!");
             }
