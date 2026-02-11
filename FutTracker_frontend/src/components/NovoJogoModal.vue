@@ -31,8 +31,8 @@ const maxJogadoresPorEquipa = computed(() => {
 
 const jogadoresDisponiveis = computed(() => {
     return props.jogadores.filter(j => 
-        !novoJogo.value.equipaA.includes(j.id) && 
-        !novoJogo.value.equipaB.includes(j.id)
+        !novoJogo.value.equipaA.includes(j._id) && 
+        !novoJogo.value.equipaB.includes(j._id)
     ).sort((a, b) => a.nome.localeCompare(b.nome));
 })
 
@@ -69,7 +69,7 @@ const jogoValido = computed(() => {
 })
 
 const getNomeJogador = (id) => {
-    const j = props.jogadores.find(x => x.id === id);
+    const j = props.jogadores.find(x => x._id === id);
     return j ? j.nome : 'Desconhecido';
 }
 
@@ -128,7 +128,6 @@ const removerJogadorEquipa = (id, equipa) => {
 }
 
 const toggleSelecionado = (id) => {
-    console.log('Toggle chamado para:', id, 'Array atual:', jogadoresSelecionadosJogo.value);
     const index = jogadoresSelecionadosJogo.value.indexOf(id);
     if (index > -1) {
         // Remove se já está selecionado
@@ -139,7 +138,6 @@ const toggleSelecionado = (id) => {
             jogadoresSelecionadosJogo.value.push(id);
         }
     }
-    console.log('Depois do toggle:', jogadoresSelecionadosJogo.value);
 }
 
 const equipasAleatorias = () => {
@@ -220,15 +218,15 @@ const guardar = () => {
                 <div class="space-y-2 order-last lg:order-none">
                     <h3 class="font-bold text-gray-700 text-center bg-gray-100 py-2 rounded">Disponíveis</h3>
                     <div class="border-2 border-gray-200 rounded-lg p-3 bg-white min-h-[300px] max-h-[300px] overflow-y-auto">
-                        <div v-for="j in jogadoresDisponiveis" :key="j.id" 
+                        <div v-for="j in jogadoresDisponiveis" :key="j._id" 
                              draggable="true" 
-                             @dragstart="onDragStart($event, j.id, 'disp')" 
+                             @dragstart="onDragStart($event, j._id, 'disp')" 
                              @dragend="onDragEnd"
-                             @click.stop="toggleSelecionado(j.id)"
+                             @click.stop="toggleSelecionado(j._id)"
                              class="border rounded p-2 mb-2 cursor-pointer select-none flex justify-between"
-                             :class="jogadoresSelecionadosJogo.includes(j.id) ? 'bg-green-50 border-green-500' : 'hover:bg-gray-50'">
+                             :class="jogadoresSelecionadosJogo.includes(j._id) ? 'bg-green-50 border-green-500' : 'hover:bg-gray-50'">
                             <span class="pointer-events-none">{{ j.nome }}</span>
-                            <span v-if="jogadoresSelecionadosJogo.includes(j.id)" class="text-green-600 pointer-events-none">✓</span>
+                            <span v-if="jogadoresSelecionadosJogo.includes(j._id)" class="text-green-600 pointer-events-none">✓</span>
                         </div>
                     </div>
                     <p class="text-xs text-center text-gray-400">Seleciona para gerar aleatório ou arrasta.</p>
