@@ -43,8 +43,7 @@ export const Store = {
             return await fetchAPI('/jogadores');
         } catch (error) {
             console.warn('Erro ao carregar jogadores:', error);
-            // Fallback para localStorage
-            return JSON.parse(localStorage.getItem('futebol7_jogadores')) || [];
+            throw error;
         }
     },
 
@@ -118,8 +117,7 @@ export const Store = {
             return await fetchAPI('/jogos');
         } catch (error) {
             console.warn('Erro ao carregar jogos:', error);
-            // Fallback para localStorage
-            return JSON.parse(localStorage.getItem('futebol7_jogos')) || [];
+            throw error;
         }
     },
 
@@ -177,28 +175,28 @@ export const Store = {
     // MIGRAÇÃO (manter compatibilidade com código antigo)
     // ========================================
 
-    async load() {
-        try {
-            const [jogadores, jogos] = await Promise.all([
-                this.getJogadores(),
-                this.getJogos(),
-            ]);
-            return { jogadores, jogos };
-        } catch (error) {
-            console.warn('Erro ao carregar dados da API:', error);
-            // Fallback para localStorage
-            return {
-                jogadores: JSON.parse(localStorage.getItem('futebol7_jogadores')) || [],
-                jogos: JSON.parse(localStorage.getItem('futebol7_jogos')) || [],
-            };
-        }
-    },
+    // async load() {
+    //     try {
+    //         const [jogadores, jogos] = await Promise.all([
+    //             this.getJogadores(),
+    //             this.getJogos(),
+    //         ]);
+    //         return { jogadores, jogos };
+    //     } catch (error) {
+    //         console.warn('Erro ao carregar dados da API:', error);
+    //         // Fallback para localStorage
+    //         return {
+    //             jogadores: JSON.parse(localStorage.getItem('futebol7_jogadores')) || [],
+    //             jogos: JSON.parse(localStorage.getItem('futebol7_jogos')) || [],
+    //         };
+    //     }
+    // },
 
-    // Método save() depreciado - usar métodos específicos
-    async save(jogadores, jogos) {
-        console.warn('⚠️ Método save() depreciado. Use criarJogador/criarJogo individualmente.');
-        // Para manter compatibilidade, salvar no localStorage
-        localStorage.setItem('futebol7_jogadores', JSON.stringify(jogadores));
-        localStorage.setItem('futebol7_jogos', JSON.stringify(jogos));
-    },
+    // // Método save() depreciado - usar métodos específicos
+    // async save(jogadores, jogos) {
+    //     console.warn('⚠️ Método save() depreciado. Use criarJogador/criarJogo individualmente.');
+    //     // Para manter compatibilidade, salvar no localStorage
+    //     localStorage.setItem('futebol7_jogadores', JSON.stringify(jogadores));
+    //     localStorage.setItem('futebol7_jogos', JSON.stringify(jogos));
+    // },
 };
