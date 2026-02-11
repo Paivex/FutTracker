@@ -1,79 +1,86 @@
 const express = require('express');
 const cors = require('cors');
-const path = require('path');
-const mongoose = require('mongoose');
 const compression = require('compression');
-const NodeCache = require('node-cache'); 
+const dotenv = require('dotenv');
+const fs = require('fs');
+
+const DatabaseService = require('./services/database');
+const authMiddleware = require('./middleware/auth');
+
+// Importar rotas
+const jogadoresRoutes = require('./routes/jogadores');
+const jogosRoutes = require('./routes/jogos');
+const premiosRoutes = require('./routes/premios');
 
 const app = express();
+
+// Carregar variáveis de ambiente
+const envPath = '/etc/secrets/env';
+if (fs.existsSync(envPath)) {
+    dotenv.config({ path: envPath });
+} else {
+    dotenv.config();
+}
+
 const PORT = process.env.PORT || 3000;
+const MONGO_URI = process.env.MONGO_URI;
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
 
-const myCache = new NodeCache({ stdTTL: 600 }); 
-const CACHE_KEY = 'todos_os_dados';
+// Verificar se API_KEY está configurada
+if (!process.env.API_KEY) {
+    console.warn('⚠️  AVISO: API_KEY não configurada! As rotas não estão protegidas.');
+}
 
-const MONGO_URI = "mongodb+srv://admin:123@futtracker.bmtlp1q.mongodb.net/?appName=FutTracker";
+// Conectar à base de dados
+DatabaseService.connect(MONGO_URI);
 
-mongoose.connect(MONGO_URI)
-    .then(() => console.log("✅ Conectado ao MongoDB Atlas!"))
-    .catch(err => console.error("❌ Erro ao ligar ao MongoDB:", err));
-
-const DadosSchema = new mongoose.Schema({
-    id_unico: { type: String, default: 'dados_futtracker' }, 
-    jogadores: Array,
-    jogos: Array
-});
-const DadosModel = mongoose.model('Dados', DadosSchema);
-
-app.use(cors());
+// Middlewares globais
+app.use(cors({
+    origin: [
+        FRONTEND_URL,
+        'http://localhost:5173',
+        'http://localhost:3000',
+        /\.onrender\.com$/
+    ],
+    credentials: true
+}));
 app.use(compression());
 app.use(express.json({ limit: '50mb' }));
-app.use(express.static(path.join(__dirname, 'FutTracker_frontend/dist')));
 
-app.get('/api/dados', async (req, res) => {
-    try {
-        const cachedData = myCache.get(CACHE_KEY);
-        if (cachedData) {
-            return res.json(cachedData);
-        }
-
-        let dados = await DadosModel.findOne({ id_unico: 'dados_futtracker' });
-        if (!dados) {
-            dados = await DadosModel.create({ jogadores: [], jogos: [] });
-        }
-
-        myCache.set(CACHE_KEY, dados);
-
-        res.json(dados);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Erro ao ler da base de dados' });
-    }
+// Health check (público, sem autenticação)
+app.get('/health', (req, res) => {
+    res.status(200).json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
-app.post('/api/dados', async (req, res) => {
-    try {
-        const { jogadores, jogos } = req.body;
-        
-        await DadosModel.findOneAndUpdate(
-            { id_unico: 'dados_futtracker' },
-            { jogadores, jogos },
-            { upsert: true, new: true }
-        );
+// Aplicar autenticação em TODAS as rotas da API
+app.use('/api', authMiddleware);
 
-        myCache.del(CACHE_KEY); 
-        console.log("🧹 Cache limpa após atualização!");
+// API Routes (protegidas pelo middleware acima)
+app.use('/api/jogadores', jogadoresRoutes);
+app.use('/api/jogos', jogosRoutes);
+app.use('/api/premios', premiosRoutes);
 
-        res.json({ message: 'Guardado na Nuvem com sucesso!' });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Erro ao guardar' });
-    }
+// Rota 404
+app.use('/api/*', (req, res) => {
+    res.status(404).json({ error: 'Endpoint não encontrado' });
 });
 
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'FutTracker_frontend/dist/index.html'));
+// Iniciar servidor
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 Servidor a rodar em http://localhost:${PORT}`);
+    console.log(`📡 CORS ativado para: ${FRONTEND_URL}`);
+    console.log(`🔐 Autenticação: ${process.env.API_KEY ? 'ATIVADA ✅' : 'DESATIVADA ⚠️'}`);
 });
 
-app.listen(PORT, () => {
-    console.log(`🚀 Site Full-Stack a rodar em http://localhost:${PORT}`);
+// Encerrar graciosamente
+process.on('SIGINT', async () => {
+    console.log('\n🛑 A encerrar servidor...');
+    await DatabaseService.disconnect();
+    process.exit(0);
+});
+
+process.on('SIGTERM', async () => {
+    console.log('\n🛑 A encerrar servidor...');
+    await DatabaseService.disconnect();
+    process.exit(0);
 });
