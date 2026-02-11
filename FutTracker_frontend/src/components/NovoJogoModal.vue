@@ -163,25 +163,31 @@ const equipasAleatorias = () => {
 }
 
 const guardar = () => {
-    // Converter as estatísticas para usar 'id' em vez de '_id'
+    // Converter as estatísticas para o formato correto
     const estatisticasConvertidas = Object.values(novoJogo.value.estatisticas).map(stat => ({
-        ...stat,
-        jogadorId: stat.jogadorId // Mantém o jogadorId como está (já é _id)
+        jogadorId: stat.jogadorId,
+        golos: stat.golos || 0,
+        assistencias: stat.assistencias || 0,
+        perdas: stat.perdas || 0,
+        falhancos: stat.falhancos || 0
     }));
 
     const jogoFinal = {
-        id: Date.now().toString(),
         data: novoJogo.value.data,
         tipoJogo: novoJogo.value.tipoJogo,
-        equipaA: novoJogo.value.equipaA, // Mantém os _ids
-        equipaB: novoJogo.value.equipaB, // Mantém os _ids
-        golosA: novoJogo.value.golosA,
-        golosB: novoJogo.value.golosB,
+        equipaA: {
+            jogadores: [...novoJogo.value.equipaA],
+            golos: novoJogo.value.golosA
+        },
+        equipaB: {
+            jogadores: [...novoJogo.value.equipaB],
+            golos: novoJogo.value.golosB
+        },
         estatisticas: estatisticasConvertidas,
         jdj: novoJogo.value.jdj
     };
     
-    console.log('Enviando jogo:', jogoFinal);
+    console.log('Enviando jogo:', JSON.stringify(jogoFinal, null, 2));
     emit('save', jogoFinal);
 }
 </script>
