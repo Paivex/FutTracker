@@ -65,7 +65,7 @@ const removerJogador = async (id) => {
         try {
             // ✅ Usar o novo método deletarJogador
             await Store.deletarJogador(id)
-            jogadores.value = jogadores.value.filter(j => j.id !== id)
+            jogadores.value = jogadores.value.filter(j => j._id !== id)
         } catch (error) {
             console.error('Erro ao remover jogador:', error)
         }
@@ -74,7 +74,7 @@ const removerJogador = async (id) => {
 
 const jogadoresComStats = computed(() => {
     let lista = jogadores.value.map(jogador => {
-        const stats = Engine.calcularStatsJogador(jogador.id, jogos.value)
+        const stats = Engine.calcularStatsJogador(jogador._id, jogos.value)
         let corRating = 'text-red-600'
         if (stats.ratingMedio >= 8.0) corRating = 'text-green-600'
         else if (stats.ratingMedio >= 7.0) corRating = 'text-blue-600'
@@ -124,7 +124,7 @@ const jogadoresOrdenadosNome = computed(() => {
         </div>
         
         <div v-else class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
-            <div v-for="jogador in jogadoresComStats" :key="jogador.id"
+            <div v-for="jogador in jogadoresComStats" :key="jogador._id"
                 @click="router.push({ name: 'jogador', params: { id: jogador._id } })"
                 class="relative group p-6 border border-blue-700 rounded-xl bg-white cursor-pointer flex gap-5 items-center
                        transition-all duration-300
@@ -173,9 +173,9 @@ const jogadoresOrdenadosNome = computed(() => {
                 <div class="flex-1 overflow-y-auto pr-1">
                     <div class="text-xs font-bold text-gray-400 uppercase mb-2 sticky top-0 bg-white pb-2 border-b">JOGADORES EXISTENTES ({{ jogadores.length }})</div>
                     <ul class="space-y-1">
-                        <li v-for="jogador in jogadoresOrdenadosNome" :key="jogador.id" class="flex justify-between items-center p-3 hover:bg-gray-50 rounded group transition border-b border-gray-50 last:border-0">
+                        <li v-for="jogador in jogadoresOrdenadosNome" :key="jogador._id" class="flex justify-between items-center p-3 hover:bg-gray-50 rounded group transition border-b border-gray-50 last:border-0">
                             <span class="text-gray-700 font-medium">{{ jogador.nome }}</span>
-                            <button @click="removerJogador(jogador.id)" class="text-gray-400 hover:text-red-600 p-1 rounded transition hover:bg-red-50" title="Eliminar Jogador">🗑️</button>
+                            <button @click="removerJogador(jogador._id)" class="text-gray-400 hover:text-red-600 p-1 rounded transition hover:bg-red-50" title="Eliminar Jogador">🗑️</button>
                         </li>
                     </ul>
                 </div>
