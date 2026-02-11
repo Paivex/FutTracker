@@ -15,9 +15,9 @@ const premiosRoutes = require('./routes/premios');
 const app = express();
 
 // Carregar variáveis de ambiente
-const envPath = '/etc/secrets/env';
-if (fs.existsSync(envPath)) {
-    dotenv.config({ path: envPath });
+const env = '/etc/secrets/env';
+if (fs.existsSync(env)) {
+    dotenv.config({ path: env });
 } else {
     dotenv.config();
 }
