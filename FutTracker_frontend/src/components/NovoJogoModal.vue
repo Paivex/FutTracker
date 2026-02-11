@@ -128,13 +128,18 @@ const removerJogadorEquipa = (id, equipa) => {
 }
 
 const toggleSelecionado = (id) => {
-    if (jogadoresSelecionadosJogo.value.includes(id)) {
-        jogadoresSelecionadosJogo.value = jogadoresSelecionadosJogo.value.filter(x => x !== id);
+    console.log('Toggle chamado para:', id, 'Array atual:', jogadoresSelecionadosJogo.value);
+    const index = jogadoresSelecionadosJogo.value.indexOf(id);
+    if (index > -1) {
+        // Remove se já está selecionado
+        jogadoresSelecionadosJogo.value.splice(index, 1);
     } else {
+        // Adiciona se não está selecionado e há espaço
         if (jogadoresSelecionadosJogo.value.length < maxJogadoresPorEquipa.value * 2) {
             jogadoresSelecionadosJogo.value.push(id);
         }
     }
+    console.log('Depois do toggle:', jogadoresSelecionadosJogo.value);
 }
 
 const equipasAleatorias = () => {
@@ -215,12 +220,15 @@ const guardar = () => {
                 <div class="space-y-2 order-last lg:order-none">
                     <h3 class="font-bold text-gray-700 text-center bg-gray-100 py-2 rounded">Disponíveis</h3>
                     <div class="border-2 border-gray-200 rounded-lg p-3 bg-white min-h-[300px] max-h-[300px] overflow-y-auto">
-                        <div v-for="j in jogadoresDisponiveis" :key="j.id" draggable="true" @dragstart="onDragStart($event, j.id, 'disp')" @dragend="onDragEnd"
+                        <div v-for="j in jogadoresDisponiveis" :key="j.id" 
+                             draggable="true" 
+                             @dragstart="onDragStart($event, j.id, 'disp')" 
+                             @dragend="onDragEnd"
                              @click.stop="toggleSelecionado(j.id)"
                              class="border rounded p-2 mb-2 cursor-pointer select-none flex justify-between"
                              :class="jogadoresSelecionadosJogo.includes(j.id) ? 'bg-green-50 border-green-500' : 'hover:bg-gray-50'">
-                            <span>{{ j.nome }}</span>
-                            <span v-if="jogadoresSelecionadosJogo.includes(j.id)" class="text-green-600">✓</span>
+                            <span class="pointer-events-none">{{ j.nome }}</span>
+                            <span v-if="jogadoresSelecionadosJogo.includes(j.id)" class="text-green-600 pointer-events-none">✓</span>
                         </div>
                     </div>
                     <p class="text-xs text-center text-gray-400">Seleciona para gerar aleatório ou arrasta.</p>
