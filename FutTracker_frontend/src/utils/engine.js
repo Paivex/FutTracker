@@ -34,15 +34,32 @@ export const Engine = {
     }
 
     listaJogos.forEach(jogo => {
-      const naEquipaA = jogo.equipaA.includes(jogadorId)
-      const naEquipaB = jogo.equipaB.includes(jogadorId)
+      // ✅ CORREÇÃO: Verificar se equipaA/equipaB são arrays (formato antigo) ou objetos (formato novo)
+      let equipaAJogadores, equipaBJogadores, golosA, golosB;
+      
+      if (Array.isArray(jogo.equipaA)) {
+        // Formato antigo: equipaA é array direto
+        equipaAJogadores = jogo.equipaA;
+        equipaBJogadores = jogo.equipaB;
+        golosA = jogo.golosA || 0;
+        golosB = jogo.golosB || 0;
+      } else {
+        // Formato novo: equipaA é objeto com jogadores e golos
+        equipaAJogadores = jogo.equipaA?.jogadores || [];
+        equipaBJogadores = jogo.equipaB?.jogadores || [];
+        golosA = jogo.equipaA?.golos || 0;
+        golosB = jogo.equipaB?.golos || 0;
+      }
+
+      const naEquipaA = equipaAJogadores.includes(jogadorId);
+      const naEquipaB = equipaBJogadores.includes(jogadorId);
 
       if (!naEquipaA && !naEquipaB) return
 
       stats.jogos++
 
-      const golosMinhaEquipa = naEquipaA ? jogo.golosA : jogo.golosB
-      const golosAdversario = naEquipaA ? jogo.golosB : jogo.golosA
+      const golosMinhaEquipa = naEquipaA ? golosA : golosB;
+      const golosAdversario = naEquipaA ? golosB : golosA;
 
       // 🏆 Pontos por resultado
       if (golosMinhaEquipa > golosAdversario) {
