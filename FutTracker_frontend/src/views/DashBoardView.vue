@@ -61,7 +61,7 @@ const totalGolos = computed(() => {
 
 const jogadoresCalculados = computed(() => {
     return jogadores.value.map(jogador => {
-        const stats = Engine.calcularStatsJogador(jogador.id, jogosFiltrados.value)
+        const stats = Engine.calcularStatsJogador(jogador._id, jogosFiltrados.value)
         return { ...jogador, ...stats }
     }).filter(j => j.jogos > 0)
 })
@@ -121,7 +121,7 @@ const getRatingColor = (r) => {
                 <h3 class="font-bold text-gray-800">Top Marcadores</h3>
             </div>
             <div class="divide-y divide-gray-50">
-                <div v-for="(jogador, idx) in topMarcadores" :key="jogador.id" class="flex items-center p-4 hover:bg-gray-50 transition">
+                <div v-for="(jogador, idx) in topMarcadores" :key="jogador._id" class="flex items-center p-4 hover:bg-gray-50 transition">
                     <div class="w-8 text-center text-2xl font-bold text-gray-300 mr-4">{{ idx + 1 }}</div>
                     <div class="flex-1">
                         <div class="font-bold text-gray-800">{{ jogador.nome }}</div>
@@ -143,7 +143,7 @@ const getRatingColor = (r) => {
                 <h3 class="font-bold text-gray-800">Top Assistências</h3>
             </div>
             <div class="divide-y divide-gray-50">
-                <div v-for="(jogador, idx) in topAssistencias" :key="jogador.id" class="flex items-center p-4 hover:bg-gray-50 transition">
+                <div v-for="(jogador, idx) in topAssistencias" :key="jogador._id" class="flex items-center p-4 hover:bg-gray-50 transition">
                     <div class="w-8 text-center text-2xl font-bold text-gray-300 mr-4">{{ idx + 1 }}</div>
                     <div class="flex-1">
                         <div class="font-bold text-gray-800">{{ jogador.nome }}</div>
@@ -165,7 +165,7 @@ const getRatingColor = (r) => {
                 <h3 class="font-bold text-gray-800">Top Rating</h3>
             </div>
             <div class="divide-y divide-gray-50">
-                <div v-for="(jogador, idx) in topRating" :key="jogador.id" class="flex items-center p-4 hover:bg-gray-50 transition">
+                <div v-for="(jogador, idx) in topRating" :key="jogador._id" class="flex items-center p-4 hover:bg-gray-50 transition">
                     <div class="w-8 text-center text-2xl font-bold text-gray-300 mr-4">{{ idx + 1 }}</div>
                     <div class="flex-1">
                         <div class="font-bold text-gray-800">{{ jogador.nome }}</div>

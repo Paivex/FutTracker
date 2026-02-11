@@ -48,7 +48,7 @@ watch(() => route.params.id, (newId) => {
 })
 
 const getNome = (id) => {
-  const j = jogadores.value.find(x => x.id === id)
+  const j = jogadores.value.find(x => x._id === id)
   return j ? j.nome : 'Desconhecido'
 }
 
@@ -116,7 +116,7 @@ const apagarJogo = async (idToDel) => {
           </div>
           <div class="flex items-center gap-3">
             <button @click="voltar" class="px-3 py-2 bg-gray-100 rounded">⟵ Voltar</button>
-            <button v-if="isAdmin" @click="apagarJogo(jogo.id)" class="px-3 py-2 bg-red-100 text-red-700 rounded">🗑️ Eliminar</button>
+            <button v-if="isAdmin" @click="apagarJogo(jogo._id)" class="px-3 py-2 bg-red-100 text-red-700 rounded">🗑️ Eliminar</button>
           </div>
         </div>
 

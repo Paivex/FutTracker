@@ -28,7 +28,7 @@ const premios = computed(() => {
   return jogos.value
     .filter(j => j.jdj)
     .map(jogo => {
-      const jogador = jogadores.value.find(j => j.id === jogo.jdj)
+      const jogador = jogadores.value.find(j => j._id === jogo.jdj)
 
       const jogouNaA = jogo.equipaA.includes(jogo.jdj)
       const jogouNaB = jogo.equipaB.includes(jogo.jdj)

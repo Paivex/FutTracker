@@ -60,7 +60,7 @@ const jogadoresCalculados = computed(() => {
     }
 
     return jogadores.value.map(jogador => {
-        const stats = Engine.calcularStatsJogador(jogador.id, jogosFiltrados)
+        const stats = Engine.calcularStatsJogador(jogador._id, jogosFiltrados)
         const contribuicoes = stats.golos + stats.assistencias
         const winRate = stats.jogos > 0 ? (stats.vitorias / stats.jogos) * 100 : 0
         const golosPorJogo = stats.jogos > 0 ? stats.golos / stats.jogos : 0
@@ -114,7 +114,7 @@ const abrirTopCompleto = (categoria) => {
             </div>
 
             <div class="divide-y divide-gray-100 flex-1">
-                <div v-for="(jogador, idx) in getListaOrdenada(cat.chave).slice(0, 5)" :key="jogador.id"
+                <div v-for="(jogador, idx) in getListaOrdenada(cat.chave).slice(0, 5)" :key="jogador._id"
                      class="flex items-center justify-between p-3 hover:bg-gray-50 text-sm">
                     <div class="flex items-center gap-3">
                         <div class="w-6 font-bold text-center" 

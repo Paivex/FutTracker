@@ -74,7 +74,7 @@ const tabelaStats = computed(() => {
   }
 
   let lista = jogadores.value.map(jogador => {
-    const stats = Engine.calcularStatsJogador(jogador.id, jogosFiltrados)
+    const stats = Engine.calcularStatsJogador(jogador._id, jogosFiltrados)
     const contribuicoes = stats.golos + stats.assistencias
 
     return {
@@ -208,7 +208,7 @@ const mudarOrdenacao = (chave) => {
           </thead>
 
           <tbody class="divide-y">
-            <tr v-for="(j, i) in tabelaStats" :key="j.id" class="hover:bg-gray-50">
+            <tr v-for="(j, i) in tabelaStats" :key="j._id" class="hover:bg-gray-50">
 
               <td class="px-2 py-2 text-center">{{ i + 1 }}</td>
 

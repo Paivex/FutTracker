@@ -44,7 +44,7 @@ onMounted(async () => {
 })
 
 const getNomeJogador = (id) => {
-    const j = jogadores.value.find(x => x.id === id)
+    const j = jogadores.value.find(x => x._id === id)
     return j ? j.nome : 'Desconhecido'
 }
 
@@ -69,7 +69,7 @@ const salvarNovoJogo = async (jogo) => {
 
 const abrirDetalhes = (jogo) => {
     // Navegar para a página dedicada do jogo
-    router.push({ name: 'jogo', params: { id: jogo.id } })
+    router.push({ name: 'jogo', params: { id: jogo._id } })
 }
 
 // Filtros
@@ -123,7 +123,7 @@ const opcoesTempo = computed(() => {
             Nenhum jogo encontrado.
         </div>
         <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-            <div v-for="jogo in jogosFiltrados" :key="jogo.id"
+            <div v-for="jogo in jogosFiltrados" :key="jogo._id"
                  @click="abrirDetalhes(jogo)"
                  class="border-2 border-gray-200 rounded-lg p-3 hover:border-blue-500 hover:shadow-md transition bg-white cursor-pointer relative group">
                 
