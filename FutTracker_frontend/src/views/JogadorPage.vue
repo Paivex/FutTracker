@@ -62,20 +62,20 @@ watch(() => route.params.id, (newId) => {
 
 const stats = computed(() => {
   if (!jogador.value || !todosJogos.value) return null
-  return Engine.calcularStatsJogador(jogador.value.id, todosJogos.value)
+  return Engine.calcularStatsJogador(jogador.value._id, todosJogos.value)
 })
 
 const historicoJogos = computed(() => {
   if (!jogador.value || !todosJogos.value) return []
   return todosJogos.value
-    .filter(j => j.equipaA.includes(jogador.value.id) || j.equipaB.includes(jogador.value.id))
+    .filter(j => j.equipaA.includes(jogador.value._id) || j.equipaB.includes(jogador.value._id))
     .sort((a, b) => new Date(b.data) - new Date(a.data))
 })
 
 const premiosDoJogador = computed(() => {
   // Reutiliza a lógica de prémios: jogos com `jdj` apontando para este jogador
   return (todosJogos.value || [])
-    .filter(j => j.jdj === (jogador.value?.id))
+    .filter(j => j.jdj === (jogador.value?._id))
     .map(jogo => {
       const jogouNaA = jogo.equipaA.includes(jogo.jdj)
       const jogouNaB = jogo.equipaB.includes(jogo.jdj)
@@ -122,7 +122,7 @@ const guardarAlteracoes = async () => {
       imagem: form.imagem
     }
     
-    const jogadorAtualizado = await Store.atualizarJogador(jogador.value.id, dadosAtualizados)
+    const jogadorAtualizado = await Store.atualizarJogador(jogador.value._id, dadosAtualizados)
     jogador.value = jogadorAtualizado
     emEdicao.value = false
   } catch (error) {
@@ -140,7 +140,7 @@ const atualizarFoto = async (event) => {
     
     // Se não está em modo edição, atualiza imediatamente
     if (!emEdicao.value && jogador.value) {
-      const jogadorAtualizado = await Store.atualizarJogador(jogador.value.id, {
+      const jogadorAtualizado = await Store.atualizarJogador(jogador.value._id, {
         imagem: imagemRedimensionada
       })
       jogador.value = jogadorAtualizado
@@ -158,7 +158,7 @@ const removerFoto = async () => {
     
     // Se não está em modo edição, atualiza imediatamente
     if (!emEdicao.value && jogador.value) {
-      const jogadorAtualizado = await Store.atualizarJogador(jogador.value.id, {
+      const jogadorAtualizado = await Store.atualizarJogador(jogador.value._id, {
         imagem: null
       })
       jogador.value = jogadorAtualizado
@@ -178,7 +178,7 @@ const getRatingColor = (r) => {
 
 const getStatsNoJogo = (jogo) => {
   if (!jogo.estatisticas) return { golos:0, assistencias:0, perdas:0, falhancos:0 }
-  return jogo.estatisticas.find(s => s.jogadorId === jogador.value.id) || { golos:0, assistencias:0, perdas:0, falhancos:0 }
+  return jogo.estatisticas.find(s => s.jogadorId === jogador.value._id) || { golos:0, assistencias:0, perdas:0, falhancos:0 }
 }
 
 const getRatingNoJogo = (jogo) => {
@@ -187,7 +187,7 @@ const getRatingNoJogo = (jogo) => {
 }
 
 const getResultadoJogo = (jogo) => {
-  const naEquipaA = jogo.equipaA.includes(jogador.value.id)
+  const naEquipaA = jogo.equipaA.includes(jogador.value._id)
   let texto = 'D'
   let classe = 'bg-gray-100 text-gray-600'
 
@@ -295,7 +295,7 @@ const voltar = () => router.push({ name: 'jogadores' })
             <div v-else-if="selectedTab === 'Últimos Jogos'">
               <div v-if="historicoJogos.length === 0" class="text-center text-gray-400 py-4">Nenhum jogo registado.</div>
               <div v-else class="space-y-4">
-                <div v-for="jogo in historicoJogos.slice(0, 20)" :key="jogo.id" class="border border-gray-200 rounded-lg p-4 bg-white shadow-sm">
+                <div v-for="jogo in historicoJogos.slice(0, 20)" :key="jogo._id" class="border border-gray-200 rounded-lg p-4 bg-white shadow-sm">
                   <div class="text-center text-xs text-gray-400 font-bold tracking-wider mb-3 uppercase">{{ Utils.formatarDataCompleta(jogo.data) }}</div>
 
                   <div class="flex justify-center items-center gap-4 mb-4">
