@@ -12,7 +12,6 @@ const router = useRouter()
 const jogo = ref(null)
 const jogadores = ref([])
 const loading = ref(true)
-//const isAdmin = ref(false)
 const selectedTab = ref('Elenco')
 
 const loadJogo = async (idParam) => {
@@ -24,12 +23,24 @@ const loadJogo = async (idParam) => {
       Store.getJogadores()
     ])
     
-    jogo.value = jogoData
-    jogadores.value = jogadoresData || []
+    console.log('Jogo recebido:', jogoData); // Debug
     
-    //if (localStorage.getItem('modoAdmin') === 'true') {
-    //  isAdmin.value = true
-    //}
+    // ✅ CORREÇÃO: Adaptar formato do jogo para o esperado pela view
+    if (jogoData) {
+      jogo.value = {
+        ...jogoData,
+        equipaA: jogoData.equipaA?.jogadores || [],
+        equipaB: jogoData.equipaB?.jogadores || [],
+        golosA: jogoData.equipaA?.golos || 0,
+        golosB: jogoData.equipaB?.golos || 0
+      };
+      
+      console.log('Jogo processado:', jogo.value); // Debug
+    } else {
+      jogo.value = null;
+    }
+    
+    jogadores.value = jogadoresData || []
   } catch (error) {
     console.error('Erro ao carregar jogo:', error)
     jogo.value = null
@@ -142,7 +153,7 @@ const apagarJogo = async (idToDel) => {
 
           <div v-if="selectedTab === 'Elenco'" class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <h3 class="font-bold text-blue-800 mb-2">Equipa A</h3>
+              <h3 class="font-bold text-blue-800 mb-2">Equipa A ({{ jogo.equipaA.length }})</h3>
               <div class="space-y-2">
                 <div v-for="pid in jogo.equipaA" :key="pid" class="p-2 border rounded bg-blue-50">
                   {{ getNome(pid) }}
@@ -150,7 +161,7 @@ const apagarJogo = async (idToDel) => {
               </div>
             </div>
             <div>
-              <h3 class="font-bold text-red-800 mb-2">Equipa B</h3>
+              <h3 class="font-bold text-red-800 mb-2">Equipa B ({{ jogo.equipaB.length }})</h3>
               <div class="space-y-2">
                 <div v-for="pid in jogo.equipaB" :key="pid" class="p-2 border rounded bg-red-50">
                   {{ getNome(pid) }}
