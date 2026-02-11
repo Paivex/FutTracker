@@ -12,7 +12,6 @@ const jogos = ref([])
 const jogadores = ref([])
 const filtroTempo = ref('')
 const mostrarNovoJogo = ref(false)
-//const isAdmin = ref(false)
 const loading = ref(true)
 
 onMounted(async () => {
@@ -23,19 +22,44 @@ onMounted(async () => {
             Store.getJogadores()
         ])
 
-        jogos.value = (jogosData || []).map(j => ({
-            jdj: null,   // 🛡️ garante compatibilidade
-            ...j
-        }))
+        // ✅ CORREÇÃO: Adaptar formato do backend para o formato esperado pela view
+        jogos.value = (jogosData || []).map(j => {
+            console.log('Jogo original:', j); // Debug
+            
+            // Extrair IDs dos jogadores (que vêm como objetos com jogadorId)
+            const equipaAIds = j.equipaA?.jogadores?.map(jog => {
+                // Se jogadorId foi populado, pega o _id do objeto
+                if (typeof jog.jogadorId === 'object' && jog.jogadorId !== null) {
+                    return jog.jogadorId._id;
+                }
+                // Se não foi populado, já é o ID
+                return jog.jogadorId;
+            }) || [];
+
+            const equipaBIds = j.equipaB?.jogadores?.map(jog => {
+                if (typeof jog.jogadorId === 'object' && jog.jogadorId !== null) {
+                    return jog.jogadorId._id;
+                }
+                return jog.jogadorId;
+            }) || [];
+
+            return {
+                ...j,
+                equipaA: equipaAIds,
+                equipaB: equipaBIds,
+                golosA: j.equipaA?.golos || 0,
+                golosB: j.equipaB?.golos || 0,
+                jdj: j.jdj || null
+            };
+        });
+
+        console.log('Jogos processados:', jogos.value); // Debug
 
         jogadores.value = jogadoresData || []
 
         const hoje = new Date()
         filtroTempo.value = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}`
 
-        //if (localStorage.getItem('modoAdmin') === 'true') {
-        //    isAdmin.value = true
-        //}
     } catch (error) {
         console.error('Erro ao carregar dados:', error)
     } finally {
@@ -53,12 +77,37 @@ const getTipoJogoLabel = (t) => t === 'fut5' ? 'Fut 5' : (t === 'fut6' ? 'Fut 6'
 
 const salvarNovoJogo = async (jogo) => {
     try {
+        console.log('Criando jogo:', jogo); // Debug
+        
         // ✅ Usar o novo método criarJogo
         const jogoCriado = await Store.criarJogo(jogo)
+        
+        console.log('Jogo criado:', jogoCriado); // Debug
+        
+        // Adaptar o jogo criado para o formato da view
+        const equipaAIds = jogoCriado.equipaA?.jogadores?.map(jog => {
+            if (typeof jog.jogadorId === 'object' && jog.jogadorId !== null) {
+                return jog.jogadorId._id;
+            }
+            return jog.jogadorId;
+        }) || [];
+
+        const equipaBIds = jogoCriado.equipaB?.jogadores?.map(jog => {
+            if (typeof jog.jogadorId === 'object' && jog.jogadorId !== null) {
+                return jog.jogadorId._id;
+            }
+            return jog.jogadorId;
+        }) || [];
+
         jogos.value.push({
-            jdj: null,
-            ...jogoCriado
-        })
+            ...jogoCriado,
+            equipaA: equipaAIds,
+            equipaB: equipaBIds,
+            golosA: jogoCriado.equipaA?.golos || 0,
+            golosB: jogoCriado.equipaB?.golos || 0,
+            jdj: jogoCriado.jdj || null
+        });
+        
         mostrarNovoJogo.value = false
         alert("Jogo guardado! ⚽")
     } catch (error) {
