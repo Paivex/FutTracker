@@ -15,7 +15,15 @@ onMounted(async () => {
       Store.getJogadores()
     ])
     
-    jogos.value = jogosData || []
+    // ✅ CORREÇÃO: Adaptar jogos para formato esperado
+    jogos.value = (jogosData || []).map(j => ({
+      ...j,
+      equipaA: j.equipaA?.jogadores || [],
+      equipaB: j.equipaB?.jogadores || [],
+      golosA: j.equipaA?.golos || 0,
+      golosB: j.equipaB?.golos || 0
+    }))
+    
     jogadores.value = jogadoresData || []
   } catch (error) {
     console.error('Erro ao carregar dados:', error)
