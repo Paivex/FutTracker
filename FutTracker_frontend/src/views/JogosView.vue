@@ -26,27 +26,11 @@ onMounted(async () => {
         jogos.value = (jogosData || []).map(j => {
             console.log('Jogo original:', j); // Debug
             
-            // Extrair IDs dos jogadores (que vêm como objetos com jogadorId)
-            const equipaAIds = j.equipaA?.jogadores?.map(jog => {
-                // Se jogadorId foi populado, pega o _id do objeto
-                if (typeof jog.jogadorId === 'object' && jog.jogadorId !== null) {
-                    return jog.jogadorId._id;
-                }
-                // Se não foi populado, já é o ID
-                return jog.jogadorId;
-            }) || [];
-
-            const equipaBIds = j.equipaB?.jogadores?.map(jog => {
-                if (typeof jog.jogadorId === 'object' && jog.jogadorId !== null) {
-                    return jog.jogadorId._id;
-                }
-                return jog.jogadorId;
-            }) || [];
-
             return {
                 ...j,
-                equipaA: equipaAIds,
-                equipaB: equipaBIds,
+                // Os jogadores já vêm como array de IDs (strings), não precisam de transformação
+                equipaA: j.equipaA?.jogadores || [],
+                equipaB: j.equipaB?.jogadores || [],
                 golosA: j.equipaA?.golos || 0,
                 golosB: j.equipaB?.golos || 0,
                 jdj: j.jdj || null
@@ -85,24 +69,10 @@ const salvarNovoJogo = async (jogo) => {
         console.log('Jogo criado:', jogoCriado); // Debug
         
         // Adaptar o jogo criado para o formato da view
-        const equipaAIds = jogoCriado.equipaA?.jogadores?.map(jog => {
-            if (typeof jog.jogadorId === 'object' && jog.jogadorId !== null) {
-                return jog.jogadorId._id;
-            }
-            return jog.jogadorId;
-        }) || [];
-
-        const equipaBIds = jogoCriado.equipaB?.jogadores?.map(jog => {
-            if (typeof jog.jogadorId === 'object' && jog.jogadorId !== null) {
-                return jog.jogadorId._id;
-            }
-            return jog.jogadorId;
-        }) || [];
-
         jogos.value.push({
             ...jogoCriado,
-            equipaA: equipaAIds,
-            equipaB: equipaBIds,
+            equipaA: jogoCriado.equipaA?.jogadores || [],
+            equipaB: jogoCriado.equipaB?.jogadores || [],
             golosA: jogoCriado.equipaA?.golos || 0,
             golosB: jogoCriado.equipaB?.golos || 0,
             jdj: jogoCriado.jdj || null
