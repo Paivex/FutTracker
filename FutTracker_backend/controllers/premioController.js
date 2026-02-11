@@ -4,7 +4,7 @@ const Jogador = require('../models/jogador');
 exports.getTodosPremios = async (req, res) => {
     try {
         const jogadores = await Jogador.find({ 'premios.0': { $exists: true } })
-            .select('nome carta premios')
+            .select('nome imagem premios')
             .sort({ nome: 1 });
         
         // Formatar resposta
@@ -14,7 +14,7 @@ exports.getTodosPremios = async (req, res) => {
                 jogador: {
                     id: jogador._id,
                     nome: jogador.nome,
-                    carta: jogador.carta
+                    imagem: jogador.imagem
                 }
             }))
         );

@@ -44,8 +44,8 @@ const adicionarJogador = async () => {
     
     const novo = {
         nome: novoNome.value.trim(),
-        carta: null,
-        pe: '',
+        imagem: null,
+        pePreferencial: '',
         dataNascimento: '',
         altura: null
     }

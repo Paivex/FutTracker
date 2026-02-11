@@ -80,9 +80,7 @@ async function atualizarEstatisticasJogadores(jogadores) {
             $inc: {
                 'estatisticas.jogos': 1,
                 'estatisticas.golos': jogadorJogo.golos,
-                'estatisticas.assistencias': jogadorJogo.assistencias,
-                'estatisticas.cartoes.amarelos': jogadorJogo.cartaoAmarelo ? 1 : 0,
-                'estatisticas.cartoes.vermelhos': jogadorJogo.cartaoVermelho ? 1 : 0
+                'estatisticas.assistencias': jogadorJogo.assistencias
             }
         });
     }
@@ -97,9 +95,7 @@ async function reverterEstatisticasJogadores(jogadores) {
             $inc: {
                 'estatisticas.jogos': -1,
                 'estatisticas.golos': -jogadorJogo.golos,
-                'estatisticas.assistencias': -jogadorJogo.assistencias,
-                'estatisticas.cartoes.amarelos': jogadorJogo.cartaoAmarelo ? -1 : 0,
-                'estatisticas.cartoes.vermelhos': jogadorJogo.cartaoVermelho ? -1 : 0
+                'estatisticas.assistencias': -jogadorJogo.assistencias
             }
         });
     }
