@@ -103,7 +103,11 @@ const onDragEnd = (evt) => {
     draggedFrom.value = null;
     dragOverZone.value = null;
 }
+const onDragOver = (evt) => {
+    evt.preventDefault();
+}
 const onDrop = (evt, equipaDestino) => {
+    evt.preventDefault();
     dragOverZone.value = null;
     if (!draggedPlayer.value) return;
 
@@ -136,6 +140,12 @@ const toggleSelecionado = (id) => {
 const equipasAleatorias = () => {
     const totalNecessario = maxJogadoresPorEquipa.value * 2;
     if (jogadoresSelecionadosJogo.value.length < 2) return alert("Seleciona jogadores primeiro!");
+
+    if (jogadoresSelecionadosJogo.value.length > totalNecessario) {
+        if (!confirm(`Tens ${jogadoresSelecionadosJogo.value.length} jogadores selecionados, mas só são necessários ${totalNecessario}. Continuar?`)) {
+            return;
+        }
+    }
     
     const pool = [...jogadoresSelecionadosJogo.value].sort(() => Math.random() - 0.5);
     
@@ -191,7 +201,7 @@ const guardar = () => {
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
                 <div class="space-y-2">
                     <h3 class="font-bold text-blue-800 text-center bg-blue-50 py-2 rounded">Equipa A ({{ novoJogo.equipaA.length }})</h3>
-                    <div @drop="onDrop($event, 'A')" @dragover.prevent="dragOverZone = 'A'" @dragleave="dragOverZone = null"
+                    <div @drop="onDrop($event, 'A')" @dragover="onDragOver" @dragenter="dragOverZone = 'A'" @dragleave="dragOverZone = null"
                          class="border-2 border-blue-200 rounded-lg p-3 bg-blue-50 min-h-[300px]" :class="{'border-dashed border-blue-500': dragOverZone === 'A'}">
                         <div v-for="id in novoJogo.equipaA" :key="id" draggable="true" @dragstart="onDragStart($event, id, 'A')" @dragend="onDragEnd"
                              class="bg-white border-l-4 border-blue-500 shadow-sm rounded p-2 mb-2 flex justify-between cursor-move">
@@ -206,7 +216,7 @@ const guardar = () => {
                     <h3 class="font-bold text-gray-700 text-center bg-gray-100 py-2 rounded">Disponíveis</h3>
                     <div class="border-2 border-gray-200 rounded-lg p-3 bg-white min-h-[300px] max-h-[300px] overflow-y-auto">
                         <div v-for="j in jogadoresDisponiveis" :key="j.id" draggable="true" @dragstart="onDragStart($event, j.id, 'disp')" @dragend="onDragEnd"
-                             @click="toggleSelecionado(j.id)"
+                             @click.stop="toggleSelecionado(j.id)"
                              class="border rounded p-2 mb-2 cursor-pointer select-none flex justify-between"
                              :class="jogadoresSelecionadosJogo.includes(j.id) ? 'bg-green-50 border-green-500' : 'hover:bg-gray-50'">
                             <span>{{ j.nome }}</span>
@@ -218,7 +228,7 @@ const guardar = () => {
 
                 <div class="space-y-2">
                     <h3 class="font-bold text-red-800 text-center bg-red-50 py-2 rounded">Equipa B ({{ novoJogo.equipaB.length }})</h3>
-                    <div @drop="onDrop($event, 'B')" @dragover.prevent="dragOverZone = 'B'" @dragleave="dragOverZone = null"
+                    <div @drop="onDrop($event, 'B')" @dragover="onDragOver" @dragenter="dragOverZone = 'B'" @dragleave="dragOverZone = null"
                          class="border-2 border-red-200 rounded-lg p-3 bg-red-50 min-h-[300px]" :class="{'border-dashed border-red-500': dragOverZone === 'B'}">
                         <div v-for="id in novoJogo.equipaB" :key="id" draggable="true" @dragstart="onDragStart($event, id, 'B')" @dragend="onDragEnd"
                              class="bg-white border-l-4 border-red-500 shadow-sm rounded p-2 mb-2 flex justify-between cursor-move">
