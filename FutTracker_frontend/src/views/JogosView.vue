@@ -97,7 +97,7 @@ const jogosFiltrados = computed(() => {
     if (filtroTempo.value && filtroTempo.value !== 'sempre') {
         const [ano, mes] = filtroTempo.value.split('-').map(Number)
         lista = lista.filter(jogo => {
-            const d = new Date(jogo.data + 'T00:00:00')
+            const d = new Date(jogo.data) // A data já vem em formato ISO do backend
             return d.getFullYear() === ano && (d.getMonth() + 1) === mes
         })
     }
@@ -108,7 +108,7 @@ const opcoesTempo = computed(() => {
     const opcoes = []
     const meses = new Set()
     jogos.value.forEach(j => {
-        const d = new Date(j.data + 'T00:00:00')
+        const d = new Date(j.data) // A data já vem em formato ISO do backend
         if(!isNaN(d)) meses.add(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`)
     })
     opcoes.push({ label: '♾️ Desde Sempre', valor: 'sempre' })
