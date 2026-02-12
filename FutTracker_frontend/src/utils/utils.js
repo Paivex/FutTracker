@@ -88,7 +88,7 @@ export const Utils = {
                     }
 
                     ctx.drawImage(img, sx, sy, sWidth, sHeight, 0, 0, targetWidth, targetHeight);
-                    resolve(canvas.toDataURL('image/png'));
+                    resolve(canvas.toDataURL('image/webp', 0.8));
                 };
                 img.onerror = reject;
             };
