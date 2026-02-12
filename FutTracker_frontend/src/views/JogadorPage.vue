@@ -13,7 +13,6 @@ const jogador = ref(null)
 const jogadores = ref([])
 const todosJogos = ref([])
 const loading = ref(true)
-//const isAdmin = ref(false)
 const selectedTab = ref('Estatísticas')
 
 const emEdicao = ref(false)
@@ -35,15 +34,27 @@ const loadJogador = async (idParam) => {
     ])
     
     jogador.value = jogadorData
-    todosJogos.value = jogosData || []
+    
+    // ✅ CORREÇÃO: Adaptar jogos para formato esperado
+    todosJogos.value = (jogosData || []).map(j => ({
+      ...j,
+      equipaA: j.equipaA?.jogadores || [],
+      equipaB: j.equipaB?.jogadores || [],
+      golosA: j.equipaA?.golos || 0,
+      golosB: j.equipaB?.golos || 0
+    }))
     
     if (jogador.value) {
-      Object.assign(form, JSON.parse(JSON.stringify(jogador.value)))
+      // ✅ CORREÇÃO: Converter data ISO para formato yyyy-MM-dd
+      const dataNascimento = jogador.value.dataNascimento 
+        ? jogador.value.dataNascimento.split('T')[0] 
+        : '';
+      
+      Object.assign(form, {
+        ...jogador.value,
+        dataNascimento
+      })
     }
-    
-    //if (localStorage.getItem('modoAdmin') === 'true') {
-    //  isAdmin.value = true
-    //}
   } catch (error) {
     console.error('Erro ao carregar jogador:', error)
     jogador.value = null
@@ -102,7 +113,16 @@ const premiosDoJogador = computed(() => {
 
 const toggleEdicao = () => {
   if (emEdicao.value) {
-    if (jogador.value) Object.assign(form, jogador.value)
+    if (jogador.value) {
+      const dataNascimento = jogador.value.dataNascimento 
+        ? jogador.value.dataNascimento.split('T')[0] 
+        : '';
+      
+      Object.assign(form, {
+        ...jogador.value,
+        dataNascimento
+      })
+    }
     emEdicao.value = false
   } else {
     emEdicao.value = true
