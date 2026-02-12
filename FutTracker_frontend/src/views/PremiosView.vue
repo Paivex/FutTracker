@@ -51,6 +51,12 @@ const premios = computed(() => {
         resultadoClasse = ganhou ? 'text-green-600' : 'text-red-600'
       }
 
+      // ✅ CORREÇÃO: Garantir que a data é válida antes de formatar
+      const dataObj = new Date(jogo.data)
+      const dataFormatada = isNaN(dataObj.getTime()) 
+        ? 'Data inválida' 
+        : Utils.formatarData(jogo.data)
+
       return {
         tipo: 'JDJ',
         titulo: 'Jogador Defensivo do Jogo',
@@ -59,7 +65,8 @@ const premios = computed(() => {
         data: jogo.data,
         jogador,
         resultado: `${jogo.golosA} - ${jogo.golosB}`,
-        resultadoClasse
+        resultadoClasse,
+        dataFormatada
       }
     })
     .sort((a, b) => new Date(b.data) - new Date(a.data))
@@ -115,7 +122,7 @@ const premios = computed(() => {
               {{ premio.titulo }} {{ premio.emoji }}
             </span>
             <span>
-              {{ Utils.formatarData(premio.data) }}
+              {{ premio.dataFormatada }}
             </span>
           </div>
 
@@ -123,7 +130,7 @@ const premios = computed(() => {
           <div class="flex gap-4 items-center">
 
             <!-- FOTO -->
-            <div class="max-w-[50%]">
+            <div class="w-[150px] h-[200px]">
               <img
                 v-if="premio.jogador?.imagem"
                 :src="premio.jogador.imagem"
