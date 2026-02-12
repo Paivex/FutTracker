@@ -18,7 +18,15 @@ onMounted(async () => {
         ])
         
         jogadores.value = jogadoresData || []
-        jogos.value = jogosData || []
+        
+        // ✅ CORREÇÃO: Adaptar jogos para formato esperado
+        jogos.value = (jogosData || []).map(j => ({
+            ...j,
+            equipaA: j.equipaA?.jogadores || [],
+            equipaB: j.equipaB?.jogadores || [],
+            golosA: j.equipaA?.golos || 0,
+            golosB: j.equipaB?.golos || 0
+        }))
         
         const hoje = new Date()
         filtroTempo.value = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}`
