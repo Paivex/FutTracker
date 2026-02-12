@@ -1,7 +1,6 @@
 export const Utils = {
     formatarData(data) {
         const d = new Date(data)
-
         if (isNaN(d.getTime())) return 'Data inválida'
 
         return d.toLocaleDateString('pt-PT', {
@@ -12,19 +11,39 @@ export const Utils = {
     },
 
     formatarDataComDiaSemana(data) {
-        // Nova função explícita quando for necessário mostrar o dia da semana
-        const d = new Date(data + 'T00:00:00');
-        const diaMesAno = d.toLocaleDateString('pt-PT', { day: '2-digit', month: '2-digit', year: 'numeric' });
-        const diaSemana = d.toLocaleDateString('pt-PT', { weekday: 'long' });
-        return `${diaMesAno} ${diaSemana}`;
+
+        if (!data) return ''
+        const d = new Date(data)
+        if (isNaN(d.getTime())) return 'Data inválida'
+
+        const diaMesAno = d.toLocaleDateString('pt-PT', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        })
+        const diaSemana = d.toLocaleDateString('pt-PT', {
+            weekday: 'long'
+        })
+
+        return `${diaMesAno} ${diaSemana}`
     },
 
     formatarDataCompleta(data) {
-        const d = new Date(data + 'T00:00:00');
-        const diaMesAno = d.toLocaleDateString('pt-PT', { day: '2-digit', month: '2-digit', year: 'numeric' });
-        const diaSemana = d.toLocaleDateString('pt-PT', { weekday: 'long' });
-        // Removido o traço para manter o mesmo formato: "DD/MM/YYYY sexta-feira"
-        return `${diaMesAno} ${diaSemana}`;
+
+        if (!data) return ''
+        const d = new Date(data)
+        if (isNaN(d.getTime())) return 'Data inválida'
+
+        const diaMesAno = d.toLocaleDateString('pt-PT', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        })
+        const diaSemana = d.toLocaleDateString('pt-PT', {
+            weekday: 'long'
+        })
+
+        return `${diaMesAno} ${diaSemana}`
     },
 
     getNomeMes(numeroMes) {
