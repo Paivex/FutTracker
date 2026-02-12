@@ -12,7 +12,7 @@ const router = useRouter()
 const jogo = ref(null)
 const jogadores = ref([])
 const loading = ref(true)
-const selectedTab = ref('Elenco')
+const selectedTab = ref('Equipas')
 
 const loadJogo = async (idParam) => {
   loading.value = true
@@ -147,11 +147,11 @@ const apagarJogo = async (idToDel) => {
         <!-- Abas -->
         <div class="bg-white rounded-lg shadow p-4">
           <div class="flex gap-2 mb-4">
-            <button @click="selectedTab = 'Elenco'" :class="selectedTab === 'Elenco' ? 'bg-blue-600 text-white' : 'bg-gray-100'" class="px-3 py-1 rounded">Elenco</button>
+            <button @click="selectedTab = 'Equipas'" :class="selectedTab === 'Equipas' ? 'bg-blue-600 text-white' : 'bg-gray-100'" class="px-3 py-1 rounded">Equipas</button>
             <button @click="selectedTab = 'Estatisticas'" :class="selectedTab === 'Estatisticas' ? 'bg-blue-600 text-white' : 'bg-gray-100'" class="px-3 py-1 rounded">Estatísticas</button>
           </div>
 
-          <div v-if="selectedTab === 'Elenco'" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div v-if="selectedTab === 'Equipas'" class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <h3 class="font-bold text-blue-800 mb-2">Equipa A ({{ jogo.equipaA.length }})</h3>
               <div class="space-y-2">
