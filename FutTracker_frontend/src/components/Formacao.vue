@@ -143,19 +143,19 @@ const getPlayerStyle = (pos) => {
     <img :src="campo" alt="Campo de Futebol" class="w-full h-full object-cover rounded-lg shadow"/>
 
     <!-- EQUIPA A (lado esquerdo) -->
-    <div v-for="(jogador, index) in formacao?.equipaA" :key="'A-' + index" :style="getPlayerStyle(jogador.pos)" class="flex flex-col items-center">
-      <img v-if="jogador.imagem" :src="jogador.imagem" class="w-10 h-10 rounded-full border-2 border-blue-600 object-cover" />
+    <div v-for="(jogador, index) in formacao?.equipaA" :key="'A-' + index" :style="getPlayerStyle(jogador.pos)" class="flex flex-col items-center max-w-[10%]">
+      <img v-if="jogador.imagem" :src="jogador.imagem" class="" />
 
-      <div v-else class="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center">
+      <div v-else class="">
         👤
       </div>
     </div>
 
     <!-- EQUIPA B (lado direito espelhado) -->
-    <div v-for="(jogador, index) in formacao?.equipaB" :key="'B-' + index" :style="getPlayerStyle(jogador.pos)" class="flex flex-col items-center">
-      <img v-if="jogador.imagem" :src="jogador.imagem" class="w-10 h-10 rounded-full border-2 border-red-600 object-cover"/>
+    <div v-for="(jogador, index) in formacao?.equipaB" :key="'B-' + index" :style="getPlayerStyle(jogador.pos)" class="flex flex-col items-center max-w-[10%]">
+      <img v-if="jogador.imagem" :src="jogador.imagem" class=""/>
 
-      <div v-else class="w-10 h-10 rounded-full bg-red-600 text-white flex items-center justify-center">
+      <div v-else class="">
         👤
       </div>
     </div>
