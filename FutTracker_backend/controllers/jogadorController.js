@@ -1,10 +1,40 @@
 const Jogador = require('../models/jogador');
 
 // GET todos os jogadores
+// exports.getJogadores = async (req, res) => {
+//     try {
+//         const jogadores = await Jogador.find().sort({ nome: 1 });
+//         res.json(jogadores);
+//     } catch (error) {
+//         console.error('Erro ao buscar jogadores:', error);
+//         res.status(500).json({ error: 'Erro ao buscar jogadores' });
+//     }
+// };
+
 exports.getJogadores = async (req, res) => {
     try {
-        const jogadores = await Jogador.find().sort({ nome: 1 });
-        res.json(jogadores);
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 20;
+
+        const jogadores = await Jogador.find()
+            .sort({ nome: 1 })
+            .skip((page - 1) * limit)
+            .limit(limit);
+
+        // Converter Buffer em base64
+        const jogadoresComImagem = jogadores.map(j => {
+            let imagemBase64 = null;
+            if (j.imagem) {
+                imagemBase64 = `data:image/webp;base64,${j.imagem.toString('base64')}`;
+            }
+
+            return {
+                ...j.toObject(),
+                imagem: imagemBase64
+            };
+        });
+
+        res.json(jogadoresComImagem);
     } catch (error) {
         console.error('Erro ao buscar jogadores:', error);
         res.status(500).json({ error: 'Erro ao buscar jogadores' });
@@ -12,15 +42,41 @@ exports.getJogadores = async (req, res) => {
 };
 
 // GET jogador individual
+// exports.getJogador = async (req, res) => {
+//     try {
+//         const jogador = await Jogador.findById(req.params.id);
+        
+//         if (!jogador) {
+//             return res.status(404).json({ error: 'Jogador não encontrado' });
+//         }
+        
+//         res.json(jogador);
+//     } catch (error) {
+//         console.error('Erro ao buscar jogador:', error);
+//         res.status(500).json({ error: 'Erro ao buscar jogador' });
+//     }
+// };
+
 exports.getJogador = async (req, res) => {
     try {
         const jogador = await Jogador.findById(req.params.id);
-        
+
         if (!jogador) {
             return res.status(404).json({ error: 'Jogador não encontrado' });
         }
-        
-        res.json(jogador);
+
+        // Converter Buffer em base64
+        let imagemBase64 = null;
+        if (jogador.imagem) {
+            imagemBase64 = `data:image/webp;base64,${jogador.imagem.toString('base64')}`;
+        }
+
+        const jogadorComImagem = {
+            ...jogador.toObject(),
+            imagem: imagemBase64
+        };
+
+        res.json(jogadorComImagem);
     } catch (error) {
         console.error('Erro ao buscar jogador:', error);
         res.status(500).json({ error: 'Erro ao buscar jogador' });
@@ -41,18 +97,47 @@ exports.criarJogador = async (req, res) => {
 };
 
 // PUT atualizar jogador
+// exports.atualizarJogador = async (req, res) => {
+//     try {
+//         const jogadorAtualizado = await Jogador.findByIdAndUpdate(
+//             req.params.id,
+//             req.body,
+//             { new: true, runValidators: true }
+//         );
+        
+//         if (!jogadorAtualizado) {
+//             return res.status(404).json({ error: 'Jogador não encontrado' });
+//         }
+        
+//         res.json(jogadorAtualizado);
+//     } catch (error) {
+//         console.error('Erro ao atualizar jogador:', error);
+//         res.status(500).json({ error: 'Erro ao atualizar jogador' });
+//     }
+// };
+
 exports.atualizarJogador = async (req, res) => {
     try {
+        const { imagem, ...resto } = req.body;
+        let updateData = { ...resto };
+
+        // Se houver imagem, converter para Buffer
+        if (imagem) {
+            // Remove prefixo tipo 'data:image/webp;base64,'
+            const base64Data = imagem.replace(/^data:image\/\w+;base64,/, "");
+            updateData.imagem = Buffer.from(base64Data, 'base64');
+        }
+
         const jogadorAtualizado = await Jogador.findByIdAndUpdate(
             req.params.id,
-            req.body,
+            updateData,
             { new: true, runValidators: true }
         );
-        
+
         if (!jogadorAtualizado) {
             return res.status(404).json({ error: 'Jogador não encontrado' });
         }
-        
+
         res.json(jogadorAtualizado);
     } catch (error) {
         console.error('Erro ao atualizar jogador:', error);

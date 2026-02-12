@@ -6,7 +6,7 @@ const JogadorSchema = new mongoose.Schema({
     dataNascimento: Date,
     pePreferencial: String,
     altura: Number,
-    imagem: String,
+    imagem: Buffer,
     estatisticas: {
         n_jogos: { type: Number, default: 0 },
         golos: { type: Number, default: 0 },
