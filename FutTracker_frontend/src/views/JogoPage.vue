@@ -5,6 +5,7 @@ import { Store } from '../utils/store.js'
 import { Utils } from '../utils/utils.js'
 import { Engine } from '../utils/engine.js'
 import { isAdmin } from '../utils/admin.js'
+import Formacao from '../components/Formacao.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -149,6 +150,7 @@ const apagarJogo = async (idToDel) => {
           <div class="flex gap-2 mb-4">
             <button @click="selectedTab = 'Equipas'" :class="selectedTab === 'Equipas' ? 'bg-blue-600 text-white' : 'bg-gray-100'" class="px-3 py-1 rounded">Equipas</button>
             <button @click="selectedTab = 'Estatisticas'" :class="selectedTab === 'Estatisticas' ? 'bg-blue-600 text-white' : 'bg-gray-100'" class="px-3 py-1 rounded">Estatísticas</button>
+            <button @click="selectedTab = 'Formacao'" :class="selectedTab === 'Formacao' ? 'bg-blue-600 text-white' : 'bg-gray-100'" class="px-3 py-1 rounded">Formação</button>
           </div>
 
           <div v-if="selectedTab === 'Equipas'" class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -167,6 +169,13 @@ const apagarJogo = async (idToDel) => {
                   {{ getNome(pid) }}
                 </div>
               </div>
+            </div>
+          </div>
+
+          <div v-else-if="selectedTab === 'Formacao'" class="space-y-6">
+            <div>
+              <h3 class="font-bold text-gray-800 mb-2">Formação do Jogo</h3>
+              <Formacao :jogo="jogo" :jogadores="jogadores" />
             </div>
           </div>
 
