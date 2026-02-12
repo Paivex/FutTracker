@@ -123,7 +123,7 @@ const premios = computed(() => {
           <div class="flex gap-4 items-center">
 
             <!-- FOTO -->
-            <div class="w-[150px] h-[200px]">
+            <div class="max-w-[50%]">
               <img
                 v-if="premio.jogador?.imagem"
                 :src="premio.jogador.imagem"
