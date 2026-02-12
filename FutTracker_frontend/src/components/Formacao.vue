@@ -15,6 +15,11 @@ const props = defineProps({
   jogadores: Array
 })
 
+const getJogador = (id) => {
+  return props.jogadores?.find(j => j._id === id)
+}
+
+
 /*
 FORMATIONS
 ----------------------------------
@@ -77,22 +82,36 @@ FORMAÇÃO FINAL
 const formacao = computed(() => {
   if (!props.jogo) return null
 
-  const layout = FORMATIONS[props.jogo.tipo]
+  const layout = FORMATIONS[props.jogo.tipoJogo]
 
   if (!layout) return null
 
-  const equipaA = shuffle(props.jogo.equipaA).map((j, i) => ({
-    ...j,
-    pos: layout[i]
-  }))
+  const equipaA = shuffle(props.jogo.equipaA)
+    .map((id, i) => {
+      const jogador = getJogador(id)
+      if (!jogador) return null
 
-  const equipaB = shuffle(props.jogo.equipaB).map((j, i) => ({
-    ...j,
-    pos: {
-      x: mirrorX(layout[i].x),
-      y: layout[i].y
-    }
-  }))
+      return {
+        ...jogador,
+        pos: layout[i]
+      }
+    })
+    .filter(Boolean)
+
+  const equipaB = shuffle(props.jogo.equipaB)
+    .map((id, i) => {
+      const jogador = getJogador(id)
+      if (!jogador) return null
+
+      return {
+        ...jogador,
+        pos: {
+          x: mirrorX(layout[i].x),
+          y: layout[i].y
+        }
+      }
+    })
+    .filter(Boolean)
 
   return { equipaA, equipaB }
 })
