@@ -1,9 +1,14 @@
 export const Utils = {
     formatarData(data) {
-        // Mantém contrato: devolve apenas DD/MM/YYYY (sem dia da semana)
-        return new Date(data + 'T00:00:00').toLocaleDateString('pt-PT', {
-            day: '2-digit', month: '2-digit', year: 'numeric'
-        });
+        const d = new Date(data)
+
+        if (isNaN(d.getTime())) return 'Data inválida'
+
+        return d.toLocaleDateString('pt-PT', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        })
     },
 
     formatarDataComDiaSemana(data) {
