@@ -1,6 +1,6 @@
 <script setup>
 import { computed } from 'vue'
-import campo from '../../public/campo.png'
+import campo from '../../public/campoWebp.webp'
 
 /*
 PROPS
