@@ -94,7 +94,7 @@ const getAnimationDelay = (pos) => {
   if (!pos) return 0
   // Normaliza a posição x (0-100) para um delay em ms
   // Quanto menor o x, menor o delay
-  return (pos.x / 100) * 800 // máximo 800ms de diferença
+  return (pos.x / 100) * 1400 // máximo 800ms de diferença
 }
 
 const getPlayerStyle = (pos) => {
