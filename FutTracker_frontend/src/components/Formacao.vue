@@ -1,34 +1,21 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import campo from '../../public/campoWebp.webp'
-
-/*
-PROPS
-----------------------------------
-jogo.tipo -> "fut5" | "fut6" | "fut7"
-jogo.equipaA -> array jogadores
-jogo.equipaB -> array jogadores
-*/
 
 const props = defineProps({
   jogo: Object,
   jogadores: Array
 })
 
+const campoCarregado = ref(false)
+
+const onCampoLoad = () => {
+  campoCarregado.value = true
+}
+
 const getJogador = (id) => {
   return props.jogadores?.find(j => j._id === id)
 }
-
-
-/*
-FORMATIONS
-----------------------------------
-x,y em percentagem
-
-Campo dividido ao meio:
-lado esquerdo usa posições originais
-lado direito usa mirror (100 - x)
-*/
 
 const FORMATIONS = {
   fut5: [
@@ -59,11 +46,6 @@ const FORMATIONS = {
   ]
 }
 
-/*
-HELPERS
-----------------------------------
-*/
-
 const shuffle = (arr) => {
   if (!arr) return []
   return [...arr].sort(() => Math.random() - 0.5)
@@ -71,19 +53,10 @@ const shuffle = (arr) => {
 
 const mirrorX = (x) => 100 - x
 
-/*
-FORMAÇÃO FINAL
-----------------------------------
-- escolhe layout baseado no tipo
-- randomiza jogadores
-- equipa B espelhada automaticamente
-*/
-
 const formacao = computed(() => {
   if (!props.jogo) return null
 
   const layout = FORMATIONS[props.jogo.tipoJogo]
-
   if (!layout) return null
 
   const equipaA = shuffle(props.jogo.equipaA)
@@ -116,13 +89,13 @@ const formacao = computed(() => {
   return { equipaA, equipaB }
 })
 
-console.log('JOGO RECEBIDO:', props.jogo)
-console.log('FORMAÇÃO FINAL:', formacao.value)
-
-
-/*
-POSICIONAMENTO CSS
-*/
+// Calcula delay baseado na posição x (mais à esquerda = menor delay)
+const getAnimationDelay = (pos) => {
+  if (!pos) return 0
+  // Normaliza a posição x (0-100) para um delay em ms
+  // Quanto menor o x, menor o delay
+  return (pos.x / 100) * 800 // máximo 800ms de diferença
+}
 
 const getPlayerStyle = (pos) => {
   if (!pos) return {}
@@ -131,7 +104,8 @@ const getPlayerStyle = (pos) => {
     position: 'absolute',
     left: pos.x + '%',
     top: pos.y + '%',
-    transform: 'translate(-50%, -50%)'
+    transform: 'translate(-50%, -50%)',
+    animationDelay: `${getAnimationDelay(pos)}ms`
   }
 }
 </script>
@@ -140,25 +114,54 @@ const getPlayerStyle = (pos) => {
   <div class="relative w-full select-none">
 
     <!-- Campo -->
-    <img :src="campo" alt="Campo de Futebol" class="w-full h-full object-cover rounded-lg shadow"/>
+    <img 
+      :src="campo" 
+      alt="Campo de Futebol" 
+      class="w-full h-full object-cover rounded-lg shadow"
+      @load="onCampoLoad"
+    />
 
     <!-- EQUIPA A (lado esquerdo) -->
-    <div v-for="(jogador, index) in formacao?.equipaA" :key="'A-' + index" :style="getPlayerStyle(jogador.pos)" class="flex flex-col items-center max-w-[10%]">
+    <div 
+      v-if="campoCarregado"
+      v-for="(jogador, index) in formacao?.equipaA" 
+      :key="'A-' + index" 
+      :style="getPlayerStyle(jogador.pos)" 
+      class="flex flex-col items-center max-w-[10%] drop-in"
+    >
       <img v-if="jogador.imagem" :src="jogador.imagem" class="" />
-
-      <div v-else class="">
-        👤
-      </div>
+      <div v-else class="">👤</div>
     </div>
 
     <!-- EQUIPA B (lado direito espelhado) -->
-    <div v-for="(jogador, index) in formacao?.equipaB" :key="'B-' + index" :style="getPlayerStyle(jogador.pos)" class="flex flex-col items-center max-w-[10%]">
+    <div 
+      v-if="campoCarregado"
+      v-for="(jogador, index) in formacao?.equipaB" 
+      :key="'B-' + index" 
+      :style="getPlayerStyle(jogador.pos)" 
+      class="flex flex-col items-center max-w-[10%] drop-in"
+    >
       <img v-if="jogador.imagem" :src="jogador.imagem" class=""/>
-
-      <div v-else class="">
-        👤
-      </div>
+      <div v-else class="">👤</div>
     </div>
 
   </div>
 </template>
+
+<style scoped>
+@keyframes dropIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -100%) scale(0.3);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+.drop-in {
+  animation: dropIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  opacity: 0;
+}
+</style>
