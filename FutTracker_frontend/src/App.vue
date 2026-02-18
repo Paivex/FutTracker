@@ -41,22 +41,22 @@ const alternarAdmin = async () => {
 <template>
   <div class="min-h-screen pb-20" style="background-image: url('/background.webp'); background-size: cover; background-position: center; background-attachment: fixed;">
     
-    <header class="bg-gradient-to-r from-blue-600 to-blue-800 text-white shadow-lg">
-      <div class="container mx-auto px-4 py-6">
+    <header class="bg-gradient-to-r from-[rgb(9,37,121)] to-[rgb(9,37,121)] text-white shadow-lg">
+    <div class="container mx-auto px-4 py-6">
         <h1 class="text-3xl font-bold">⚽ FutTracker</h1>
         <p class="text-blue-100 mt-1">Gestão de jogos e estatísticas</p>
-      </div>
+    </div>
     </header>
 
     <div class="bg-white shadow mb-8 sticky top-0 z-40">
         <div class="container mx-auto px-4">
             <div class="flex space-x-1 overflow-x-auto no-scrollbar">
-                <router-link to="/" active-class="bg-blue-600 text-white hover:bg-blue-600 hover:text-white" class="px-6 py-3 font-medium text-gray-600 hover:bg-gray-100 transition-colors whitespace-nowrap">📊 Dashboard</router-link>
-                <router-link to="/jogadores" active-class="bg-blue-600 text-white hover:bg-blue-600 hover:text-white" class="px-6 py-3 font-medium text-gray-600 hover:bg-gray-100 transition-colors whitespace-nowrap">👥 Jogadores</router-link>
-                <router-link to="/jogos" active-class="bg-blue-600 text-white hover:bg-blue-600 hover:text-white" class="px-6 py-3 font-medium text-gray-600 hover:bg-gray-100 transition-colors whitespace-nowrap">📋 Jogos</router-link>
-                <router-link to="/classificacao" active-class="bg-blue-600 text-white hover:bg-blue-600 hover:text-white" class="px-6 py-3 font-medium text-gray-600 hover:bg-gray-100 transition-colors whitespace-nowrap">🥇 Classificação</router-link>
-                <router-link to="/tops" active-class="bg-blue-600 text-white hover:bg-blue-600 hover:text-white" class="px-6 py-3 font-medium text-gray-600 hover:bg-gray-100 transition-colors whitespace-nowrap">🏆 Tops</router-link>
-                <router-link to="/premios" active-class="bg-blue-600 text-white hover:bg-blue-600 hover:text-white" class="px-6 py-3 font-medium text-gray-600 hover:bg-gray-100 transition-colors whitespace-nowrap">🎖️ Prémios</router-link>
+                <router-link to="/" active-class="bg-[rgb(9,37,121)] text-white hover:bg-[rgb(9,37,121)] hover:text-white" class="px-6 py-3 font-medium text-gray-600 hover:bg-gray-100 transition-colors whitespace-nowrap">📊 Dashboard</router-link>
+                <router-link to="/jogadores" active-class="bg-[rgb(9,37,121)] text-white hover:bg-[rgb(9,37,121)] hover:text-white" class="px-6 py-3 font-medium text-gray-600 hover:bg-gray-100 transition-colors whitespace-nowrap">👥 Jogadores</router-link>
+                <router-link to="/jogos" active-class="bg-[rgb(9,37,121)] text-white hover:bg-[rgb(9,37,121)] hover:text-white" class="px-6 py-3 font-medium text-gray-600 hover:bg-gray-100 transition-colors whitespace-nowrap">📋 Jogos</router-link>
+                <router-link to="/classificacao" active-class="bg-[rgb(9,37,121)] text-white hover:bg-[rgb(9,37,121)] hover:text-white" class="px-6 py-3 font-medium text-gray-600 hover:bg-gray-100 transition-colors whitespace-nowrap">🥇 Classificação</router-link>
+                <router-link to="/tops" active-class="bg-[rgb(9,37,121)] text-white hover:bg-[rgb(9,37,121)] hover:text-white" class="px-6 py-3 font-medium text-gray-600 hover:bg-gray-100 transition-colors whitespace-nowrap">🏆 Tops</router-link>
+                <router-link to="/premios" active-class="bg-[rgb(9,37,121)] text-white hover:bg-[rgb(9,37,121)] hover:text-white" class="px-6 py-3 font-medium text-gray-600 hover:bg-gray-100 transition-colors whitespace-nowrap">🎖️ Prémios</router-link>
             </div>
         </div>
     </div>
