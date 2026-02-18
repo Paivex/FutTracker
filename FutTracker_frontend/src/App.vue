@@ -2,7 +2,7 @@
 import { RouterView } from 'vue-router'
 import { ref, onMounted } from 'vue'
 import { Utils } from './utils/utils.js'
-import campo from '../public/campo.png'
+import campo from '../public/background.png'
 
 //const isAdmin = ref(false)
 import { isAdmin } from './utils/admin.js'
@@ -39,7 +39,7 @@ const alternarAdmin = async () => {
 </script>
 
 <template>
-  <div class="min-h-screen pb-20" style="background-image: url('/campo.png'); background-size: cover; background-position: center; background-attachment: fixed;">
+  <div class="min-h-screen pb-20" style="background-image: url('/background.png'); background-size: cover; background-position: center; background-attachment: fixed;">
     
     <header class="bg-gradient-to-r from-blue-600 to-blue-800 text-white shadow-lg">
       <div class="container mx-auto px-4 py-6">
