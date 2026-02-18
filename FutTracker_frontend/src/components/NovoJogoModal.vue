@@ -130,10 +130,8 @@ const removerJogadorEquipa = (id, equipa) => {
 const toggleSelecionado = (id) => {
     const index = jogadoresSelecionadosJogo.value.indexOf(id);
     if (index > -1) {
-        // Remove se já está selecionado
         jogadoresSelecionadosJogo.value.splice(index, 1);
     } else {
-        // Adiciona se não está selecionado e há espaço
         if (jogadoresSelecionadosJogo.value.length < maxJogadoresPorEquipa.value * 2) {
             jogadoresSelecionadosJogo.value.push(id);
         }
@@ -163,7 +161,6 @@ const equipasAleatorias = () => {
 }
 
 const guardar = () => {
-    // Converter as estatísticas para o formato correto
     const estatisticasConvertidas = Object.values(novoJogo.value.estatisticas).map(stat => ({
         jogadorId: stat.jogadorId,
         golos: stat.golos || 0,
@@ -184,7 +181,9 @@ const guardar = () => {
             golos: novoJogo.value.golosB
         },
         estatisticas: estatisticasConvertidas,
-        jdj: novoJogo.value.jdj
+        jdj: novoJogo.value.jdj,
+        // Seed gerado no frontend no momento de guardar
+        seed: Math.floor(Math.random() * 1_000_000)
     };
     
     console.log('Enviando jogo:', JSON.stringify(jogoFinal, null, 2));
@@ -303,23 +302,13 @@ const guardar = () => {
             <label class="block font-bold text-emerald-800 mb-2">
                 🛡️ Jogador Defensivo do Jogo
             </label>
-
-            <select
-                v-model="novoJogo.jdj"
-                class="w-full border rounded p-2 bg-white">
+            <select v-model="novoJogo.jdj" class="w-full border rounded p-2 bg-white">
                 <option :value="null">— Nenhum —</option>
-
-                <option
-                    v-for="id in todosJogadoresJogo"
-                    :key="id"
-                    :value="id">
+                <option v-for="id in todosJogadoresJogo" :key="id" :value="id">
                     {{ getNomeJogador(id) }}
                 </option>
             </select>
-
-            <p class="text-xs text-emerald-700 mt-1">
-                Este jogador recebe +3 pontos na classificação.
-            </p>
+            <p class="text-xs text-emerald-700 mt-1">Este jogador recebe +3 pontos na classificação.</p>
         </div>
 
         <div class="bg-gray-50 p-6 border-t flex justify-end gap-3 rounded-b-lg">
