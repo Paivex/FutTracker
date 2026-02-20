@@ -66,23 +66,13 @@ export const Store = {
     // AUTENTICAÇÃO
     // ========================================
 
-    async register(email, password) {
+    async register(username, email, password) {
         try {
-            const response = await fetch(`${API_BASE_URL}/users/register`, {
+            const data = await fetchAPI('/users/register', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ email, password, username: email.split('@')[0] }),
+                body: JSON.stringify({ username, email, password }),
             });
 
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.error || 'Erro ao registar');
-            }
-
-            // Guardar token e dados do utilizador
             if (data.token) {
                 localStorage.setItem('token', data.token);
                 localStorage.setItem('userId', data.user.id);
@@ -98,21 +88,11 @@ export const Store = {
 
     async login(email, password) {
         try {
-            const response = await fetch(`${API_BASE_URL}/users/login`, {
+            const data = await fetchAPI('/users/login', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
                 body: JSON.stringify({ email, password }),
             });
 
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.error || 'Erro ao fazer login');
-            }
-
-            // Guardar token e dados do utilizador
             if (data.token) {
                 localStorage.setItem('token', data.token);
                 localStorage.setItem('userId', data.user.id);
@@ -128,11 +108,9 @@ export const Store = {
 
     async verificarToken() {
         try {
-            const data = await fetchWithToken('/users/me');
-            return data;
+            return await fetchWithToken('/users/me');
         } catch (error) {
             console.error('Token inválido:', error);
-            // Limpar dados se o token for inválido
             this.logout();
             throw error;
         }
