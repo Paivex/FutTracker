@@ -1,7 +1,7 @@
 <script setup>
 import { RouterView } from 'vue-router'
-import { ref, onMounted, computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, onMounted, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { Utils } from './utils/utils.js'
 import { Store } from './utils/store.js'
 import campo from '../public/background.webp'
@@ -9,10 +9,14 @@ import campo from '../public/background.webp'
 import { isAdmin } from './utils/admin.js'
 
 const router = useRouter()
+const route = useRoute()
 const username = ref('')
+const isLoggedIn = ref(localStorage.getItem('token') !== null)
 
-const isLoggedIn = computed(() => {
-  return localStorage.getItem('token') !== null
+watch(route, () => {
+    isLoggedIn.value = localStorage.getItem('token') !== null
+    const user = localStorage.getItem('username')
+    username.value = user || ''
 })
 
 onMounted(() => {
@@ -52,6 +56,7 @@ const handleLogout = () => {
     if (confirm('Tem a certeza que quer sair?')) {
         Store.logout()
         isAdmin.value = false
+        isLoggedIn.value = false
         router.push('/login')
     }
 }
