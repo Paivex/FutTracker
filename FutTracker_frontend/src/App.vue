@@ -4,7 +4,8 @@ import { ref, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { Utils } from './utils/utils.js'
 import { Store } from './utils/store.js'
-import campo from '../public/background.webp'
+import logout from '../public/logout.svg'
+
 
 import { isAdmin } from './utils/admin.js'
 
@@ -74,6 +75,12 @@ const handleLogout = () => {
         <div v-if="username" class="text-right">
             <p class="text-sm text-blue-100">Bem-vindo,</p>
             <p class="text-lg font-semibold">{{ username }}</p>
+            <button 
+                    @click="handleLogout"
+                    class="px-4 py-3 text-gray-600 hover:bg-red-100 hover:text-red-600 font-medium transition-colors whitespace-nowrap text-sm"
+                >
+                    <img src="/logout.svg" alt="Logout" class="w-5 h-5 inline-block">
+            </button>
         </div>
     </div>
     </header>
@@ -89,13 +96,6 @@ const handleLogout = () => {
                     <router-link to="/tops" active-class="bg-[rgb(9,37,121)] text-white hover:bg-[rgb(9,37,121)] hover:text-white" class="px-6 py-3 font-medium text-gray-600 hover:bg-gray-100 transition-colors whitespace-nowrap">Tops</router-link>
                     <router-link to="/premios" active-class="bg-[rgb(9,37,121)] text-white hover:bg-[rgb(9,37,121)] hover:text-white" class="px-6 py-3 font-medium text-gray-600 hover:bg-gray-100 transition-colors whitespace-nowrap">Prémios</router-link>
                 </div>
-                <button 
-                    @click="handleLogout"
-                    class="px-4 py-3 text-gray-600 hover:bg-red-100 hover:text-red-600 font-medium transition-colors whitespace-nowrap text-sm"
-                    title="Sair"
-                >
-                    🚪 Sair
-                </button>
             </div>
         </div>
     </div>
