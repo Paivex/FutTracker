@@ -72,9 +72,8 @@ const handleLogout = () => {
             <h1 class="text-3xl font-bold">⚽ FutTracker</h1>
             <p class="text-blue-100 mt-1">Gestão de jogos e estatísticas</p>
         </div>
-        <div v-if="username" class="text-right">
-            <p class="text-sm text-blue-100">Bem-vindo,</p>
-            <p class="text-lg font-semibold">{{ username }}</p>
+        <div v-if="username" class="text-right flex items-center space-x-4">
+            <p class="text-sm text-blue-100">Bem-vindo, {{ username }}</p>
             <button 
                     @click="handleLogout"
                     class="px-4 py-3 text-gray-600 hover:bg-red-100 hover:text-red-600 font-medium transition-colors whitespace-nowrap text-sm"
