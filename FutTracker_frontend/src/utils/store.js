@@ -33,7 +33,129 @@ const fetchAPI = async (endpoint, options = {}) => {
     return response.json();
 };
 
+// Helper para fazer requests com JWT
+const fetchWithToken = async (endpoint, options = {}) => {
+    const token = localStorage.getItem('token');
+    
+    const defaultHeaders = {
+        'Content-Type': 'application/json',
+    };
+
+    if (token) {
+        defaultHeaders['Authorization'] = `Bearer ${token}`;
+    }
+
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+        ...options,
+        headers: {
+            ...defaultHeaders,
+            ...options.headers,
+        },
+    });
+
+    if (!response.ok) {
+        const error = await response.json().catch(() => ({}));
+        throw new Error(error.message || `HTTP ${response.status}`);
+    }
+
+    return response.json();
+};
+
 export const Store = {
+    // ========================================
+    // AUTENTICAÇÃO
+    // ========================================
+
+    async register(email, password) {
+        try {
+            const response = await fetch(`${API_BASE_URL}/users/register`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email, password, username: email.split('@')[0] }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Erro ao registar');
+            }
+
+            // Guardar token e dados do utilizador
+            if (data.token) {
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('userId', data.user.id);
+                localStorage.setItem('username', data.user.username);
+            }
+
+            return data;
+        } catch (error) {
+            console.error('Erro ao registar:', error);
+            throw error;
+        }
+    },
+
+    async login(email, password) {
+        try {
+            const response = await fetch(`${API_BASE_URL}/users/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email, password }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Erro ao fazer login');
+            }
+
+            // Guardar token e dados do utilizador
+            if (data.token) {
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('userId', data.user.id);
+                localStorage.setItem('username', data.user.username);
+            }
+
+            return data;
+        } catch (error) {
+            console.error('Erro ao fazer login:', error);
+            throw error;
+        }
+    },
+
+    async verificarToken() {
+        try {
+            const data = await fetchWithToken('/users/me');
+            return data;
+        } catch (error) {
+            console.error('Token inválido:', error);
+            // Limpar dados se o token for inválido
+            this.logout();
+            throw error;
+        }
+    },
+
+    logout() {
+        localStorage.removeItem('token');
+        localStorage.removeItem('userId');
+        localStorage.removeItem('username');
+    },
+
+    estaAutenticado() {
+        return localStorage.getItem('token') !== null;
+    },
+
+    obterUsername() {
+        return localStorage.getItem('username') || '';
+    },
+
+    obterUserId() {
+        return localStorage.getItem('userId') || '';
+    },
+
     // ========================================
     // JOGADORES
     // ========================================
