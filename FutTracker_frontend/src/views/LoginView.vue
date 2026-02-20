@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { Store } from '../utils/store.js'
 
 const router = useRouter()
+const username = ref('')
 const email = ref('')
 const password = ref('')
 const loading = ref(false)
@@ -30,7 +31,7 @@ const fazerLogin = async () => {
 }
 
 const fazerRegistro = async () => {
-  if (!email.value || !password.value) {
+  if (!username.value || !email.value || !password.value) {
     erro.value = 'Por favor, preencha todos os campos'
     return
   }
@@ -39,7 +40,7 @@ const fazerRegistro = async () => {
   erro.value = ''
 
   try {
-    await Store.register(email.value, password.value)
+    await Store.register(username.value, email.value, password.value)
     router.push('/')
   } catch (error) {
     erro.value = error.message
@@ -99,6 +100,22 @@ const handleKeyDown = (e) => {
 
         <!-- Form -->
         <form @submit.prevent="abaModo === 'login' ? fazerLogin() : fazerRegistro()" class="space-y-4">
+
+          <!-- Campo Username (só no registo) -->
+          <div v-if="abaModo === 'registro'">
+            <label for="username" class="block text-sm font-medium text-gray-700 mb-1">
+              Username
+            </label>
+            <input
+              id="username"
+              v-model="username"
+              type="text"
+              placeholder="Escolha um username"
+              @keydown="handleKeyDown"
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[rgb(9,37,121)] focus:border-transparent transition-all"
+              :disabled="loading"
+            />
+          </div>
           
           <!-- Campo Email -->
           <div>
