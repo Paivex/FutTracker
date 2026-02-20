@@ -5,12 +5,13 @@ const dotenv = require('dotenv');
 const fs = require('fs');
 
 const DatabaseService = require('./services/database');
-const authMiddleware = require('./middleware/auth');
+const {authMiddleware} = require('./middleware/auth');
 
 // Importar rotas
 const jogadoresRoutes = require('./routes/jogadores');
 const jogosRoutes = require('./routes/jogos');
 const premiosRoutes = require('./routes/premios');
+const userRoutes = require('./routes/users');
 
 const app = express();
 
@@ -52,6 +53,9 @@ app.get('/health', (req, res) => {
     res.status(200).json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
+
+app.use('/api/users', userRoutes);
+
 // Aplicar autenticação em TODAS as rotas da API
 app.use('/api', authMiddleware);
 
@@ -59,6 +63,7 @@ app.use('/api', authMiddleware);
 app.use('/api/jogadores', jogadoresRoutes);
 app.use('/api/jogos', jogosRoutes);
 app.use('/api/premios', premiosRoutes);
+
 
 // Rota 404
 app.use('/api/*', (req, res) => {
