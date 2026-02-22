@@ -57,7 +57,7 @@ const handleKeyDown = (e) => {
 </script>
 
 <template>
-  <div class="min-h-screen flex items-center justify-center" style="background-image: url('/background.webp'); background-size: cover; background-position: center;">
+  <div class="min-h-screen flex items-center justify-center">
     
     <!-- Overlay escuro -->
     <div class="absolute inset-0 bg-black/40"></div>
