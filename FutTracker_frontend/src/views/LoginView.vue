@@ -57,7 +57,7 @@ const handleKeyDown = (e) => {
 </script>
 
 <template>
-  <div class="min-h-screen flex items-center justify-center">
+  <div class="min-h-screen flex items-center justify-center overflow-hidden">
     
     <!-- Overlay escuro -->
     <div class="absolute inset-0 bg-black/40"></div>
