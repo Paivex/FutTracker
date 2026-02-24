@@ -136,7 +136,7 @@ export const Store = {
 
     async getJogadores() {
         try {
-            return await fetchAPI('/jogadores');
+            return await fetchWithToken('/jogadores');
         } catch (error) {
             console.warn('Erro ao carregar jogadores:', error);
             throw error;
@@ -145,7 +145,7 @@ export const Store = {
 
     async getJogador(id) {
         try {
-            return await fetchAPI(`/jogadores/${id}`);
+            return await fetchWithToken(`/jogadores/${id}`);
         } catch (error) {
             console.error('Erro ao carregar jogador:', error);
             throw error;
@@ -154,7 +154,7 @@ export const Store = {
 
     async criarJogador(jogador) {
         try {
-            const novoJogador = await fetchAPI('/jogadores', {
+            const novoJogador = await fetchWithToken('/jogadores', {
                 method: 'POST',
                 body: JSON.stringify(jogador),
             });
@@ -169,7 +169,7 @@ export const Store = {
 
     async atualizarJogador(id, dados) {
         try {
-            const jogadorAtualizado = await fetchAPI(`/jogadores/${id}`, {
+            const jogadorAtualizado = await fetchWithToken(`/jogadores/${id}`, {
                 method: 'PUT',
                 body: JSON.stringify(dados),
             });
@@ -184,7 +184,7 @@ export const Store = {
 
     async deletarJogador(id) {
         try {
-            await fetchAPI(`/jogadores/${id}`, {
+            await fetchWithToken(`/jogadores/${id}`, {
                 method: 'DELETE',
             });
             console.log('✅ Jogador eliminado com sucesso!');
@@ -197,7 +197,7 @@ export const Store = {
 
     async getPremiosJogador(id) {
         try {
-            return await fetchAPI(`/jogadores/${id}/premios`);
+            return await fetchWithToken(`/jogadores/${id}/premios`);
         } catch (error) {
             console.error('Erro ao carregar prémios do jogador:', error);
             return { jogador: '', premios: [] };
@@ -210,7 +210,7 @@ export const Store = {
 
     async getJogos() {
         try {
-            return await fetchAPI('/jogos');
+            return await fetchWithToken('/jogos');
         } catch (error) {
             console.warn('Erro ao carregar jogos:', error);
             throw error;
@@ -219,7 +219,7 @@ export const Store = {
 
     async getJogo(id) {
         try {
-            return await fetchAPI(`/jogos/${id}`);
+            return await fetchWithToken(`/jogos/${id}`);
         } catch (error) {
             console.error('Erro ao carregar jogo:', error);
             throw error;
@@ -228,7 +228,7 @@ export const Store = {
 
     async criarJogo(jogo) {
         try {
-            const novoJogo = await fetchAPI('/jogos', {
+            const novoJogo = await fetchWithToken('/jogos', {
                 method: 'POST',
                 body: JSON.stringify(jogo),
             });
@@ -243,7 +243,7 @@ export const Store = {
 
     async deletarJogo(id) {
         try {
-            await fetchAPI(`/jogos/${id}`, {
+            await fetchWithToken(`/jogos/${id}`, {
                 method: 'DELETE',
             });
             console.log('✅ Jogo eliminado com sucesso! Estatísticas revertidas.');
@@ -260,7 +260,7 @@ export const Store = {
 
     async getTodosPremios() {
         try {
-            return await fetchAPI('/premios');
+            return await fetchWithToken('/premios');
         } catch (error) {
             console.error('Erro ao carregar prémios:', error);
             return [];
