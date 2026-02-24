@@ -56,7 +56,7 @@ app.get('/health', (req, res) => {
 // Rotas públicas (register/login sem autenticação)
 app.use('/api/users', userRoutes);
 
-// Rotas de dados (GETs públicos, POST/PUT/DELETE protegidos por JWT nas rotas individuais)
+// Rotas protegidas (todas requerem JWT configurado nas rotas individuais)
 app.use('/api/jogadores', jogadoresRoutes);
 app.use('/api/jogos', jogosRoutes);
 app.use('/api/premios', premiosRoutes);
