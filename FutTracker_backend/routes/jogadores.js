@@ -3,14 +3,14 @@ const router = express.Router();
 const jogadorController = require('../controllers/jogadorController');
 const { jwtMiddleware } = require('../middleware/auth');
 
-// Rotas para jogadores
-router.get('/', jwtMiddleware, jogadorController.getJogadores);
-router.get('/:id', jwtMiddleware, jogadorController.getJogador);
+// Rotas públicas (GET - leitura livre)
+router.get('/', jogadorController.getJogadores);
+router.get('/:id', jogadorController.getJogador);
+router.get('/:id/premios', jogadorController.getPremiosJogador);
+
+// Rotas protegidas (POST/PUT/DELETE - requerem JWT)
 router.post('/', jwtMiddleware, jogadorController.criarJogador);
 router.put('/:id', jwtMiddleware, jogadorController.atualizarJogador);
 router.delete('/:id', jwtMiddleware, jogadorController.deletarJogador);
-
-// Rota para prémios de um jogador específico
-router.get('/:id/premios', jwtMiddleware, jogadorController.getPremiosJogador);
 
 module.exports = router;

@@ -53,13 +53,13 @@ app.get('/health', (req, res) => {
     res.status(200).json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
-// Rotas públicas (SEM authMiddleware) - devem vir ANTES
+// Rotas públicas (register/login sem autenticação)
 app.use('/api/users', userRoutes);
 
-// Aplicar autenticação apenas nas rotas protegidas
-app.use('/api/jogadores', authMiddleware, jogadoresRoutes);
-app.use('/api/jogos', authMiddleware, jogosRoutes);
-app.use('/api/premios', authMiddleware, premiosRoutes);
+// Rotas de dados (GETs públicos, POST/PUT/DELETE protegidos por JWT nas rotas individuais)
+app.use('/api/jogadores', jogadoresRoutes);
+app.use('/api/jogos', jogosRoutes);
+app.use('/api/premios', premiosRoutes);
 
 
 // Rota 404
