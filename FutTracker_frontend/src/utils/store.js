@@ -1,10 +1,6 @@
-// const API_URL = 'https://futtracker.onrender.com/api/dados';
-//const API_URL = 'https://futtracker-kl7r.onrender.com/api/dados';
-
-
 // Configuração da API
-const API_BASE_URL =  import.meta.env.VITE_API_URL ;
-const API_KEY = import.meta.env.VITE_API_KEY;
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://futtracker-kl7r.onrender.com/api';
+const API_KEY = import.meta.env.VITE_API_KEY || '';
 
 // Helper para fazer requests autenticados
 const fetchAPI = async (endpoint, options = {}) => {

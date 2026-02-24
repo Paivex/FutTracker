@@ -53,16 +53,13 @@ app.get('/health', (req, res) => {
     res.status(200).json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
-
+// Rotas públicas (SEM authMiddleware) - devem vir ANTES
 app.use('/api/users', userRoutes);
 
-// Aplicar autenticação em TODAS as rotas da API
-app.use('/api', authMiddleware);
-
-// API Routes (protegidas pelo middleware acima)
-app.use('/api/jogadores', jogadoresRoutes);
-app.use('/api/jogos', jogosRoutes);
-app.use('/api/premios', premiosRoutes);
+// Aplicar autenticação apenas nas rotas protegidas
+app.use('/api/jogadores', authMiddleware, jogadoresRoutes);
+app.use('/api/jogos', authMiddleware, jogosRoutes);
+app.use('/api/premios', authMiddleware, premiosRoutes);
 
 
 // Rota 404
