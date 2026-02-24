@@ -144,6 +144,10 @@ export const Store = {
     },
 
     async getJogador(id) {
+        if (!id || id === 'undefined') {
+            console.warn('⚠️ getJogador chamado com ID inválido:', id);
+            throw new Error('ID de jogador inválido');
+        }
         try {
             return await fetchWithToken(`/jogadores/${id}`);
         } catch (error) {

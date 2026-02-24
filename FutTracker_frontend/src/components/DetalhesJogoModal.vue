@@ -13,7 +13,8 @@ const emit = defineEmits(['close', 'delete'])
 
 // Helpers
 const getNome = (id) => {
-    const j = props.jogadores.find(x => x.id === id)
+    if (!id) return 'Desconhecido';
+    const j = props.jogadores.find(x => x._id === id)
     return j ? j.nome : 'Desconhecido'
 }
 
