@@ -1,25 +1,9 @@
 const Jogador = require('../models/jogador');
 
 // GET todos os jogadores
-// exports.getJogadores = async (req, res) => {
-//     try {
-//         const jogadores = await Jogador.find().sort({ nome: 1 });
-//         res.json(jogadores);
-//     } catch (error) {
-//         console.error('Erro ao buscar jogadores:', error);
-//         res.status(500).json({ error: 'Erro ao buscar jogadores' });
-//     }
-// };
-
 exports.getJogadores = async (req, res) => {
     try {
-        const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 20;
-
-        const jogadores = await Jogador.find()
-            .sort({ nome: 1 })
-            .skip((page - 1) * limit)
-            .limit(limit);
+        const jogadores = await Jogador.find().sort({ nome: 1 });
 
         // Converter Buffer em base64
         const jogadoresComImagem = jogadores.map(j => {
