@@ -92,7 +92,7 @@ exports.getUser = async (req, res) => {
             return res.status(404).json({ error: 'Utilizador não encontrado' });
         }
 
-        res.json(userObj);
+        res.json(user);
     } catch (error) {
         console.error('Erro ao buscar utilizador:', error);
         res.status(500).json({ error: 'Erro ao buscar utilizador' });

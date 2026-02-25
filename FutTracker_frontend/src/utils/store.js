@@ -392,6 +392,35 @@ export const Store = {
         }
     },
 
+    // Entrar numa liga com password
+    async entrarLiga(id, password) {
+        try {
+            const body = password ? { password } : {};
+            return await fetchWithToken(`/ligas/${id}/entrar`, {
+                method: 'POST',
+                body: JSON.stringify(body),
+            });
+        } catch (error) {
+            console.error('Erro ao entrar na liga:', error);
+            alert('Password incorreta ou erro ao entrar na liga.');
+            throw error;
+        }
+    },
+
+    // Adicionar outro administrador (só se fores admin)
+    async adicionarAdministrador(ligaId, userIdToAdd) {
+        try {
+            return await fetchWithToken(`/ligas/${ligaId}/adicionarAdministrador`, {
+                method: 'POST',
+                body: JSON.stringify({ userIdToAdd }),
+            });
+        } catch (error) {
+            console.error('Erro ao adicionar administrador:', error);
+            alert('Não foi possível adicionar administrador.');
+            throw error;
+        }
+    },
+
     // ========================================
     // MIGRAÇÃO (manter compatibilidade com código antigo)
     // ========================================
