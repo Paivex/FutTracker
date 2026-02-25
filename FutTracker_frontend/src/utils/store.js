@@ -121,30 +121,6 @@ export const Store = {
         }
     },
 
-    async vincularJogador(jogadorId) {
-        try {
-            return await fetchWithToken('/users/me', {
-                method: 'PUT',
-                body: JSON.stringify({ jogadorId }),
-            });
-        } catch (error) {
-            console.error('Erro ao vincular jogador:', error);
-            throw error;
-        }
-    },
-
-    async desvincularJogador() {
-        try {
-            return await fetchWithToken('/users/me', {
-                method: 'PUT',
-                body: JSON.stringify({ jogadorId: null }),
-            });
-        } catch (error) {
-            console.error('Erro ao desvincular jogador:', error);
-            throw error;
-        }
-    },
-
     logout() {
         localStorage.removeItem('token');
         localStorage.removeItem('userId');

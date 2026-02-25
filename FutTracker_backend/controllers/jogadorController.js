@@ -1,4 +1,5 @@
 const Jogador = require('../models/jogador');
+const User = require('../models/user');
 
 // GET todos os jogadores
 exports.getJogadores = async (req, res) => {
@@ -72,7 +73,15 @@ exports.criarJogador = async (req, res) => {
     try {
         const novoJogador = new Jogador(req.body);
         await novoJogador.save();
-        
+
+        const user = await User.findById(req.user.id);
+        if (!user) {
+            return res.status(404).json({ error: 'Utilizador não encontrado' });
+        }
+
+        user.jogador = novoJogador._id;
+        await user.save();
+
         res.status(201).json(novoJogador);
     } catch (error) {
         console.error('Erro ao criar jogador:', error);
