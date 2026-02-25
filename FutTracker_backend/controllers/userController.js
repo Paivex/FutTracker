@@ -85,11 +85,14 @@ exports.login = async (req, res) => {
 // GET /me
 exports.getUser = async (req, res) => {
     try {
-        const user = await User.findById(req.user.id).select('-password');
+        const user = await User.findById(req.user.id)
+            .select('-password')
+            .populate('jogador');
         if (!user) {
             return res.status(404).json({ error: 'Utilizador não encontrado' });
         }
-        res.json(user);
+
+        res.json(userObj);
     } catch (error) {
         console.error('Erro ao buscar utilizador:', error);
         res.status(500).json({ error: 'Erro ao buscar utilizador' });
@@ -99,7 +102,7 @@ exports.getUser = async (req, res) => {
 // PUT /me
 exports.updateUser = async (req, res) => {
     try {
-        const { username, email, password } = req.body;
+        const { username, email, password, jogadorId } = req.body;
         const user = await User.findById(req.user.id);
         if (!user) {
             return res.status(404).json({ error: 'Utilizador não encontrado' });
@@ -107,6 +110,7 @@ exports.updateUser = async (req, res) => {
         if (username) user.username = username;
         if (email) user.email = email;
         if (password) user.password = password; // o pre-save hook trata do hash
+        if (jogadorId !== undefined) user.jogador = jogadorId || null;
         await user.save();
         res.json({ message: 'Perfil atualizado com sucesso' });
     } catch (error) {

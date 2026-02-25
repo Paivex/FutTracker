@@ -8,12 +8,16 @@ import TopsView from '../views/TopsView.vue'
 import PremiosView from '../views/PremiosView.vue'
 import JogoPage from '../views/JogoPage.vue'
 import JogadorPage from '../views/JogadorPage.vue'
+import PerfilView from '../views/PerfilView.vue'
+import LigasView from '../views/LigasView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     { path: '/login', name: 'login', component: LoginView },
     { path: '/', name: 'dashboard', component: DashboardView, meta: { requiresAuth: true } },
+    { path: '/perfil', name: 'perfil', component: PerfilView, meta: { requiresAuth: true } },
+    { path: '/ligas', name: 'ligas', component: LigasView, meta: { requiresAuth: true } },
     { path: '/jogadores', name: 'jogadores', component: JogadoresView, meta: { requiresAuth: true } },
     { path: '/jogos', name: 'jogos', component: JogosView, meta: { requiresAuth: true } },
     { path: '/classificacao', name: 'classificacao', component: ClassificacaoView, meta: { requiresAuth: true } },

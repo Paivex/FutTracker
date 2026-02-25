@@ -88,6 +88,9 @@ const handleLogout = () => {
         <div class="container mx-auto px-4">
             <div class="flex space-x-1 overflow-x-auto no-scrollbar items-center justify-between">
                 <div class="flex space-x-1 overflow-x-auto no-scrollbar">
+                    <router-link to="/perfil" active-class="bg-[rgb(9,37,121)] text-white hover:bg-[rgb(9,37,121)] hover:text-white" class="px-6 py-3 font-medium text-gray-600 hover:bg-gray-100 transition-colors whitespace-nowrap">👤 Perfil</router-link>
+                    <router-link to="/ligas" active-class="bg-[rgb(9,37,121)] text-white hover:bg-[rgb(9,37,121)] hover:text-white" class="px-6 py-3 font-medium text-gray-600 hover:bg-gray-100 transition-colors whitespace-nowrap">🏆 Ligas</router-link>
+                    <span class="text-gray-300 py-3 select-none">|</span>
                     <router-link to="/" active-class="bg-[rgb(9,37,121)] text-white hover:bg-[rgb(9,37,121)] hover:text-white" class="px-6 py-3 font-medium text-gray-600 hover:bg-gray-100 transition-colors whitespace-nowrap">Dashboard</router-link>
                     <router-link to="/jogadores" active-class="bg-[rgb(9,37,121)] text-white hover:bg-[rgb(9,37,121)] hover:text-white" class="px-6 py-3 font-medium text-gray-600 hover:bg-gray-100 transition-colors whitespace-nowrap">Jogadores</router-link>
                     <router-link to="/jogos" active-class="bg-[rgb(9,37,121)] text-white hover:bg-[rgb(9,37,121)] hover:text-white" class="px-6 py-3 font-medium text-gray-600 hover:bg-gray-100 transition-colors whitespace-nowrap">Jogos</router-link>

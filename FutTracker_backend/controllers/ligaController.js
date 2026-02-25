@@ -37,7 +37,21 @@ exports.getLiga = async (req, res) => {
 // POST criar liga
 exports.criarLiga = async (req, res) => {
     try {
-        const novaLiga = new Liga(req.body);
+        // Verificar se o user tem jogador ligado com perfil completo
+        const user = await User.findById(req.user.id).populate('jogador');
+        if (!user || !user.jogador) {
+            return res.status(400).json({ error: 'Precisas de ter um jogador associado ao teu perfil para criar uma liga.' });
+        }
+
+        const j = user.jogador;
+        if (!j.dataNascimento || !j.pePreferencial || !j.altura) {
+            return res.status(400).json({ error: 'O teu perfil de jogador está incompleto. Preenche data de nascimento, pé preferencial e altura.' });
+        }
+
+        const novaLiga = new Liga({
+            ...req.body,
+            jogadores: [user.jogador._id]
+        });
         await novaLiga.save();
 
         res.status(201).json(novaLiga);
