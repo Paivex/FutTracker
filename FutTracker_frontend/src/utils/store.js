@@ -1,6 +1,6 @@
 // Configuração da API
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://futtracker-kl7r.onrender.com/api';
-const API_KEY = import.meta.env.VITE_API_KEY || '';
+//const API_KEY = import.meta.env.VITE_API_KEY || '';
 
 // Helper para fazer requests autenticados
 const fetchAPI = async (endpoint, options = {}) => {
@@ -9,9 +9,9 @@ const fetchAPI = async (endpoint, options = {}) => {
     };
 
     // Adicionar API Key se não for GET request
-    if (options.method && options.method !== 'GET' && API_KEY) {
-        defaultHeaders['x-api-key'] = API_KEY;
-    }
+    //if (options.method && options.method !== 'GET' && API_KEY) {
+    //    defaultHeaders['x-api-key'] = API_KEY;
+    //}
 
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
         ...options,
@@ -268,6 +268,94 @@ export const Store = {
         } catch (error) {
             console.error('Erro ao carregar prémios:', error);
             return [];
+        }
+    },
+
+    // ========================================
+    // LIGAS
+    // ========================================
+
+    async getLigas() {
+        try {
+            return await fetchWithToken('/ligas');
+        } catch (error) {
+            console.warn('Erro ao carregar ligas:', error);
+            throw error;
+        }
+    },
+
+    async getLiga(id) {
+        if (!id || id === 'undefined') {
+            console.warn('⚠️ getLiga chamado com ID inválido:', id);
+            throw new Error('ID de liga inválido');
+        }
+
+        try {
+            return await fetchWithToken(`/ligas/${id}`);
+        } catch (error) {
+            console.error('Erro ao carregar liga:', error);
+            throw error;
+        }
+    },
+
+    async getLigasDoUser() {
+        try {
+            const userId = this.obterUserId();
+
+            if (!userId) {
+                throw new Error('User não autenticado');
+            }
+
+            return await fetchWithToken(`/ligas/user/${userId}`);
+        } catch (error) {
+            console.error('Erro ao carregar ligas do user:', error);
+            throw error;
+        }
+    },
+
+    async criarLiga(liga) {
+        try {
+            const novaLiga = await fetchWithToken('/ligas', {
+                method: 'POST',
+                body: JSON.stringify(liga),
+            });
+
+            console.log('✅ Liga criada com sucesso!');
+            return novaLiga;
+        } catch (error) {
+            console.error('Erro ao criar liga:', error);
+            alert('Erro ao criar liga. Verifica a consola.');
+            throw error;
+        }
+    },
+
+    async atualizarLiga(id, dados) {
+        try {
+            const ligaAtualizada = await fetchWithToken(`/ligas/${id}`, {
+                method: 'PUT',
+                body: JSON.stringify(dados),
+            });
+
+            console.log('✅ Liga atualizada com sucesso!');
+            return ligaAtualizada;
+        } catch (error) {
+            console.error('Erro ao atualizar liga:', error);
+            alert('Erro ao atualizar liga. Verifica a consola.');
+            throw error;
+        }
+    },
+
+    async deletarLiga(id) {
+        try {
+            await fetchWithToken(`/ligas/${id}`, {
+                method: 'DELETE',
+            });
+
+            console.log('✅ Liga eliminada com sucesso!');
+        } catch (error) {
+            console.error('Erro ao deletar liga:', error);
+            alert('Erro ao eliminar liga. Verifica a consola.');
+            throw error;
         }
     },
 

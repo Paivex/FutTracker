@@ -5,7 +5,13 @@ const UserSchema = new mongoose.Schema({
     _id: { type: mongoose.Schema.Types.ObjectId, auto: true },
     username: { type: String, required: true, unique: true, trim: true },
     email:    { type: String, required: true, unique: true, trim: true, lowercase: true },
-    password: { type: String, required: true }
+    password: { type: String, required: true },
+
+    jogador: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Jogador',
+        default: null
+    }
 }, { timestamps: true });
 
 // Hash da password antes de guardar

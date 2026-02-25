@@ -5,13 +5,14 @@ const dotenv = require('dotenv');
 const fs = require('fs');
 
 const DatabaseService = require('./services/database');
-const {authMiddleware} = require('./middleware/auth');
+//const {authMiddleware} = require('./middleware/auth');
 
 // Importar rotas
 const jogadoresRoutes = require('./routes/jogadores');
 const jogosRoutes = require('./routes/jogos');
 const premiosRoutes = require('./routes/premios');
 const userRoutes = require('./routes/users');
+const ligaRoutes = require('./routes/ligas');
 
 const app = express();
 
@@ -28,9 +29,9 @@ const MONGO_URI = process.env.MONGO_URI;
 const FRONTEND_URL = process.env.FRONTEND_URL;
 
 // Verificar se API_KEY está configurada
-if (!process.env.API_KEY) {
-    console.warn('⚠️  AVISO: API_KEY não configurada! As rotas não estão protegidas.');
-}
+//if (!process.env.API_KEY) {
+//    console.warn('⚠️  AVISO: API_KEY não configurada! As rotas não estão protegidas.');
+//}
 
 // Conectar à base de dados
 DatabaseService.connect(MONGO_URI);
@@ -60,6 +61,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/jogadores', jogadoresRoutes);
 app.use('/api/jogos', jogosRoutes);
 app.use('/api/premios', premiosRoutes);
+app.use('/api/ligas', ligaRoutes);
 
 
 // Rota 404
@@ -71,7 +73,7 @@ app.use('/api/*', (req, res) => {
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 Servidor a rodar em http://localhost:${PORT}`);
     console.log(`📡 CORS ativado para: ${FRONTEND_URL}`);
-    console.log(`🔐 Autenticação: ${process.env.API_KEY ? 'ATIVADA ✅' : 'DESATIVADA ⚠️'}`);
+    //console.log(`🔐 Autenticação: ${process.env.API_KEY ? 'ATIVADA ✅' : 'DESATIVADA ⚠️'}`);
 });
 
 // Encerrar graciosamente
