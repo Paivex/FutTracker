@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
-const Jogador = require('../models/Jogador');
+const Jogador = require('../models/jogador');
 
 // POST /register
 exports.register = async (req, res) => {
