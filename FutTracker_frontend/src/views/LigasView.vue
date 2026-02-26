@@ -70,13 +70,14 @@ const criarLiga = async () => {
   }
 }
 
-const irParaPerfil = () => {
-  router.push('/perfil')
+const selecionarLiga = (liga) => {
+  localStorage.setItem('ligaSelecionada', JSON.stringify(liga))
+  router.push('/')
 }
 </script>
 
 <template>
-  <div class="space-y-6 max-w-4xl mx-auto">
+  <div class="space-y-6 max-w-4xl mx-auto pt-8 px-4">
 
     <!-- Loading -->
     <div v-if="loading" class="space-y-4">
@@ -90,7 +91,7 @@ const irParaPerfil = () => {
       <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col md:flex-row justify-between items-center gap-4">
         <div>
           <h2 class="text-2xl font-bold text-gray-800">🏆 As Minhas Ligas</h2>
-          <p class="text-gray-500 text-sm mt-1">Ligas em que participas atualmente.</p>
+          <p class="text-gray-500 text-sm mt-1">Seleciona a liga em que queres entrar.</p>
         </div>
 
         <!-- Botão criar liga -->
@@ -108,7 +109,7 @@ const irParaPerfil = () => {
           <!-- Aviso de perfil incompleto -->
           <div v-if="!perfilCompleto" class="text-xs text-orange-500 text-right max-w-xs">
             ⚠️ Para criar uma liga precisas de ter o perfil completo.
-            <button @click="irParaPerfil" class="underline ml-1 hover:text-orange-700 cursor-pointer">Completar Perfil</button>
+            <button @click="router.push('/perfil')" class="underline ml-1 hover:text-orange-700 cursor-pointer">Completar Perfil</button>
           </div>
         </div>
       </div>
@@ -120,7 +121,7 @@ const irParaPerfil = () => {
         <ul class="list-disc list-inside space-y-1">
           <li v-for="campo in camposEmFalta" :key="campo" class="text-sm text-orange-600">{{ campo }}</li>
         </ul>
-        <button @click="irParaPerfil" class="mt-3 text-sm font-medium text-orange-700 underline hover:text-orange-900 cursor-pointer">
+        <button @click="router.push('/perfil')" class="mt-3 text-sm font-medium text-orange-700 underline hover:text-orange-900 cursor-pointer">
           Ir para o Perfil →
         </button>
       </div>
@@ -134,7 +135,8 @@ const irParaPerfil = () => {
 
       <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div v-for="liga in ligasDoUser" :key="liga._id"
-          class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition cursor-pointer group">
+          @click="selecionarLiga(liga)"
+          class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:shadow-md hover:border-[rgb(9,37,121)] transition cursor-pointer group">
           <div class="flex items-start justify-between">
             <div>
               <h3 class="text-lg font-bold text-gray-800 group-hover:text-[rgb(9,37,121)] transition">
@@ -164,9 +166,10 @@ const irParaPerfil = () => {
           </div>
 
           <!-- Data de criação -->
-          <p class="text-xs text-gray-400 mt-3">
-            Criada em {{ new Date(liga.createdAt).toLocaleDateString('pt-PT') }}
-          </p>
+          <div class="flex items-center justify-between mt-3">
+            <p class="text-xs text-gray-400">Criada em {{ new Date(liga.createdAt).toLocaleDateString('pt-PT') }}</p>
+            <span class="text-xs font-medium text-[rgb(9,37,121)] opacity-0 group-hover:opacity-100 transition">Entrar →</span>
+          </div>
         </div>
       </div>
 

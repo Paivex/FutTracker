@@ -10,37 +10,51 @@ import JogoPage from '../views/JogoPage.vue'
 import JogadorPage from '../views/JogadorPage.vue'
 import PerfilView from '../views/PerfilView.vue'
 import LigasView from '../views/LigasView.vue'
+import MainLayout from '../views/MainLayout.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     { path: '/login', name: 'login', component: LoginView },
-    { path: '/', name: 'dashboard', component: DashboardView, meta: { requiresAuth: true } },
-    { path: '/perfil', name: 'perfil', component: PerfilView, meta: { requiresAuth: true } },
     { path: '/ligas', name: 'ligas', component: LigasView, meta: { requiresAuth: true } },
-    { path: '/jogadores', name: 'jogadores', component: JogadoresView, meta: { requiresAuth: true } },
-    { path: '/jogos', name: 'jogos', component: JogosView, meta: { requiresAuth: true } },
-    { path: '/classificacao', name: 'classificacao', component: ClassificacaoView, meta: { requiresAuth: true } },
-    { path: '/tops', name: 'tops', component: TopsView, meta: { requiresAuth: true } },
-    { path: '/premios', name: 'premios', component: PremiosView, meta: { requiresAuth: true } },
-    { path: '/jogos/:id', name: 'jogo', component: JogoPage, meta: { requiresAuth: true } },
-    { path: '/jogador/:id', name: 'jogador', component: JogadorPage, meta: { requiresAuth: true } }
+    { path: '/perfil', name: 'perfil', component: PerfilView, meta: { requiresAuth: true } },
+
+    // Rotas internas com menu (precisam de liga selecionada)
+    {
+      path: '/',
+      component: MainLayout,
+      meta: { requiresAuth: true, requiresLiga: true },
+      children: [
+        { path: '', name: 'dashboard', component: DashboardView },
+        { path: 'jogadores', name: 'jogadores', component: JogadoresView },
+        { path: 'jogos', name: 'jogos', component: JogosView },
+        { path: 'classificacao', name: 'classificacao', component: ClassificacaoView },
+        { path: 'tops', name: 'tops', component: TopsView },
+        { path: 'premios', name: 'premios', component: PremiosView },
+        { path: 'jogos/:id', name: 'jogo', component: JogoPage },
+        { path: 'jogador/:id', name: 'jogador', component: JogadorPage },
+      ]
+    }
   ]
 })
 
-// Guard de autenticação
 router.beforeEach((to, from, next) => {
   const token = localStorage.getItem('token')
-  
+  const liga = localStorage.getItem('ligaSelecionada')
+
   if (to.meta.requiresAuth && !token) {
-    // Se a rota requer autenticação e não há token, redireciona para login
-    next('/login')
-  } else if (to.path === '/login' && token) {
-    // Se já está autenticado e tenta acessar login, vai para dashboard
-    next('/')
-  } else {
-    next()
+    return next('/login')
   }
+
+  if (to.path === '/login' && token) {
+    return next('/ligas')
+  }
+
+  if (to.meta.requiresLiga && !liga) {
+    return next('/ligas')
+  }
+
+  next()
 })
 
 export default router
