@@ -8,10 +8,20 @@ const router = useRouter()
 const user = ref(null)
 const ligasDoUser = ref([])
 const loading = ref(true)
+
+// Modal criar liga
 const mostrarCriarModal = ref(false)
 const nomeLiga = ref('')
+const passwordLiga = ref('')
 const criando = ref(false)
 const erroModal = ref('')
+
+// Modal entrar liga
+const mostrarEntrarModal = ref(false)
+const ligaParaEntrar = ref(null)
+const passwordEntrar = ref('')
+const entrando = ref(false)
+const erroEntrar = ref('')
 
 onMounted(async () => {
   try {
@@ -32,21 +42,13 @@ const jogador = computed(() => user.value?.jogador || null)
 
 const perfilCompleto = computed(() => {
   const j = jogador.value
-  return j && j.nome && j.dataNascimento && j.pePreferencial && j.altura
-})
-
-const camposEmFalta = computed(() => {
-  if (!jogador.value) return ['Nenhum jogador vinculado ao perfil']
-  const falta = []
-  if (!jogador.value.dataNascimento) falta.push('Data de nascimento')
-  if (!jogador.value.pePreferencial) falta.push('Pé preferencial')
-  if (!jogador.value.altura) falta.push('Altura')
-  return falta
+  return j && j.nome && j.nome.trim() !== ''
 })
 
 const abrirCriarModal = () => {
   if (!perfilCompleto.value) return
   nomeLiga.value = ''
+  passwordLiga.value = ''
   erroModal.value = ''
   mostrarCriarModal.value = true
 }
@@ -56,17 +58,62 @@ const criarLiga = async () => {
     erroModal.value = 'O nome da liga não pode estar vazio.'
     return
   }
+  if (!passwordLiga.value.trim()) {
+    erroModal.value = 'A password da liga não pode estar vazia.'
+    return
+  }
   criando.value = true
   erroModal.value = ''
   try {
-    const novaLiga = await Store.criarLiga({ nome: nomeLiga.value.trim() })
+    const novaLiga = await Store.criarLiga({
+      nome: nomeLiga.value.trim(),
+      password: passwordLiga.value.trim()
+    })
     ligasDoUser.value.unshift(novaLiga)
     mostrarCriarModal.value = false
-    nomeLiga.value = ''
+    // Entrar diretamente na liga criada
+    selecionarLiga(novaLiga)
   } catch (e) {
     erroModal.value = e.message || 'Erro ao criar liga.'
   } finally {
     criando.value = false
+  }
+}
+
+// Ligas onde o user já é membro
+const ligasDoUserIds = computed(() => new Set(ligasDoUser.value.map(l => l._id)))
+
+const clicarLiga = (liga) => {
+  if (ligasDoUserIds.value.has(liga._id)) {
+    // Já é membro, entra diretamente
+    selecionarLiga(liga)
+  } else {
+    // Não é membro, pede password
+    ligaParaEntrar.value = liga
+    passwordEntrar.value = ''
+    erroEntrar.value = ''
+    mostrarEntrarModal.value = true
+  }
+}
+
+const entrarLiga = async () => {
+  if (!passwordEntrar.value.trim()) {
+    erroEntrar.value = 'Introduz a password da liga.'
+    return
+  }
+  entrando.value = true
+  erroEntrar.value = ''
+  try {
+    await Store.entrarLiga(ligaParaEntrar.value._id, passwordEntrar.value.trim())
+    // Recarrega ligas do user e entra
+    ligasDoUser.value = await Store.getLigasDoUser().catch(() => [])
+    const ligaAtualizada = ligasDoUser.value.find(l => l._id === ligaParaEntrar.value._id) || ligaParaEntrar.value
+    mostrarEntrarModal.value = false
+    selecionarLiga(ligaAtualizada)
+  } catch (e) {
+    erroEntrar.value = 'Password incorreta ou erro ao entrar na liga.'
+  } finally {
+    entrando.value = false
   }
 }
 
@@ -93,40 +140,24 @@ const selecionarLiga = (liga) => {
           <h2 class="text-2xl font-bold text-gray-800">🏆 As Minhas Ligas</h2>
           <p class="text-gray-500 text-sm mt-1">Seleciona a liga em que queres entrar.</p>
         </div>
-
-        <!-- Botão criar liga -->
         <div class="flex flex-col items-end gap-1">
           <button
             @click="abrirCriarModal"
             :disabled="!perfilCompleto"
-            :title="!perfilCompleto ? 'Completa o teu perfil para criar uma liga' : ''"
             class="px-5 py-2 rounded-lg font-medium text-sm transition"
             :class="perfilCompleto
               ? 'bg-[rgb(9,37,121)] text-white hover:bg-blue-900 cursor-pointer'
               : 'bg-gray-200 text-gray-400 cursor-not-allowed'">
             + Criar Liga
           </button>
-          <!-- Aviso de perfil incompleto -->
           <div v-if="!perfilCompleto" class="text-xs text-orange-500 text-right max-w-xs">
-            ⚠️ Para criar uma liga precisas de ter o perfil completo.
+            ⚠️ Adiciona o teu nome no perfil para criar uma liga.
             <button @click="router.push('/perfil')" class="underline ml-1 hover:text-orange-700 cursor-pointer">Completar Perfil</button>
           </div>
         </div>
       </div>
 
-      <!-- Requisitos de perfil incompleto -->
-      <div v-if="!perfilCompleto" class="bg-orange-50 border border-orange-200 rounded-xl p-5">
-        <h4 class="font-semibold text-orange-700 mb-2">⚠️ Perfil Incompleto</h4>
-        <p class="text-sm text-orange-600 mb-3">Para criar uma liga precisas de preencher os seguintes campos no teu perfil de jogador:</p>
-        <ul class="list-disc list-inside space-y-1">
-          <li v-for="campo in camposEmFalta" :key="campo" class="text-sm text-orange-600">{{ campo }}</li>
-        </ul>
-        <button @click="router.push('/perfil')" class="mt-3 text-sm font-medium text-orange-700 underline hover:text-orange-900 cursor-pointer">
-          Ir para o Perfil →
-        </button>
-      </div>
-
-      <!-- Lista de ligas -->
+      <!-- Lista vazia -->
       <div v-if="ligasDoUser.length === 0" class="bg-white rounded-xl shadow-sm border border-dashed border-gray-300 p-12 text-center space-y-3">
         <div class="text-5xl">🏆</div>
         <h3 class="text-lg font-semibold text-gray-700">Ainda não estás em nenhuma liga</h3>
@@ -135,7 +166,7 @@ const selecionarLiga = (liga) => {
 
       <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div v-for="liga in ligasDoUser" :key="liga._id"
-          @click="selecionarLiga(liga)"
+          @click="clicarLiga(liga)"
           class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:shadow-md hover:border-[rgb(9,37,121)] transition cursor-pointer group">
           <div class="flex items-start justify-between">
             <div>
@@ -151,19 +182,12 @@ const selecionarLiga = (liga) => {
             </span>
           </div>
 
-          <!-- Avatares dos jogadores -->
+          <!-- Avatares -->
           <div class="flex -space-x-2 mt-4">
-            <template v-for="(jog, i) in (liga.jogadores || []).slice(0, 5)" :key="jog._id || jog">
-              <div class="w-8 h-8 rounded-full border-2 border-white shadow overflow-hidden"
-                :title="jog.nome || ''">
-                <img
-                  v-if="jog.imagem"
-                  :src="jog.imagem"
-                  class="w-full h-full object-cover"
-                />
-                <div
-                  v-else
-                  class="w-full h-full bg-[rgb(9,37,121)] text-white text-xs flex items-center justify-center font-bold">
+            <template v-for="(jog, i) in (liga.jogadores || []).slice(0, 5)" :key="jog._id || i">
+              <div class="w-8 h-8 rounded-full border-2 border-white shadow overflow-hidden" :title="jog.nome || ''">
+                <img v-if="jog.imagem" :src="jog.imagem" class="w-full h-full object-cover" />
+                <div v-else class="w-full h-full bg-[rgb(9,37,121)] text-white text-xs flex items-center justify-center font-bold">
                   {{ (jog.nome || '?').charAt(0).toUpperCase() }}
                 </div>
               </div>
@@ -174,7 +198,6 @@ const selecionarLiga = (liga) => {
             </div>
           </div>
 
-          <!-- Data de criação -->
           <div class="flex items-center justify-between mt-3">
             <p class="text-xs text-gray-400">Criada em {{ new Date(liga.createdAt).toLocaleDateString('pt-PT') }}</p>
             <span class="text-xs font-medium text-[rgb(9,37,121)] opacity-0 group-hover:opacity-100 transition">Entrar →</span>
@@ -190,24 +213,67 @@ const selecionarLiga = (liga) => {
         <h3 class="text-lg font-bold text-gray-800 mb-1">🏆 Criar Nova Liga</h3>
         <p class="text-sm text-gray-500 mb-4">Serás automaticamente adicionado como primeiro membro.</p>
 
-        <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-600 mb-1">Nome da Liga</label>
-          <input
-            v-model="nomeLiga"
-            @keyup.enter="criarLiga"
-            type="text"
-            placeholder="Ex: Liga dos Amigos"
-            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <p v-if="erroModal" class="text-red-500 text-xs mt-1">{{ erroModal }}</p>
+        <div class="space-y-3 mb-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-600 mb-1">Nome da Liga</label>
+            <input
+              v-model="nomeLiga"
+              type="text"
+              placeholder="Ex: Liga dos Amigos"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-600 mb-1">Password da Liga</label>
+            <input
+              v-model="passwordLiga"
+              @keyup.enter="criarLiga"
+              type="password"
+              placeholder="Password para entrar na liga"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <p class="text-xs text-gray-400 mt-1">Partilha esta password com quem queres que entre na liga.</p>
+          </div>
+          <p v-if="erroModal" class="text-red-500 text-xs">{{ erroModal }}</p>
         </div>
 
         <div class="flex gap-3">
-          <button @click="criarLiga" :disabled="criando || !nomeLiga.trim()"
+          <button @click="criarLiga" :disabled="criando || !nomeLiga.trim() || !passwordLiga.trim()"
             class="flex-1 px-4 py-2 bg-[rgb(9,37,121)] text-white rounded-lg hover:bg-blue-900 font-medium text-sm transition disabled:opacity-50">
             {{ criando ? 'A criar...' : '✅ Criar Liga' }}
           </button>
           <button @click="mostrarCriarModal = false"
+            class="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-medium text-sm transition">
+            Cancelar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Entrar na Liga -->
+    <div v-if="mostrarEntrarModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-6">
+        <h3 class="text-lg font-bold text-gray-800 mb-1">🔑 Entrar na Liga</h3>
+        <p class="text-sm text-gray-500 mb-4">Introduz a password para entrares em <strong>{{ ligaParaEntrar?.nome }}</strong>.</p>
+
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-600 mb-1">Password</label>
+          <input
+            v-model="passwordEntrar"
+            @keyup.enter="entrarLiga"
+            type="password"
+            placeholder="Password da liga"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <p v-if="erroEntrar" class="text-red-500 text-xs mt-1">{{ erroEntrar }}</p>
+        </div>
+
+        <div class="flex gap-3">
+          <button @click="entrarLiga" :disabled="entrando || !passwordEntrar.trim()"
+            class="flex-1 px-4 py-2 bg-[rgb(9,37,121)] text-white rounded-lg hover:bg-blue-900 font-medium text-sm transition disabled:opacity-50">
+            {{ entrando ? 'A entrar...' : '✅ Entrar' }}
+          </button>
+          <button @click="mostrarEntrarModal = false"
             class="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-medium text-sm transition">
             Cancelar
           </button>

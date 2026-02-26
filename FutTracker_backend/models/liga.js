@@ -15,7 +15,7 @@ const LigaSchema = new mongoose.Schema({
         ref: 'Jogo'
     }],
 
-    password: { type: String, required: false }, // hash da password da liga
+    password: { type: String, required: true }, // hash da password da liga
     administradores: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }], // quem pode gerir a liga (adicionar jogos, dar permissões)
 
 }, { timestamps: true });
