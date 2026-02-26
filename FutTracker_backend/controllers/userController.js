@@ -22,7 +22,7 @@ exports.register = async (req, res) => {
         }
 
         // Criar jogador em branco associado ao novo user
-        const novoJogador = new Jogador({ nome: username });
+        const novoJogador = new Jogador({});
         await novoJogador.save();
 
         const novoUser = new User({ username, email, password, jogador: novoJogador._id });
