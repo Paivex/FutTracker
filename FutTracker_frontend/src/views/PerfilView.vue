@@ -1,10 +1,12 @@
 <script setup>
 import { ref, computed, onMounted, reactive } from 'vue'
+import { useRouter } from 'vue-router'
 import { Store } from '../utils/store.js'
 import { Engine } from '../utils/engine.js'
 import { Utils } from '../utils/utils.js'
 
 const user = ref(null)
+const router = useRouter()
 const ligasDoUser = ref([])
 const todosJogos = ref([])
 const filtroLiga = ref('todas')
