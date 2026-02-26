@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const JogadorSchema = new mongoose.Schema({
     _id: { type: mongoose.Schema.Types.ObjectId, auto: true },
-    nome: { type: String, required: false, default: '' }
+    nome: { type: String, required: false, default: '' },
     dataNascimento: Date,
     pePreferencial: String,
     altura: Number,
