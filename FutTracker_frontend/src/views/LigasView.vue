@@ -149,7 +149,7 @@ const selecionarLiga = (liga) => {
             <span class="text-xs text-gray-400 bg-gray-50 px-2 py-1 rounded-full">
               {{ liga.jogos?.length || 0 }} jogos
             </span>
-          </div>
+          </div>gti
 
           <!-- Avatares dos jogadores -->
           <div class="flex -space-x-2 mt-4">
