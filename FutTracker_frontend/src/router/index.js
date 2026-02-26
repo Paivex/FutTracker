@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import LoginView from '../views/LoginView.vue'
-import DashboardView from '../views/DashBoardView.vue'
+import LigaView from '../views/LigaView.vue'
 import JogadoresView from '../views/JogadoresView.vue'
 import JogosView from '../views/JogosView.vue'
 import ClassificacaoView from '../views/ClassificacaoView.vue'
@@ -25,7 +25,7 @@ const router = createRouter({
       component: MainLayout,
       meta: { requiresAuth: true, requiresLiga: true },
       children: [
-        { path: '', name: 'dashboard', component: DashboardView },
+        { path: '', name: 'liga', component: LigaView },
         { path: 'jogadores', name: 'jogadores', component: JogadoresView },
         { path: 'jogos', name: 'jogos', component: JogosView },
         { path: 'classificacao', name: 'classificacao', component: ClassificacaoView },

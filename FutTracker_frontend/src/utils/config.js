@@ -1,12 +1,4 @@
 export const Config = {
-    tabs: [
-        { id: 'dashboard', nome: '📊 Dashboard' },
-        { id: 'jogadores', nome: '👥 Jogadores' },
-        { id: 'jogos', nome: '📋 Jogos' },
-        { id: 'classificacao', nome: '🥇 Classificação' },
-        { id: 'tops', nome: '🏆 Tops' },
-        { id: 'premios', nome: '🎖️ Prémios' }
-    ],
 
     colunasClassificacao: [
         { label: 'Pos', chave: 'index', tooltip: 'Posição' },
