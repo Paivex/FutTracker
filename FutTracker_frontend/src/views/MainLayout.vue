@@ -18,12 +18,12 @@ const voltarParaLigas = () => {
       <div class="container mx-auto px-4">
         <div class="flex items-center justify-between overflow-x-auto no-scrollbar">
           <div class="flex space-x-1 overflow-x-auto no-scrollbar">
-            <router-link to="/" exact-active-class="bg-[rgb(9,37,121)] text-white" class="px-6 py-3 font-medium text-gray-600 hover:bg-gray-100 transition-colors whitespace-nowrap">Dashboard</router-link>
-            <router-link to="/jogadores" active-class="bg-[rgb(9,37,121)] text-white" class="px-6 py-3 font-medium text-gray-600 hover:bg-gray-100 transition-colors whitespace-nowrap">Jogadores</router-link>
-            <router-link to="/jogos" active-class="bg-[rgb(9,37,121)] text-white" class="px-6 py-3 font-medium text-gray-600 hover:bg-gray-100 transition-colors whitespace-nowrap">Jogos</router-link>
-            <router-link to="/classificacao" active-class="bg-[rgb(9,37,121)] text-white" class="px-6 py-3 font-medium text-gray-600 hover:bg-gray-100 transition-colors whitespace-nowrap">Classificação</router-link>
-            <router-link to="/tops" active-class="bg-[rgb(9,37,121)] text-white" class="px-6 py-3 font-medium text-gray-600 hover:bg-gray-100 transition-colors whitespace-nowrap">Tops</router-link>
-            <router-link to="/premios" active-class="bg-[rgb(9,37,121)] text-white" class="px-6 py-3 font-medium text-gray-600 hover:bg-gray-100 transition-colors whitespace-nowrap">Prémios</router-link>
+            <router-link to="/" exact-active-class="bg-[rgb(9,37,121)] !text-white" class="px-6 py-3 font-medium text-gray-600 hover:bg-gray-100 transition-colors whitespace-nowrap">Dashboard</router-link>
+            <router-link to="/jogadores" active-class="bg-[rgb(9,37,121)] !text-white" class="px-6 py-3 font-medium text-gray-600 hover:bg-gray-100 transition-colors whitespace-nowrap">Jogadores</router-link>
+            <router-link to="/jogos" active-class="bg-[rgb(9,37,121)] !text-white" class="px-6 py-3 font-medium text-gray-600 hover:bg-gray-100 transition-colors whitespace-nowrap">Jogos</router-link>
+            <router-link to="/classificacao" active-class="bg-[rgb(9,37,121)] !text-white" class="px-6 py-3 font-medium text-gray-600 hover:bg-gray-100 transition-colors whitespace-nowrap">Classificação</router-link>
+            <router-link to="/tops" active-class="bg-[rgb(9,37,121)] !text-white" class="px-6 py-3 font-medium text-gray-600 hover:bg-gray-100 transition-colors whitespace-nowrap">Tops</router-link>
+            <router-link to="/premios" active-class="bg-[rgb(9,37,121)] !text-white" class="px-6 py-3 font-medium text-gray-600 hover:bg-gray-100 transition-colors whitespace-nowrap">Prémios</router-link>
           </div>
           <!-- Liga ativa -->
           <button @click="voltarParaLigas"
