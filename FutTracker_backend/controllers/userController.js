@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
+const Jogador = require('../models/Jogador');
 
 // POST /register
 exports.register = async (req, res) => {
@@ -20,7 +21,11 @@ exports.register = async (req, res) => {
             return res.status(409).json({ error: 'Username já está em uso' });
         }
 
-        const novoUser = new User({ username, email, password });
+        // Criar jogador em branco associado ao novo user
+        const novoJogador = new Jogador({ nome: username });
+        await novoJogador.save();
+
+        const novoUser = new User({ username, email, password, jogador: novoJogador._id });
         await novoUser.save();
 
         const token = jwt.sign(
@@ -109,7 +114,7 @@ exports.updateUser = async (req, res) => {
         }
         if (username) user.username = username;
         if (email) user.email = email;
-        if (password) user.password = password; // o pre-save hook trata do hash
+        if (password) user.password = password;
         if (jogadorId !== undefined) user.jogador = jogadorId || null;
         await user.save();
         res.json({ message: 'Perfil atualizado com sucesso' });
