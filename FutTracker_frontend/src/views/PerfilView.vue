@@ -12,7 +12,9 @@ const filtroLiga = ref('todas')
 const loading = ref(true)
 const editandoPerfil = ref(false)
 const mostrarVincularModal = ref(false)
+const modoVincular = ref('existente') // 'existente' | 'novo'
 const jogadorParaVincular = ref('')
+const nomeNovoJogador = ref('')
 const salvando = ref(false)
 
 const form = reactive({
@@ -104,24 +106,49 @@ const getRatingColor = (r) => {
   return 'text-red-600'
 }
 
-const jogadoresNaoVinculados = computed(() => {
-  const vinculados = new Set()
-  // Podemos permitir qualquer jogador — a validação é apenas na criação de liga
-  return jogadores.value
-})
+const abrirVincularModal = () => {
+  modoVincular.value = 'existente'
+  jogadorParaVincular.value = ''
+  nomeNovoJogador.value = ''
+  mostrarVincularModal.value = true
+}
 
 const vincularJogador = async () => {
   if (!jogadorParaVincular.value) return
   salvando.value = true
   try {
     await Store.vincularJogador(jogadorParaVincular.value)
-    // Recarregar dados
     user.value = await Store.getMe()
     if (user.value?.jogador) preencherForm(user.value.jogador)
     mostrarVincularModal.value = false
     jogadorParaVincular.value = ''
   } catch (e) {
     alert('Erro ao vincular jogador: ' + e.message)
+  } finally {
+    salvando.value = false
+  }
+}
+
+const criarEVincular = async () => {
+  if (!nomeNovoJogador.value.trim()) return
+  salvando.value = true
+  try {
+    const jogadorCriado = await Store.criarJogador({
+      nome: nomeNovoJogador.value.trim(),
+      imagem: null,
+      pePreferencial: '',
+      dataNascimento: '',
+      altura: null
+    })
+    await Store.vincularJogador(jogadorCriado._id)
+    user.value = await Store.getMe()
+    if (user.value?.jogador) preencherForm(user.value.jogador)
+    mostrarVincularModal.value = false
+    nomeNovoJogador.value = ''
+    // Abre edição para completar o perfil de seguida
+    editandoPerfil.value = true
+  } catch (e) {
+    alert('Erro ao criar jogador: ' + e.message)
   } finally {
     salvando.value = false
   }
@@ -177,7 +204,6 @@ const onImagemChange = (e) => {
           <p class="text-gray-500 text-sm">{{ user?.email }}</p>
         </div>
         <div>
-          <!-- Indicador de perfil completo -->
           <span v-if="perfilCompleto" class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-green-100 text-green-700 text-sm font-medium">
             ✅ Perfil Completo
           </span>
@@ -191,8 +217,8 @@ const onImagemChange = (e) => {
       <div v-if="!jogador" class="bg-white rounded-xl shadow-sm border border-dashed border-gray-300 p-10 text-center space-y-4">
         <div class="text-5xl">👤</div>
         <h3 class="text-lg font-semibold text-gray-700">Nenhum jogador vinculado</h3>
-        <p class="text-gray-500 text-sm">Associa a tua conta a um jogador para ver as tuas estatísticas e poder criar ligas.</p>
-        <button @click="mostrarVincularModal = true"
+        <p class="text-gray-500 text-sm">Cria um jogador novo ou associa-te a um já existente para ver as tuas estatísticas e poder criar ligas.</p>
+        <button @click="abrirVincularModal"
           class="mt-2 px-6 py-2 bg-[rgb(9,37,121)] text-white rounded-lg hover:bg-blue-900 font-medium transition">
           Vincular Jogador
         </button>
@@ -204,12 +230,10 @@ const onImagemChange = (e) => {
         <!-- Card do jogador -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
           <div class="bg-gradient-to-r from-[rgb(9,37,121)] to-blue-800 p-6 text-white flex flex-col md:flex-row items-center gap-6">
-            <!-- Foto -->
             <div class="shrink-0">
               <img v-if="jogador.imagem" :src="jogador.imagem" class="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg" />
               <div v-else class="w-24 h-24 rounded-full bg-white/20 flex items-center justify-center text-4xl border-4 border-white">⚽</div>
             </div>
-            <!-- Info -->
             <div class="flex-1 text-center md:text-left">
               <h3 class="text-2xl font-bold">{{ jogador.nome }}</h3>
               <div class="flex flex-wrap gap-4 mt-2 justify-center md:justify-start text-sm text-blue-100">
@@ -221,13 +245,12 @@ const onImagemChange = (e) => {
                 Em falta: {{ camposEmFalta.join(', ') }}
               </div>
             </div>
-            <!-- Botões -->
             <div class="flex gap-2 shrink-0">
               <button @click="editandoPerfil = !editandoPerfil"
                 class="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg text-sm font-medium transition">
                 {{ editandoPerfil ? 'Cancelar' : '✏️ Editar' }}
               </button>
-              <button @click="mostrarVincularModal = true"
+              <button @click="abrirVincularModal"
                 class="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg text-sm font-medium transition">
                 🔗 Trocar
               </button>
@@ -278,7 +301,6 @@ const onImagemChange = (e) => {
 
         <!-- Stats -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-          <!-- Header com filtro -->
           <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
             <h3 class="text-lg font-bold text-gray-800">📊 Estatísticas</h3>
             <select v-model="filtroLiga" class="bg-gray-50 border border-gray-200 text-sm font-medium text-gray-700 py-2 pl-3 pr-8 rounded-lg cursor-pointer">
@@ -295,7 +317,6 @@ const onImagemChange = (e) => {
           </div>
 
           <template v-else>
-            <!-- Resultado global -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
               <div class="bg-blue-50 rounded-xl p-4 text-center">
                 <div class="text-3xl font-bold text-[rgb(9,37,121)]">{{ stats.jogos }}</div>
@@ -315,7 +336,6 @@ const onImagemChange = (e) => {
               </div>
             </div>
 
-            <!-- Métricas individuais -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div class="border border-gray-100 rounded-xl p-4 text-center">
                 <div class="text-3xl font-bold text-gray-800">{{ stats.golos }}</div>
@@ -337,7 +357,6 @@ const onImagemChange = (e) => {
               </div>
             </div>
 
-            <!-- Barra de vitórias -->
             <div class="mt-6">
               <div class="flex justify-between text-xs text-gray-500 mb-1">
                 <span>Win Rate</span>
@@ -355,25 +374,71 @@ const onImagemChange = (e) => {
       </template>
     </template>
 
-    <!-- Modal: Vincular Jogador -->
+    <!-- Modal: Vincular / Criar Jogador -->
     <div v-if="mostrarVincularModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-6">
-        <h3 class="text-lg font-bold text-gray-800 mb-4">🔗 Vincular Jogador</h3>
-        <p class="text-sm text-gray-500 mb-4">Seleciona o teu jogador desta lista para associar ao teu perfil.</p>
-        <select v-model="jogadorParaVincular" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
-          <option value="">Selecionar jogador...</option>
-          <option v-for="j in jogadoresNaoVinculados" :key="j._id" :value="j._id">{{ j.nome }}</option>
-        </select>
-        <div class="flex gap-3">
-          <button @click="vincularJogador" :disabled="!jogadorParaVincular || salvando"
-            class="flex-1 px-4 py-2 bg-[rgb(9,37,121)] text-white rounded-lg hover:bg-blue-900 font-medium text-sm transition disabled:opacity-50">
-            {{ salvando ? 'A vincular...' : 'Vincular' }}
+        <h3 class="text-lg font-bold text-gray-800 mb-4">🔗 Associar Jogador</h3>
+
+        <!-- Tabs -->
+        <div class="flex rounded-lg bg-gray-100 p-1 mb-5">
+          <button
+            @click="modoVincular = 'novo'"
+            class="flex-1 py-2 text-sm font-medium rounded-md transition"
+            :class="modoVincular === 'novo' ? 'bg-white text-[rgb(9,37,121)] shadow-sm' : 'text-gray-500 hover:text-gray-700'">
+            ✨ Criar novo
           </button>
-          <button @click="mostrarVincularModal = false; jogadorParaVincular = ''"
-            class="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-medium text-sm transition">
-            Cancelar
+          <button
+            @click="modoVincular = 'existente'"
+            class="flex-1 py-2 text-sm font-medium rounded-md transition"
+            :class="modoVincular === 'existente' ? 'bg-white text-[rgb(9,37,121)] shadow-sm' : 'text-gray-500 hover:text-gray-700'">
+            🔍 Já existente
           </button>
         </div>
+
+        <!-- Criar novo -->
+        <div v-if="modoVincular === 'novo'" class="space-y-3">
+          <p class="text-sm text-gray-500">Cria um jogador novo com o teu nome. Podes completar os restantes dados depois.</p>
+          <div>
+            <label class="block text-sm font-medium text-gray-600 mb-1">Nome do jogador</label>
+            <input
+              v-model="nomeNovoJogador"
+              @keyup.enter="criarEVincular"
+              type="text"
+              placeholder="Ex: João Silva"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div class="flex gap-3 pt-1">
+            <button @click="criarEVincular" :disabled="!nomeNovoJogador.trim() || salvando"
+              class="flex-1 px-4 py-2 bg-[rgb(9,37,121)] text-white rounded-lg hover:bg-blue-900 font-medium text-sm transition disabled:opacity-50">
+              {{ salvando ? 'A criar...' : '✅ Criar e Vincular' }}
+            </button>
+            <button @click="mostrarVincularModal = false"
+              class="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-medium text-sm transition">
+              Cancelar
+            </button>
+          </div>
+        </div>
+
+        <!-- Vincular existente -->
+        <div v-else class="space-y-3">
+          <p class="text-sm text-gray-500">Seleciona um jogador já existente para associar à tua conta.</p>
+          <select v-model="jogadorParaVincular" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="">Selecionar jogador...</option>
+            <option v-for="j in jogadores" :key="j._id" :value="j._id">{{ j.nome }}</option>
+          </select>
+          <div class="flex gap-3 pt-1">
+            <button @click="vincularJogador" :disabled="!jogadorParaVincular || salvando"
+              class="flex-1 px-4 py-2 bg-[rgb(9,37,121)] text-white rounded-lg hover:bg-blue-900 font-medium text-sm transition disabled:opacity-50">
+              {{ salvando ? 'A vincular...' : 'Vincular' }}
+            </button>
+            <button @click="mostrarVincularModal = false; jogadorParaVincular = ''"
+              class="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-medium text-sm transition">
+              Cancelar
+            </button>
+          </div>
+        </div>
+
       </div>
     </div>
 
