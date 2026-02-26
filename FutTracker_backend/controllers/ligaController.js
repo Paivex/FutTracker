@@ -58,7 +58,7 @@ exports.getLigasByUser = async (req, res) => {
 // POST criar liga
 exports.criarLiga = async (req, res) => {
     try {
-        const userId = req.userId; // do JWT
+        const userId = req.user.id; // do JWT
         const user = await User.findById(userId);
         if (!user || !user.jogador) return res.status(400).json({ error: 'User não tem jogador associado' });
 
@@ -82,7 +82,7 @@ exports.criarLiga = async (req, res) => {
 exports.entrarLiga = async (req, res) => {
     try {
         const { password } = req.body;
-        const userId = req.userId;
+        const userId = req.user.id;
         const user = await User.findById(userId);
         if (!user || !user.jogador) return res.status(400).json({ error: 'User não tem jogador associado' });
 
@@ -110,7 +110,7 @@ exports.entrarLiga = async (req, res) => {
 exports.adicionarAdministrador = async (req, res) => {
     try {
         const { userIdToAdd } = req.body;
-        const userId = req.userId;
+        const userId = req.user.id;
 
         const liga = await Liga.findById(req.params.id);
         if (!liga) return res.status(404).json({ error: 'Liga não encontrada' });
