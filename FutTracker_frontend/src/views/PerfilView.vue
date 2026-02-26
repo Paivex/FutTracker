@@ -138,14 +138,20 @@ const onImagemChange = (e) => {
           <h2 class="text-2xl font-bold text-gray-800">{{ user?.username }}</h2>
           <p class="text-gray-500 text-sm">{{ user?.email }}</p>
         </div>
-        <span v-if="perfilCompleto"
-          class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-green-100 text-green-700 text-sm font-medium">
-          ✅ Perfil Completo
-        </span>
-        <span v-else
-          class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-orange-100 text-orange-700 text-sm font-medium">
-          ⚠️ Adiciona o teu nome para completar o perfil
-        </span>
+        <div class="flex items-center gap-3">
+          <span v-if="perfilCompleto"
+            class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-green-100 text-green-700 text-sm font-medium">
+            ✅ Perfil Completo
+          </span>
+          <span v-else
+            class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-orange-100 text-orange-700 text-sm font-medium">
+            ⚠️ Adiciona o teu nome para completar o perfil
+          </span>
+          <button @click="router.push('/ligas')"
+            class="px-4 py-2 bg-[rgb(9,37,121)] text-white rounded-lg hover:bg-blue-900 text-sm font-medium transition">
+            🏆 Ligas →
+          </button>
+        </div>
       </div>
 
       <!-- Card do jogador -->

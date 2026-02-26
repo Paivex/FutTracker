@@ -22,7 +22,7 @@ const fazerLogin = async () => {
 
   try {
     await Store.login(email.value, password.value)
-    router.push('/')
+    router.push('/ligas')
   } catch (error) {
     erro.value = error.message
   } finally {
