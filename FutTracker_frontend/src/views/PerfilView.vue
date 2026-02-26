@@ -147,7 +147,7 @@ const onImagemChange = (e) => {
           </span>
           <span v-else
             class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-orange-100 text-orange-700 text-sm font-medium">
-            ⚠️ Adiciona o teu nome para completar o perfil
+            ⚠️ Adiciona os teus dados para completar o perfil
           </span>
           <button @click="router.push('/ligas')"
             class="px-4 py-2 bg-[rgb(9,37,121)] text-white rounded-lg hover:bg-blue-900 text-sm font-medium transition">
