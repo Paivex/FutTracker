@@ -196,22 +196,22 @@ const onImagemChange = (e) => {
                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-600 mb-1">Pé Preferencial <span class="text-gray-400 font-normal">(opcional)</span></label>
+              <label class="block text-sm font-medium text-gray-600 mb-1">Pé Preferencial <span class="text-red-400">*</span></label>
               <select v-model="form.pePreferencial"
                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                 <option value="">Selecionar...</option>
                 <option value="Direito">Direito</option>
                 <option value="Esquerdo">Esquerdo</option>
-                <option value="Ambidextro">Ambidextro</option>
+                <option value="Ambidextro">Ambidestro</option>
               </select>
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-600 mb-1">Data de Nascimento <span class="text-gray-400 font-normal">(opcional)</span></label>
+              <label class="block text-sm font-medium text-gray-600 mb-1">Data de Nascimento <span class="text-red-400">*</span></label>
               <input v-model="form.dataNascimento" type="date"
                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-600 mb-1">Altura (cm) <span class="text-gray-400 font-normal">(opcional)</span></label>
+              <label class="block text-sm font-medium text-gray-600 mb-1">Altura (cm) <span class="text-red-400">*</span></label>
               <input v-model.number="form.altura" type="number" min="100" max="230"
                 placeholder="Ex: 175"
                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
