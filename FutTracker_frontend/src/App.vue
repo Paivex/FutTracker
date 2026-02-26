@@ -9,15 +9,28 @@ const router = useRouter()
 const route = useRoute()
 const username = ref('')
 const isLoggedIn = ref(localStorage.getItem('token') !== null)
+const jogadorImagem = ref(null)
+const jogadorNome = ref('')
+
+const carregarUser = async () => {
+  if (!localStorage.getItem('token')) return
+  try {
+    const userData = await Store.getMe()
+    jogadorImagem.value = userData?.jogador?.imagem || null
+    jogadorNome.value = userData?.jogador?.nome || userData?.username || ''
+  } catch (e) {}
+}
 
 watch(route, () => {
   isLoggedIn.value = localStorage.getItem('token') !== null
   username.value = localStorage.getItem('username') || ''
+  carregarUser()
 })
 
 onMounted(() => {
   if (localStorage.getItem('modoAdmin') === 'true') isAdmin.value = true
   username.value = localStorage.getItem('username') || ''
+  carregarUser()
 })
 
 const alternarAdmin = async () => {
@@ -61,10 +74,28 @@ const handleLogout = () => {
           <h1 class="text-3xl font-bold">⚽ FutTracker</h1>
           <p class="text-blue-100 mt-1">Gestão de jogos e estatísticas</p>
         </div>
-        <div v-if="username" class="flex items-center space-x-4">
+        <div v-if="username" class="flex items-center space-x-3">
           <p class="text-sm text-blue-100">Bem-vindo, {{ username }}</p>
-          <button @click="handleLogout" class="px-4 py-3 hover:bg-red-100 hover:text-red-600 transition-colors">
-            <img src="/logout.svg" alt="Logout" class="w-5 h-5 inline-block">
+
+          <!-- Avatar clicável -->
+          <button
+            @click="router.push('/perfil')"
+            class="w-9 h-9 rounded-full border-2 border-white/50 hover:border-white overflow-hidden transition-all hover:scale-105 shrink-0"
+            title="Ver Perfil">
+            <img
+              v-if="jogadorImagem"
+              :src="jogadorImagem"
+              class="w-full h-full object-cover"
+            />
+            <div
+              v-else
+              class="w-full h-full bg-white/20 flex items-center justify-center text-white font-bold text-sm">
+              {{ (jogadorNome || username).charAt(0).toUpperCase() }}
+            </div>
+          </button>
+
+          <button @click="handleLogout" class="px-2 py-2 hover:bg-red-100 hover:text-red-600 rounded-lg transition-colors">
+            <img src="/logout.svg" alt="Logout" class="w-5 h-5">
           </button>
         </div>
       </div>
