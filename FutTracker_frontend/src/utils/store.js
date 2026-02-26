@@ -145,10 +145,12 @@ export const Store = {
 
     async getJogadores() {
         try {
-            return await fetchWithToken('/jogadores');
+            const liga = JSON.parse(localStorage.getItem('ligaSelecionada') || 'null')
+            const query = liga ? `?ligaId=${liga._id}` : ''
+            return await fetchWithToken(`/jogadores${query}`)
         } catch (error) {
-            console.warn('Erro ao carregar jogadores:', error);
-            throw error;
+            console.warn('Erro ao carregar jogadores:', error)
+            throw error
         }
     },
 
@@ -223,10 +225,12 @@ export const Store = {
 
     async getJogos() {
         try {
-            return await fetchWithToken('/jogos');
+            const liga = JSON.parse(localStorage.getItem('ligaSelecionada') || 'null')
+            const query = liga ? `?ligaId=${liga._id}` : ''
+            return await fetchWithToken(`/jogos${query}`)
         } catch (error) {
-            console.warn('Erro ao carregar jogos:', error);
-            throw error;
+            console.warn('Erro ao carregar jogos:', error)
+            throw error
         }
     },
 

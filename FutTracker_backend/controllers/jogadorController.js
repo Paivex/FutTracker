@@ -1,22 +1,26 @@
 const Jogador = require('../models/jogador');
 const User = require('../models/user');
+const Liga = require('../models/liga');
 
 // GET todos os jogadores
 exports.getJogadores = async (req, res) => {
     try {
-        const jogadores = await Jogador.find().sort({ nome: 1 });
+        let jogadores;
 
-        // Converter Buffer em base64
+        if (req.query.ligaId) {
+            const liga = await Liga.findById(req.query.ligaId).populate('jogadores');
+            if (!liga) return res.status(404).json({ error: 'Liga não encontrada' });
+            jogadores = liga.jogadores;
+        } else {
+            jogadores = await Jogador.find().sort({ nome: 1 });
+        }
+
         const jogadoresComImagem = jogadores.map(j => {
             let imagemBase64 = null;
             if (j.imagem) {
                 imagemBase64 = `data:image/webp;base64,${j.imagem.toString('base64')}`;
             }
-
-            return {
-                ...j.toObject(),
-                imagem: imagemBase64
-            };
+            return { ...j.toObject(), imagem: imagemBase64 };
         });
 
         res.json(jogadoresComImagem);

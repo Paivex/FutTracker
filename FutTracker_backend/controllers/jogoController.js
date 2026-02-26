@@ -1,14 +1,29 @@
 const Jogo = require('../models/jogo');
 const Jogador = require('../models/jogador');
+const Liga = require('../models/liga');
 
 // GET todos os jogos
 exports.getJogos = async (req, res) => {
     try {
-        const jogos = await Jogo.find()
-            .populate('equipaA.jogadores.jogadorId', 'nome posicao')
-            .populate('equipaB.jogadores.jogadorId', 'nome posicao')
-            .sort({ data: -1 });
-        
+        let jogos;
+
+        if (req.query.ligaId) {
+            const liga = await Liga.findById(req.query.ligaId).populate({
+                path: 'jogos',
+                populate: [
+                    { path: 'equipaA.jogadores.jogadorId', select: 'nome posicao' },
+                    { path: 'equipaB.jogadores.jogadorId', select: 'nome posicao' }
+                ]
+            });
+            if (!liga) return res.status(404).json({ error: 'Liga não encontrada' });
+            jogos = liga.jogos;
+        } else {
+            jogos = await Jogo.find()
+                .populate('equipaA.jogadores.jogadorId', 'nome posicao')
+                .populate('equipaB.jogadores.jogadorId', 'nome posicao')
+                .sort({ data: -1 });
+        }
+
         res.json(jogos);
     } catch (error) {
         console.error('Erro ao buscar jogos:', error);
