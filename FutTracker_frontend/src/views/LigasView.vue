@@ -154,9 +154,18 @@ const selecionarLiga = (liga) => {
           <!-- Avatares dos jogadores -->
           <div class="flex -space-x-2 mt-4">
             <template v-for="(jog, i) in (liga.jogadores || []).slice(0, 5)" :key="jog._id || jog">
-              <div class="w-8 h-8 rounded-full border-2 border-white bg-[rgb(9,37,121)] text-white text-xs flex items-center justify-center font-bold shadow"
+              <div class="w-8 h-8 rounded-full border-2 border-white shadow overflow-hidden"
                 :title="jog.nome || ''">
-                {{ (jog.nome || '?').charAt(0).toUpperCase() }}
+                <img
+                  v-if="jog.imagem"
+                  :src="jog.imagem"
+                  class="w-full h-full object-cover"
+                />
+                <div
+                  v-else
+                  class="w-full h-full bg-[rgb(9,37,121)] text-white text-xs flex items-center justify-center font-bold">
+                  {{ (jog.nome || '?').charAt(0).toUpperCase() }}
+                </div>
               </div>
             </template>
             <div v-if="(liga.jogadores || []).length > 5"
