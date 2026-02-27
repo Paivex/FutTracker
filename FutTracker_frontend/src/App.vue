@@ -89,7 +89,7 @@ const handleLogout = () => {
             <img
               v-if="jogadorImagem"
               :src="jogadorImagem"
-              class="w-9 h-9 rounded-full object-cover"
+              class="h-12 w-auto object-contain"
             />
             <div
               v-else

@@ -1,6 +1,21 @@
 const Liga = require('../models/liga');
 const User = require('../models/user');
 
+// Helper para converter imagens dos jogadores de Binary para base64
+const converterImagensJogadores = (ligas) => {
+    return ligas.map(liga => {
+        const ligaObj = liga.toObject ? liga.toObject() : liga;
+        ligaObj.jogadores = (ligaObj.jogadores || []).map(jog => {
+            if (jog.imagem) {
+                const buffer = jog.imagem.buffer || jog.imagem;
+                jog.imagem = `data:image/webp;base64,${Buffer.from(buffer).toString('base64')}`;
+            }
+            return jog;
+        });
+        return ligaObj;
+    });
+};
+
 // GET todas as ligas
 exports.getLigas = async (req, res) => {
     try {
@@ -9,7 +24,7 @@ exports.getLigas = async (req, res) => {
             .populate('jogos')
             .populate('administradores', 'username email')
             .sort({ createdAt: -1 });
-        res.json(ligas);
+        res.json(converterImagensJogadores(ligas));
     } catch (error) {
         console.error('Erro ao buscar ligas:', error);
         res.status(500).json({ error: 'Erro ao buscar ligas' });
@@ -26,7 +41,7 @@ exports.getLiga = async (req, res) => {
 
         if (!liga) return res.status(404).json({ error: 'Liga não encontrada' });
 
-        res.json(liga);
+        res.json(converterImagensJogadores([liga])[0]);
     } catch (error) {
         console.error('Erro ao buscar liga:', error);
         res.status(500).json({ error: 'Erro ao buscar liga' });
@@ -47,7 +62,7 @@ exports.getLigasByUser = async (req, res) => {
         .populate('jogadores')
         .populate('jogos');
 
-        res.json(ligas);
+        res.json(converterImagensJogadores(ligas));
 
     } catch (error) {
         console.error('Erro ao buscar ligas do user:', error);
@@ -122,7 +137,7 @@ exports.entrarLiga = async (req, res) => {
 
         await _processarEntrada(liga, password, user, res);
     } catch (error) {
-        console.error('Erro ao entrar na liga:', error);
+        console.error('Erro ao entrar na liga por ID:', error);
         res.status(500).json({ error: 'Erro ao entrar na liga' });
     }
 };
