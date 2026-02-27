@@ -99,7 +99,8 @@ exports.getUser = async (req, res) => {
 
         const userObj = user.toObject();
         if (userObj.jogador?.imagem) {
-            userObj.jogador.imagem = `data:image/webp;base64,${Buffer.from(userObj.jogador.imagem).toString('base64')}`;
+            const buffer = userObj.jogador.imagem.buffer || userObj.jogador.imagem
+            userObj.jogador.imagem = `data:image/webp;base64,${Buffer.from(buffer).toString('base64')}`
         }
 
         res.json(userObj);
