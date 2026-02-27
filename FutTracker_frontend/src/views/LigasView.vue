@@ -118,9 +118,14 @@ const entrarLiga = async () => {
 }
 
 const selecionarLiga = (liga) => {
-  localStorage.setItem('ligaSelecionada', JSON.stringify(liga))
+  const ligaMinima = {
+    _id: liga._id,
+    nome: liga.nome
+  }
+  localStorage.setItem('ligaSelecionada', JSON.stringify(ligaMinima))
   router.push('/')
 }
+
 </script>
 
 <template>
