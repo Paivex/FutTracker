@@ -44,8 +44,8 @@ const getRankColor = (index) => {
                     </div>
 
                     <div class="col-span-7 flex items-center gap-3">
-                        <div class="w-10 h-14">
-                            <img v-if="jogador.imagem" :src="jogador.imagem" class="w-full h-full">
+                        <div class="w-10 aspect-[1000/1200]">
+                            <img v-if="jogador.imagem" :src="jogador.imagem" class="w-full h-full object-cover">
                             <div v-else class="w-full h-full flex items-center justify-center text-gray-400 text-xs">👤</div>
                         </div>
                         <span class="font-bold text-gray-800 text-sm truncate">{{ jogador.nome }}</span>

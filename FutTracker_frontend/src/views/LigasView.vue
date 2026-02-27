@@ -185,7 +185,7 @@ const selecionarLiga = (liga) => {
           <!-- Avatares -->
           <div class="flex -space-x-2 mt-4">
             <template v-for="(jog, i) in (liga.jogadores || []).slice(0, 5)" :key="jog._id || i">
-              <div class="w-8 h-8 rounded-full border-2 border-white shadow overflow-hidden" :title="jog.nome || ''">
+              <div class="w-8 aspect-[1000/1200] overflow-hidden" :title="jog.nome || ''">
                 <img v-if="jog.imagem" :src="jog.imagem" class="w-full h-full object-cover" />
                 <div v-else class="w-full h-full bg-[rgb(9,37,121)] text-white text-xs flex items-center justify-center font-bold">
                   {{ (jog.nome || '?').charAt(0).toUpperCase() }}
@@ -193,7 +193,7 @@ const selecionarLiga = (liga) => {
               </div>
             </template>
             <div v-if="(liga.jogadores || []).length > 5"
-              class="w-8 h-8 rounded-full border-2 border-white bg-gray-200 text-gray-600 text-xs flex items-center justify-center font-bold shadow">
+              class="w-8 aspect-[1000/1200] bg-gray-200 text-gray-600 text-xs flex items-center justify-center font-bold shadow">
               +{{ (liga.jogadores || []).length - 5 }}
             </div>
           </div>

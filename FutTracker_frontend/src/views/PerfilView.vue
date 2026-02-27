@@ -162,8 +162,8 @@ const onImagemChange = (e) => {
         <!-- Banner com info -->
         <div class="bg-gradient-to-r from-[rgb(9,37,121)] to-blue-800 p-6 text-white flex flex-col md:flex-row items-center gap-6">
           <div class="shrink-0">
-            <img v-if="jogador?.imagem" :src="jogador.imagem" class="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg" />
-            <div v-else class="w-24 h-24 rounded-full bg-white/20 flex items-center justify-center text-4xl border-4 border-white">⚽</div>
+            <img v-if="jogador?.imagem" :src="jogador.imagem" class="w-24 aspect-[1000/1200] object-cover" />
+            <div v-else class="w-24 aspect-[1000/1200] bg-white/20 flex items-center justify-center text-4xl">⚽</div>
           </div>
           <div class="flex-1 text-center md:text-left">
             <h3 class="text-2xl font-bold">{{ jogador?.nome || 'Sem nome' }}</h3>

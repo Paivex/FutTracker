@@ -80,16 +80,16 @@ const handleLogout = () => {
           <!-- Avatar clicável -->
           <button
             @click="router.push('/perfil')"
-            class="w-9 h-9 rounded-full border-2 border-white/50 hover:border-white overflow-hidden transition-all hover:scale-105 shrink-0"
+            class="transition-all hover:scale-105 shrink-0"
             title="Ver Perfil">
             <img
               v-if="jogadorImagem"
               :src="jogadorImagem"
-              class="w-full h-full object-cover"
+              class="w-9 aspect-[1000/1200] object-cover"
             />
             <div
               v-else
-              class="w-full h-full bg-white/20 flex items-center justify-center text-white font-bold text-sm">
+              class="w-9 aspect-[1000/1200] bg-white/20 flex items-center justify-center text-white font-bold text-sm">
               {{ (jogadorNome || username).charAt(0).toUpperCase() }}
             </div>
           </button>

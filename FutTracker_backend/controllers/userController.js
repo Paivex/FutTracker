@@ -97,7 +97,12 @@ exports.getUser = async (req, res) => {
             return res.status(404).json({ error: 'Utilizador não encontrado' });
         }
 
-        res.json(user);
+        const userObj = user.toObject();
+        if (userObj.jogador?.imagem) {
+            userObj.jogador.imagem = `data:image/webp;base64,${Buffer.from(userObj.jogador.imagem).toString('base64')}`;
+        }
+
+        res.json(userObj);
     } catch (error) {
         console.error('Erro ao buscar utilizador:', error);
         res.status(500).json({ error: 'Erro ao buscar utilizador' });

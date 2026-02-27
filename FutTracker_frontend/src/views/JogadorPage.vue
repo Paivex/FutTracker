@@ -246,9 +246,9 @@ const voltar = () => router.push({ name: 'jogadores' })
         <div class="bg-white rounded-lg shadow p-6">
           <div class="flex flex-col md:flex-row gap-6 mb-6">
             <div class="flex flex-col items-center gap-2 max-w-[25%]">
-              <div class="player_img_container">
-                <img v-if="form.imagem || jogador.imagem" :src="form.imagem || jogador.imagem">
-                <div v-else class="text-5xl text-gray-300">👤</div>
+              <div class="w-full aspect-[1000/1200]">
+                <img v-if="form.imagem || jogador.imagem" :src="form.imagem || jogador.imagem" class="w-full h-full object-cover">
+                <div v-else class="w-full h-full flex items-center justify-center text-5xl text-gray-300">👤</div>
               </div>
               <div v-if="isAdmin" class="w-full space-y-2">
                 <input type="file" accept="image/*" @change="atualizarFoto" class="block w-full text-xs text-gray-500 file:mr-2 file:py-1 file:px-3 file:rounded file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
@@ -346,7 +346,7 @@ const voltar = () => router.push({ name: 'jogadores' })
                     <span>{{ Utils.formatarData(premio.data) }}</span>
                   </div>
                   <div class="flex gap-4 items-center">
-                    <div class="w-[150px] h-[200px]">
+                    <div class="w-[150px] aspect-[1000/1200]">
                       <img v-if="premio.jogador?.imagem" :src="premio.jogador.imagem" class="w-full h-full object-cover" />
                     </div>
                     <div class="flex-1 flex items-center justify-center">
