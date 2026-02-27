@@ -21,7 +21,7 @@ const carregarUser = async () => {
   } catch (e) {}
 }
 
-watch(route, () => {
+watch(() => route.path, () => {
   isLoggedIn.value = localStorage.getItem('token') !== null
   username.value = localStorage.getItem('username') || ''
   carregarUser()
@@ -85,11 +85,11 @@ const handleLogout = () => {
             <img
               v-if="jogadorImagem"
               :src="jogadorImagem"
-              class="w-9 aspect-[1000/1200] object-cover"
+              class="w-9 h-9 rounded-full object-cover"
             />
             <div
               v-else
-              class="w-9 aspect-[1000/1200] bg-white/20 flex items-center justify-center text-white font-bold text-sm">
+              class="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center text-white font-bold text-sm">
               {{ (jogadorNome || username).charAt(0).toUpperCase() }}
             </div>
           </button>
