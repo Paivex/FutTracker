@@ -7,8 +7,9 @@ router.get('/', jwtMiddleware, ligaController.getLigas);
 router.get('/user/:userId', jwtMiddleware, ligaController.getLigasByUser);
 router.get('/:id', jwtMiddleware, ligaController.getLiga);
 
-router.post('/', jwtMiddleware, ligaController.criarLiga);            // criar liga
-router.post('/:id/entrar', jwtMiddleware, ligaController.entrarLiga); // entrar na liga
+router.post('/', jwtMiddleware, ligaController.criarLiga);                       // criar liga
+router.post('/entrar-por-nome', jwtMiddleware, ligaController.entrarLigaPorNome); // entrar por nome+password
+router.post('/:id/entrar', jwtMiddleware, ligaController.entrarLiga);             // entrar por id+password
 router.post('/:id/adicionarAdministrador', jwtMiddleware, ligaController.adicionarAdministrador); // só admins
 
 router.put('/:id', jwtMiddleware, ligaController.atualizarLiga);

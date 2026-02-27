@@ -372,6 +372,19 @@ export const Store = {
         }
     },
 
+    // Entrar numa liga por nome e password (sem saber o ID)
+    async entrarLigaPorNome(nome, password) {
+        try {
+            return await fetchWithToken('/ligas/entrar-por-nome', {
+                method: 'POST',
+                body: JSON.stringify({ nome, password }),
+            });
+        } catch (error) {
+            console.error('Erro ao entrar na liga por nome:', error);
+            throw error;
+        }
+    },
+
     // Entrar numa liga com password
     async entrarLiga(id, password) {
         try {

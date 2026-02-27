@@ -16,12 +16,44 @@ const passwordLiga = ref('')
 const criando = ref(false)
 const erroModal = ref('')
 
-// Modal entrar liga
+// Modal entrar liga (clicando numa liga da lista)
 const mostrarEntrarModal = ref(false)
 const ligaParaEntrar = ref(null)
 const passwordEntrar = ref('')
 const entrando = ref(false)
 const erroEntrar = ref('')
+
+// Modal entrar por nome+password
+const mostrarEntrarNomeModal = ref(false)
+const entrarNome = ref('')
+const entrarPassword = ref('')
+const entrandoNome = ref(false)
+const erroEntrarNome = ref('')
+
+const abrirEntrarNomeModal = () => {
+  entrarNome.value = ''
+  entrarPassword.value = ''
+  erroEntrarNome.value = ''
+  mostrarEntrarNomeModal.value = true
+}
+
+const entrarLigaPorNome = async () => {
+  if (!entrarNome.value.trim()) { erroEntrarNome.value = 'Indica o nome da liga.'; return }
+  if (!entrarPassword.value.trim()) { erroEntrarNome.value = 'Indica a password da liga.'; return }
+  entrandoNome.value = true
+  erroEntrarNome.value = ''
+  try {
+    const res = await Store.entrarLigaPorNome(entrarNome.value.trim(), entrarPassword.value.trim())
+    ligasDoUser.value = await Store.getLigasDoUser().catch(() => [])
+    const ligaEntrada = ligasDoUser.value.find(l => l.nome === entrarNome.value.trim()) || res.liga
+    mostrarEntrarNomeModal.value = false
+    selecionarLiga(ligaEntrada)
+  } catch (e) {
+    erroEntrarNome.value = e.message || 'Nome ou password incorretos.'
+  } finally {
+    entrandoNome.value = false
+  }
+}
 
 onMounted(async () => {
   try {
@@ -145,16 +177,27 @@ const selecionarLiga = (liga) => {
           <h2 class="text-2xl font-bold text-gray-800">🏆 As Minhas Ligas</h2>
           <p class="text-gray-500 text-sm mt-1">Seleciona a liga em que queres entrar.</p>
         </div>
-        <div class="flex flex-col items-end gap-1">
-          <button
-            @click="abrirCriarModal"
-            :disabled="!perfilCompleto"
-            class="px-5 py-2 rounded-lg font-medium text-sm transition"
-            :class="perfilCompleto
-              ? 'bg-[rgb(9,37,121)] text-white hover:bg-blue-900 cursor-pointer'
-              : 'bg-gray-200 text-gray-400 cursor-not-allowed'">
-            + Criar Liga
-          </button>
+        <div class="flex flex-col items-end gap-2">
+          <div class="flex gap-2">
+            <button
+              @click="abrirEntrarNomeModal"
+              :disabled="!perfilCompleto"
+              class="px-5 py-2 rounded-lg font-medium text-sm transition"
+              :class="perfilCompleto
+                ? 'bg-green-600 text-white hover:bg-green-700 cursor-pointer'
+                : 'bg-gray-200 text-gray-400 cursor-not-allowed'">
+              🔑 Entrar numa Liga
+            </button>
+            <button
+              @click="abrirCriarModal"
+              :disabled="!perfilCompleto"
+              class="px-5 py-2 rounded-lg font-medium text-sm transition"
+              :class="perfilCompleto
+                ? 'bg-[rgb(9,37,121)] text-white hover:bg-blue-900 cursor-pointer'
+                : 'bg-gray-200 text-gray-400 cursor-not-allowed'">
+              + Criar Liga
+            </button>
+          </div>
           <div v-if="!perfilCompleto" class="text-xs text-orange-500 text-right max-w-xs">
             ⚠️ Adiciona o teu nome no perfil para criar uma liga.
             <button @click="router.push('/perfil')" class="underline ml-1 hover:text-orange-700 cursor-pointer">Completar Perfil</button>
@@ -255,7 +298,49 @@ const selecionarLiga = (liga) => {
       </div>
     </div>
 
-    <!-- Modal: Entrar na Liga -->
+    <!-- Modal: Entrar por Nome + Password -->
+    <div v-if="mostrarEntrarNomeModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-6">
+        <h3 class="text-lg font-bold text-gray-800 mb-1">🔑 Entrar numa Liga</h3>
+        <p class="text-sm text-gray-500 mb-4">Introduz o nome e a password da liga para entrar.</p>
+
+        <div class="space-y-3 mb-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-600 mb-1">Nome da Liga</label>
+            <input
+              v-model="entrarNome"
+              type="text"
+              placeholder="Ex: Liga dos Amigos"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-600 mb-1">Password da Liga</label>
+            <input
+              v-model="entrarPassword"
+              @keyup.enter="entrarLigaPorNome"
+              type="password"
+              placeholder="Password para entrar na liga"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+            />
+          </div>
+          <p v-if="erroEntrarNome" class="text-red-500 text-xs">{{ erroEntrarNome }}</p>
+        </div>
+
+        <div class="flex gap-3">
+          <button @click="entrarLigaPorNome" :disabled="entrandoNome || !entrarNome.trim() || !entrarPassword.trim()"
+            class="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium text-sm transition disabled:opacity-50">
+            {{ entrandoNome ? 'A entrar...' : '✅ Entrar' }}
+          </button>
+          <button @click="mostrarEntrarNomeModal = false"
+            class="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-medium text-sm transition">
+            Cancelar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Entrar na Liga (pelo clique na lista) -->
     <div v-if="mostrarEntrarModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-6">
         <h3 class="text-lg font-bold text-gray-800 mb-1">🔑 Entrar na Liga</h3>

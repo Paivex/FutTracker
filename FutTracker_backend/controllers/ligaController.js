@@ -78,28 +78,49 @@ exports.criarLiga = async (req, res) => {
     }
 };
 
-// POST entrar numa liga
+// Helper partilhado: valida password e adiciona jogador à liga
+const _processarEntrada = async (liga, password, user, res) => {
+    const senhaValida = await liga.verificarPassword(password);
+    if (!senhaValida) return res.status(403).json({ error: 'Password da liga incorreta' });
+
+    if (!liga.jogadores.map(j => j.toString()).includes(user.jogador.toString())) {
+        liga.jogadores.push(user.jogador);
+        await liga.save();
+    }
+    res.json({ message: 'Entrou na liga com sucesso', liga });
+};
+
+// POST entrar numa liga por nome e password
+exports.entrarLigaPorNome = async (req, res) => {
+    try {
+        const { nome, password } = req.body;
+        if (!nome || !password) return res.status(400).json({ error: 'Nome e password são obrigatórios' });
+
+        const user = await User.findById(req.user.id);
+        if (!user || !user.jogador) return res.status(400).json({ error: 'User não tem jogador associado' });
+
+        const liga = await Liga.findOne({ nome: nome.trim() });
+        if (!liga) return res.status(404).json({ error: 'Liga não encontrada' });
+
+        await _processarEntrada(liga, password, user, res);
+    } catch (error) {
+        console.error('Erro ao entrar na liga por nome:', error);
+        res.status(500).json({ error: 'Erro ao entrar na liga' });
+    }
+};
+
+// POST entrar numa liga por ID
 exports.entrarLiga = async (req, res) => {
     try {
         const { password } = req.body;
-        const userId = req.user.id;
-        const user = await User.findById(userId);
+
+        const user = await User.findById(req.user.id);
         if (!user || !user.jogador) return res.status(400).json({ error: 'User não tem jogador associado' });
 
         const liga = await Liga.findById(req.params.id);
         if (!liga) return res.status(404).json({ error: 'Liga não encontrada' });
 
-        const senhaValida = await liga.verificarPassword(password);
-        if (!senhaValida) return res.status(403).json({ error: 'Password da liga incorreta' });
-
-        // Adicionar jogador se ainda não estiver
-        if (!liga.jogadores.includes(user.jogador)) {
-            liga.jogadores.push(user.jogador);
-            await liga.save();
-        }
-
-        res.json({ message: 'Entrou na liga com sucesso', liga });
-
+        await _processarEntrada(liga, password, user, res);
     } catch (error) {
         console.error('Erro ao entrar na liga:', error);
         res.status(500).json({ error: 'Erro ao entrar na liga' });
