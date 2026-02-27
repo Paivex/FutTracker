@@ -16,9 +16,13 @@ const carregarUser = async () => {
   if (!localStorage.getItem('token')) return
   try {
     const userData = await Store.getMe()
+    console.log('userData:', userData)
+    console.log('imagem:', userData?.jogador?.imagem?.substring(0, 50))
     jogadorImagem.value = userData?.jogador?.imagem || null
     jogadorNome.value = userData?.jogador?.nome || userData?.username || ''
-  } catch (e) {}
+  } catch (e) {
+    console.error(e)
+  }
 }
 
 watch(() => route.path, () => {
