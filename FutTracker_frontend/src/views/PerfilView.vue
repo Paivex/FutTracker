@@ -153,7 +153,7 @@ const onImagemChange = (e) => {
       </div>
 
       <!-- Card do jogador -->
-      <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <div class="bg-white rounded-xl shadow-sm overflow-hidden">
 
         <!-- Banner com info -->
         <div class="bg-gradient-to-r from-[rgb(9,37,121)] to-blue-800 p-6 text-white flex flex-col md:flex-row items-center gap-6">
@@ -216,7 +216,7 @@ const onImagemChange = (e) => {
               @click="editandoPerfil ? guardarPerfil() : (editandoPerfil = true)"
               :disabled="editandoPerfil && (salvando || !form.nome.trim())"
               class="px-6 py-2 bg-[rgb(9,37,121)] text-white rounded-lg hover:bg-blue-900 font-medium text-sm transition disabled:opacity-50">
-              {{ editandoPerfil ? (salvando ? 'A guardar...' : 'Guardar') : '✏️ Editar Perfil' }}
+              {{ editandoPerfil ? (salvando ? 'A guardar...' : 'Guardar') : 'Editar Perfil' }}
             </button>
             <button v-if="editandoPerfil" @click="editandoPerfil = false; preencherForm(jogador)"
               class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-medium text-sm transition">
@@ -240,7 +240,6 @@ const onImagemChange = (e) => {
         </div>
 
         <div v-if="!stats || stats.jogos === 0" class="text-center py-10 text-gray-400">
-          <div class="text-4xl mb-2">🏃</div>
           <p>Nenhum jogo encontrado.</p>
         </div>
 
