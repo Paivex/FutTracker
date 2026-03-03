@@ -132,7 +132,7 @@ const onImagemChange = (e) => {
     <template v-else>
 
       <!-- Cabeçalho da conta -->
-      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col md:flex-row items-center gap-6">
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col md:flex-row items-center gap-6 mt-6">
         <div class="w-16 h-16 rounded-full bg-[rgb(9,37,121)] flex items-center justify-center text-white text-2xl font-bold shrink-0">
           {{ user?.username?.charAt(0)?.toUpperCase() || '?' }}
         </div>
@@ -141,11 +141,7 @@ const onImagemChange = (e) => {
           <p class="text-gray-500 text-sm">{{ user?.email }}</p>
         </div>
         <div class="flex items-center gap-3">
-          <span v-if="perfilCompleto"
-            class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-green-100 text-green-700 text-sm font-medium">
-            ✅ Perfil Completo
-          </span>
-          <span v-else
+          <span v-if="!perfilCompleto"
             class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-orange-100 text-orange-700 text-sm font-medium">
             ⚠️ Adiciona os teus dados para completar o perfil
           </span>
@@ -176,29 +172,23 @@ const onImagemChange = (e) => {
               </span>
             </div>
           </div>
-          <button
-            @click="editandoPerfil = !editandoPerfil"
-            class="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg text-sm font-medium transition shrink-0">
-            {{ editandoPerfil ? '✕ Fechar' : '✏️ Editar Perfil' }}
-          </button>
         </div>
 
-        <!-- Formulário de edição inline -->
-        <div v-if="editandoPerfil" class="p-6 border-t border-gray-100 bg-gray-50">
-          <h4 class="font-semibold text-gray-700 mb-4">Editar Perfil</h4>
+        <!-- Formulário sempre visível -->
+        <div class="p-6 border-t border-gray-100 bg-gray-50">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label class="block text-sm font-medium text-gray-600 mb-1">
                 Nome <span class="text-red-400">*</span>
               </label>
-              <input v-model="form.nome" type="text"
+              <input v-model="form.nome" type="text" :disabled="!editandoPerfil"
                 placeholder="O teu nome"
-                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-white disabled:text-gray-800 disabled:cursor-default" />
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-600 mb-1">Pé Preferencial <span class="text-red-400">*</span></label>
-              <select v-model="form.pePreferencial"
-                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <select v-model="form.pePreferencial" :disabled="!editandoPerfil"
+                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-white disabled:text-gray-800 disabled:cursor-default">
                 <option value="">Selecionar...</option>
                 <option value="Direito">Direito</option>
                 <option value="Esquerdo">Esquerdo</option>
@@ -207,26 +197,28 @@ const onImagemChange = (e) => {
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-600 mb-1">Data de Nascimento <span class="text-red-400">*</span></label>
-              <input v-model="form.dataNascimento" type="date"
-                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              <input v-model="form.dataNascimento" type="date" :disabled="!editandoPerfil"
+                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-white disabled:text-gray-800 disabled:cursor-default" />
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-600 mb-1">Altura (cm) <span class="text-red-400">*</span></label>
-              <input v-model.number="form.altura" type="number" min="100" max="230"
+              <input v-model.number="form.altura" type="number" min="100" max="230" :disabled="!editandoPerfil"
                 placeholder="Ex: 175"
-                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-white disabled:text-gray-800 disabled:cursor-default" />
             </div>
-            <div class="md:col-span-2">
+            <div class="md:col-span-2" v-if="editandoPerfil">
               <label class="block text-sm font-medium text-gray-600 mb-1">Foto <span class="text-gray-400 font-normal">(opcional)</span></label>
               <input type="file" accept="image/*" @change="onImagemChange" class="text-sm text-gray-500" />
             </div>
           </div>
           <div class="mt-4 flex gap-3">
-            <button @click="guardarPerfil" :disabled="salvando || !form.nome.trim()"
+            <button
+              @click="editandoPerfil ? guardarPerfil() : (editandoPerfil = true)"
+              :disabled="editandoPerfil && (salvando || !form.nome.trim())"
               class="px-6 py-2 bg-[rgb(9,37,121)] text-white rounded-lg hover:bg-blue-900 font-medium text-sm transition disabled:opacity-50">
-              {{ salvando ? 'A guardar...' : 'Guardar' }}
+              {{ editandoPerfil ? (salvando ? 'A guardar...' : 'Guardar') : '✏️ Editar Perfil' }}
             </button>
-            <button @click="editandoPerfil = false"
+            <button v-if="editandoPerfil" @click="editandoPerfil = false; preencherForm(jogador)"
               class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-medium text-sm transition">
               Cancelar
             </button>
