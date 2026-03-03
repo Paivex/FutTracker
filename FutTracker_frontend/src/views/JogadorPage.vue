@@ -4,7 +4,6 @@ import { useRoute, useRouter } from 'vue-router'
 import { Store } from '../utils/store.js'
 import { Utils } from '../utils/utils.js'
 import { Engine } from '../utils/engine.js'
-//import { isAdmin } from '../utils/admin.js'
 
 const route = useRoute()
 const router = useRouter()

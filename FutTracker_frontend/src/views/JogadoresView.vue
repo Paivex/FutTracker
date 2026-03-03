@@ -3,23 +3,18 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { Store } from '../utils/store.js'
 import { Engine } from '../utils/engine.js'
-//import { isAdmin } from '../utils/admin.js'
 
 const jogadores = ref([])
 const jogos = ref([])
 const pesquisaJogador = ref('')
 const router = useRouter()
 
-//const isAdmin = ref(false)
 const mostrarGestao = ref(false)
 const novoNome = ref('')
 const loading = ref(true)
 
 onMounted(async () => {
     await carregarDados()
-    //if (localStorage.getItem('modoAdmin') === 'true') {
-    //    isAdmin.value = true
-    //}
 })
 
 const carregarDados = async () => {

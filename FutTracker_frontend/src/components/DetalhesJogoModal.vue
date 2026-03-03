@@ -5,8 +5,7 @@ import { Utils } from '../utils/utils.js'
 
 const props = defineProps({
   jogo: Object,
-  jogadores: Array,
-  //isAdmin: Boolean
+  jogadores: Array
 })
 
 const emit = defineEmits(['close', 'delete'])
@@ -121,7 +120,6 @@ const getRatingColor = (r) => {
                 </div>
             </div>
 
-            <!---->
             <div v-if="isAdmin" class="mt-8 pt-4 border-t flex justify-center">
                 <button @click="$emit('delete', jogo.id)" class="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 font-bold text-sm flex items-center gap-2">
                     🗑️ Eliminar Jogo (Irreversível)
