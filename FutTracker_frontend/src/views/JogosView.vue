@@ -3,7 +3,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { Store } from '../utils/store.js'
 import { Utils } from '../utils/utils.js'
-import { isAdmin } from '../utils/admin.js'
+//import { isAdmin } from '../utils/admin.js'
 import NovoJogoModal from '../components/NovoJogoModal.vue'
 
 const router = useRouter()

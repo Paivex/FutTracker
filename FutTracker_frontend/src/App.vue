@@ -3,7 +3,7 @@ import { ref, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { Utils } from './utils/utils.js'
 import { Store } from './utils/store.js'
-import { isAdmin } from './utils/admin.js'
+//import { isAdmin } from './utils/admin.js'
 
 const router = useRouter()
 const route = useRoute()
@@ -32,36 +32,36 @@ watch(() => route.path, () => {
 })
 
 onMounted(() => {
-  if (localStorage.getItem('modoAdmin') === 'true') isAdmin.value = true
+  //if (localStorage.getItem('modoAdmin') === 'true') isAdmin.value = true
   username.value = localStorage.getItem('username') || ''
   carregarUser()
 })
 
-const alternarAdmin = async () => {
-  if (isAdmin.value) {
-    isAdmin.value = false
-    localStorage.removeItem('modoAdmin')
-    alert("Modo Admin: DESATIVADO 🔒")
-  } else {
-    const pass = prompt("Insira a password de Admin:")
-    if (pass) {
-      const hash = await Utils.sha256(pass)
-      const HASH = "a1cc9e7d482da312018a0b3bb0b4c3adae351836eaa4314a57f61b14c3d5c026"
-      if (hash === HASH) {
-        isAdmin.value = true
-        localStorage.setItem('modoAdmin', 'true')
-        alert("Modo Admin: ATIVADO 🔓")
-      } else {
-        alert("Password errada!")
-      }
-    }
-  }
-}
+//const alternarAdmin = async () => {
+//  if (isAdmin.value) {
+//    isAdmin.value = false
+//    localStorage.removeItem('modoAdmin')
+//    alert("Modo Admin: DESATIVADO 🔒")
+//  } else {
+//    const pass = prompt("Insira a password de Admin:")
+//    if (pass) {
+//      const hash = await Utils.sha256(pass)
+//      const HASH = "a1cc9e7d482da312018a0b3bb0b4c3adae351836eaa4314a57f61b14c3d5c026"
+//      if (hash === HASH) {
+//        isAdmin.value = true
+//        localStorage.setItem('modoAdmin', 'true')
+//        alert("Modo Admin: ATIVADO 🔓")
+//      } else {
+//        alert("Password errada!")
+//      }
+//    }
+//  }
+//}
 
 const handleLogout = () => {
   if (confirm('Tem a certeza que quer sair?')) {
     Store.logout()
-    isAdmin.value = false
+    //isAdmin.value = false
     isLoggedIn.value = false
     localStorage.removeItem('ligaSelecionada')
     router.push('/login')
@@ -106,7 +106,7 @@ const handleLogout = () => {
     </header>
 
     <router-view />
-
+<!--
     <button
       v-if="isLoggedIn"
       @click="alternarAdmin"
@@ -114,6 +114,6 @@ const handleLogout = () => {
       :class="isAdmin ? 'bg-green-600 text-white hover:bg-green-700' : 'bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-900'">
       <span class="text-2xl">{{ isAdmin ? '🔓' : '🔒' }}</span>
     </button>
-
+-->
   </div>
 </template>

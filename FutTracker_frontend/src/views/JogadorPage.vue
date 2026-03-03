@@ -4,7 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { Store } from '../utils/store.js'
 import { Utils } from '../utils/utils.js'
 import { Engine } from '../utils/engine.js'
-import { isAdmin } from '../utils/admin.js'
+//import { isAdmin } from '../utils/admin.js'
 
 const route = useRoute()
 const router = useRouter()
@@ -250,22 +250,11 @@ const voltar = () => router.push({ name: 'jogadores' })
                 <img v-if="form.imagem || jogador.imagem" :src="form.imagem || jogador.imagem" class="w-full h-full object-cover">
                 <div v-else class="w-full h-full flex items-center justify-center text-5xl text-gray-300">👤</div>
               </div>
-              <div v-if="isAdmin" class="w-full space-y-2">
-                <input type="file" accept="image/*" @change="atualizarFoto" class="block w-full text-xs text-gray-500 file:mr-2 file:py-1 file:px-3 file:rounded file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
-                <button v-if="form.imagem || jogador.imagem" @click="removerFoto" class="w-full px-2 py-1 text-xs bg-red-100 text-red-700 rounded hover:bg-red-200 font-medium">🗑️ Remover Foto</button>
-              </div>
             </div>
 
             <div class="flex-1 bg-white border border-gray-200 rounded-lg p-4 space-y-4 h-fit">
               <div class="flex justify-between items-center border-b pb-2">
                 <h4 class="font-bold text-gray-700">Dados Pessoais</h4>
-                <div v-if="isAdmin">
-                  <button v-if="!emEdicao" @click="toggleEdicao" class="text-xs px-3 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 font-bold flex items-center gap-1">✏️ Editar</button>
-                  <div v-else class="flex gap-2">
-                    <button @click="toggleEdicao" class="text-xs px-3 py-1 bg-gray-200 text-gray-600 rounded hover:bg-gray-300 font-bold">Cancelar</button>
-                    <button @click="guardarAlteracoes" class="text-xs px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 font-bold">💾 Guardar</button>
-                  </div>
-                </div>
               </div>
 
               <div class="space-y-3">

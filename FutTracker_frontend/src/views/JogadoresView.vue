@@ -3,7 +3,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { Store } from '../utils/store.js'
 import { Engine } from '../utils/engine.js'
-import { isAdmin } from '../utils/admin.js'
+//import { isAdmin } from '../utils/admin.js'
 
 const jogadores = ref([])
 const jogos = ref([])
