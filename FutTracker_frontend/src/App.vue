@@ -46,7 +46,7 @@ const handleLogout = () => {
 </script>
 
 <template>
-  <div class="min-h-screen pb-20" style="background-image: url('/background.webp'); background-size: cover; background-position: center; background-attachment: fixed;">
+  <div class="min-h-screen" style="background-image: url('/background.webp'); background-size: cover; background-position: center; background-attachment: fixed;">
 
     <header v-if="isLoggedIn" class="bg-gradient-to-r from-[rgb(9,37,121)] to-[rgb(9,37,121)] text-white shadow-lg">
       <div class="container mx-auto px-4 py-4 flex justify-between items-center">
